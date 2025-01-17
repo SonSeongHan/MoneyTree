@@ -26,7 +26,7 @@
 //@Log4j2
 //@RequiredArgsConstructor
 //@EnableMethodSecurity
-//public class PlayerSecurityConfig {
+//public class MemberSecurityConfig {
 //
 //    @Bean
 //    public PasswordEncoder passwordEncoder() {
