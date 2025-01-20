@@ -1,6 +1,6 @@
-package com.moneytree_back.login.repository;
+package com.moneytree_back.repository;
 
-import com.moneytree_back.login.domain.Member;
+import com.moneytree_back.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

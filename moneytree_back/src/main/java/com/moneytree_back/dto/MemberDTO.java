@@ -1,4 +1,4 @@
-package com.moneytree_back.login.dto;
+package com.moneytree_back.dto;
 
 import lombok.Getter;
 import lombok.Setter;
