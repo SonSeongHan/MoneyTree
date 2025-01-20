@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -29,7 +30,7 @@ public class DepositAccount {
     // @Column(name = "dep") // 멤버는 보류
 
     @Column(name = "deposit_amount", nullable = false, precision = 15, scale = 2)
-    private Double depositAmount;
+    private BigDecimal depositAmount;
 
     @Column(name = "deposit_start_date", nullable = false)
     private LocalDate depositStartDate;
