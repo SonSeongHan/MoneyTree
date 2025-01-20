@@ -35,10 +35,10 @@ function NavBar() {
           {showProductDropdown && (
             <ul className="dropdown">
               <li>
-                <NavLink to="/products/deposit-saving">예금</NavLink>
+                <NavLink to="/products/deposit-saving">예금/적금</NavLink>
               </li>
               <li>
-                <NavLink to="/products/installment-saving">적금</NavLink>
+                <NavLink to="/products/installment-saving">펀드/주식</NavLink>
               </li>
             </ul>
           )}
