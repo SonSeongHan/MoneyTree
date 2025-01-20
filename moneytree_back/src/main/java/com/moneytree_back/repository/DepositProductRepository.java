@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface DepositProductRepository extends JpaRepository<DepositProduct, 
     List<DepositProduct> findByBankName(String bankName);
 
     // 2. 최소 가입 금액 이상인 예금 상품 조회
-    List<DepositProduct> findByDepositMinAmountGreaterThanEqual(Double minAmount);
+    List<DepositProduct> findByDepositMinAmountGreaterThanEqual(BigDecimal depositMinAmount);
 
     // 3. 만기 기간별 예금 상품 조회
     List<DepositProduct> findByDepositMaturityPeriod(Integer maturityPeriod);

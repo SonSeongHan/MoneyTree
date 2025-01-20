@@ -1,11 +1,17 @@
 package com.moneytree_back.service;
 
 import com.moneytree_back.dto.DepositProductDTO;
-import org.python.icu.math.BigDecimal;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface DepositProductService {
+    // API 데이터를 저장
+    void saveDepositProducts(List<DepositProductDTO> depositProductDTOs);
+
+    // 서버 실행 시 API 데이터를 가져와 저장
+    void fetchAndStoreDepositProducts();
+
     // 모든 예금 상품 조회
     List<DepositProductDTO> getAllDepositProducts();
 
@@ -16,7 +22,7 @@ public interface DepositProductService {
     List<DepositProductDTO> getDepositProductsByBankName(String bankName);
 
     // 최소 금액 이상의 예금 상품 조회
-    List<DepositProductDTO> getDepositProductsByMinAmount(BigDecimal minAmount);
+    List<DepositProductDTO> getDepositProductsByMinAmount(BigDecimal depositMinAmount);
 
     // 예금 상품 생성
     DepositProductDTO createDepositProduct(DepositProductDTO depositProductDTO);
@@ -26,5 +32,4 @@ public interface DepositProductService {
 
     // 예금 상품 삭제
     void deleteDepositProduct(Long depositProductId);
-
 }
