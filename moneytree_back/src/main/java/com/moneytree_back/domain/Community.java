@@ -18,7 +18,7 @@ public class Community {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
-    private Long id;
+    private Long postId;
 
 //MemberType을 도메인에 생성했지만 테이블의 현재 상태는 NOT NULL이 아니므로 NULL 상태도 통과됨
     @Enumerated(EnumType.STRING)
@@ -27,6 +27,10 @@ public class Community {
 
 //    @Column(name = "member_type")
 //    private String member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "post_type")
+    private PostType postType;
 
     @Column(name="title",nullable = false)
     private String title;
