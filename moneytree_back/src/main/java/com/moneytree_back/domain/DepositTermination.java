@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -32,10 +31,10 @@ public class DepositTermination {
     private TerminationType terminationType;
 
     @Column(name = "termination_rate", nullable = false, precision = 5, scale = 2)
-    private BigDecimal terminationRate;
+    private Double terminationRate;
 
     @Column(name = "termination_final_amount", nullable = false, precision = 15, scale = 2)
-    private BigDecimal terminationFinalAmount;
+    private Double terminationFinalAmount;
 
     @Column(name = "termination_date", nullable = false)
     private LocalDate terminationDate;
