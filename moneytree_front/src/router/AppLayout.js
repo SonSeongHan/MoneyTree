@@ -1,17 +1,19 @@
-// src/layouts/AppLayout.jsx
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import NavBar from '../components/Navbar'; // 네비게이션 컴포넌트
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
-function AppLayout() {
-    return (
-        <div>
-            {/* 상단 네비게이션 */}
-            <NavBar />
-            {/* 자식 라우트가 표시될 영역 */}
-            <Outlet />
-        </div>
-    );
-}
+const AppLayout = () => {
+  const location = useLocation();
+
+  // 로그인 페이지에서는 Navbar 숨기기
+  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
+
+  return (
+    <div>
+      {!isLoginPage && <Navbar />}
+      <Outlet />
+    </div>
+  );
+};
 
 export default AppLayout;
