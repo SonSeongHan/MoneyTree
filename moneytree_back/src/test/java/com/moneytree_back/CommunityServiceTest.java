@@ -28,9 +28,9 @@ public class CommunityServiceTest {
 
         CommunityDTO communityDTO = new CommunityDTO();
         communityDTO.setTitle("ㅋㅋ");
-        communityDTO.setContent("어 애들아 형이야");
+        communityDTO.setContent("어 애들아 나야");
         communityDTO.setMembershipType("FullMember");
-        communityDTO.setPostType("HOBBY");
+        communityDTO.setPostType("REAL_ESTATE");
         communityDTO.setImageUrl("http://example.com/admin-test.jpg");
         communityDTO.setCreatedAt(LocalDateTime.now());
 
