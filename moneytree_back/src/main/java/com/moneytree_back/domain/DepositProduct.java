@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class DepositProduct {
     private String depositJoinWay;
 
     @Column(name = "deposit_min_amount", precision = 15, scale =2)
-    private Double depositMinAmount;
+    private BigDecimal depositMinAmount;
 
     @Column(name = "deposit_maturity_period") // 만기 날짜로 할지 만기 기간으로 할지
     private Integer depositMaturityPeriod; // 개월
@@ -43,7 +44,7 @@ public class DepositProduct {
     private LocalDateTime depositProductCreatedAt;
 
     @UpdateTimestamp
-    @Column(name = "deposit_product_created_at")
+    @Column(name = "deposit_product_updated_at")
     private LocalDateTime depositProductUpdatedAt;
 
     @OneToMany(mappedBy = "depositProduct", cascade = CascadeType.ALL, orphanRemoval = true)
