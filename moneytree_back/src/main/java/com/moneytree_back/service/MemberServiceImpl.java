@@ -1,9 +1,9 @@
-package com.moneytree_back.service;
+package com.moneytree_back.login.service;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.domain.MembershipType;
-import com.moneytree_back.dto.MemberDTO;
-import com.moneytree_back.repository.MemberRepository;
+import com.moneytree_back.login.domain.Member;
+import com.moneytree_back.login.domain.MembershipType;
+import com.moneytree_back.login.dto.MemberDTO;
+import com.moneytree_back.login.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,71 +21,96 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member createMember(MemberDTO memberDTO) {
+        // 1. member_id 중복 검사
+        if (memberRepository.existsByMemberId(memberDTO.getMember_id())) {
+            throw new IllegalArgumentException("이미 사용 중인 member_id입니다.");
+        }
+
+
+        // 2. 주민등록번호 중복 검사
+        if (memberRepository.existsByResidentRegistrationNumber(memberDTO.getResidentRegistrationNumber())) {
+            throw new IllegalArgumentException("이미 가입된 주민등록번호입니다.");
+        }
+
+        // 3. 전화번호 중복 검사
+        if (memberRepository.existsByMemberPhoneNumber(memberDTO.getMember_phoneNumber())) {
+            throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
+        }
+
+        // 4. DTO -> Entity 변환
         Member member = new Member();
-
-        // 기본 정보 세팅
-        member.setName(memberDTO.getName());
+        member.setMemberId(memberDTO.getMember_id());
+        member.setMember_name(memberDTO.getMember_name());
         member.setResidentRegistrationNumber(memberDTO.getResidentRegistrationNumber());
-        member.setPassword(memberDTO.getPassword());
-        member.setPhoneNumber(memberDTO.getPhoneNumber());
-        member.setJob(memberDTO.getJob());
-        member.setCreditScore(memberDTO.getCreditScore());
-        member.setCreatedAt(LocalDateTime.now());
+        member.setMemberpassword(memberDTO.getMember_password());
+        member.setMemberPhoneNumber(memberDTO.getMember_phoneNumber());
+        member.setMember_job(memberDTO.getMember_job());
+        member.setMember_creditScore(memberDTO.getMember_creditScore());
+        member.setMember_created_day(LocalDateTime.now());
 
-        // membershipType 결정 로직
+        // 주민등록번호 검증 (길이 확인)
         String rrn = memberDTO.getResidentRegistrationNumber();
-        String requestedMembershipType = memberDTO.getMembershipType();
+        if (rrn == null || rrn.length() != 13) {
+            throw new IllegalArgumentException("주민등록번호는 13자리여야 합니다.");
+        }
+        member.setResidentRegistrationNumber(rrn);
 
-        if (requestedMembershipType != null && !requestedMembershipType.isBlank()) {
-            // membershipType을 직접 지정한 경우 (ADMIN, 매니저 등)
-            member.setMembershipType(MembershipType.valueOf(requestedMembershipType));
+        // 계좌 정보에 따라 회원 유형 결정
+        if (memberDTO.getAccountNumber() == null || memberDTO.getAccountNumber().isEmpty()) {
+            member.setMembershipType(MembershipType.SimpleMember);
         } else {
-            // 주민등록번호 7자리 -> 간편회원, 13자리 -> 정회원
-            if (rrn != null) {
-                if (rrn.length() == 7) {
-                    member.setMembershipType(MembershipType. SimpleMember);
-                } else if (rrn.length() == 13) {
-                    member.setMembershipType(MembershipType.FullMember);
-                } else {
-                    throw new IllegalArgumentException("주민등록번호 길이가 유효하지 않습니다.");
-                }
-            } else {
-                // rrn이 null이면 기본적으로 간편회원
-                member.setMembershipType(MembershipType.SimpleMember);
-            }
+            member.setMembershipType(MembershipType.FullMember);
         }
 
-        // 나이 계산(주민등록번호가 13자리일 때만)
-        if (rrn != null && rrn.length() == 13) {
-            member.setAge(calculateAgeFromRRN(rrn));
-        } else {
-            member.setAge(null);
-        }
+        // 회원 나이 계산
+        member.setMember_age(calculateAgeFromRRN(rrn));
 
-        // 주소 유효성 체크 (정회원은 주소 필수)
+        // 정회원 검증 (주소 필수)
         if (member.getMembershipType() == MembershipType.FullMember) {
-            if (memberDTO.getAddress() == null || memberDTO.getAddress().isEmpty()) {
-                throw new IllegalArgumentException("정회원은 주소가 필수입니다.");
+            if (memberDTO.getMember_address() == null || memberDTO.getMember_address().isEmpty()) {
+                throw new IllegalArgumentException("정회원(FullMember)은 주소가 필수입니다.");
             }
         }
-        member.setAddress(memberDTO.getAddress());
+        member.setMember_address(memberDTO.getMember_address());
 
-        // 계좌번호 생성 (간편회원, 정회원만)
-        if (member.getMembershipType() == MembershipType.SimpleMember
-                || member.getMembershipType() == MembershipType.FullMember) {
-            member.setAccountNumber(generateAccountNumber());
-        } else {
-            member.setAccountNumber(null);
-        }
-
-        // 저장
+        // 5. DB 저장
         return memberRepository.save(member);
     }
 
-    /**
-     * 주민등록번호(13자리)로 나이 계산
-     *  - 예: YYMMDD + 성별코드
-     */
+    @Override
+    public Member modifyMember(String id, MemberDTO memberDTO) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
+
+        member.setMember_name(memberDTO.getMember_name());
+        member.setMember_address(memberDTO.getMember_address());
+        member.setMemberPhoneNumber(memberDTO.getMember_phoneNumber());
+        member.setMember_job(memberDTO.getMember_job());
+        member.setMember_creditScore(memberDTO.getMember_creditScore());
+
+        return memberRepository.save(member);
+    }
+
+
+    @Override
+    public Member login(MemberDTO loginDTO) {
+        if (loginDTO.getResidentRegistrationNumber() == null || loginDTO.getResidentRegistrationNumber().isBlank()) {
+            throw new IllegalArgumentException("주민등록번호는 필수 입력 항목입니다.");
+        }
+        if (loginDTO.getMember_password() == null || loginDTO.getMember_password().isBlank()) {
+            throw new IllegalArgumentException("비밀번호는 필수 입력 항목입니다.");
+        }
+        if (loginDTO.getResidentRegistrationNumber().length() != 13) {
+            throw new IllegalArgumentException("주민등록번호는 13자리여야 합니다.");
+        }
+
+        return memberRepository.findByResidentRegistrationNumberAndMemberpassword(
+                loginDTO.getResidentRegistrationNumber(),
+                loginDTO.getMember_password()
+        ).orElseThrow(() -> new IllegalArgumentException("로그인 정보가 올바르지 않습니다."));
+    }
+
+    // 주민등록번호를 바탕으로 나이 계산
     private Integer calculateAgeFromRRN(String rrn) {
         String yearStr = rrn.substring(0, 2);
         String monthStr = rrn.substring(2, 4);
@@ -97,24 +121,16 @@ public class MemberServiceImpl implements MemberService {
         int month = Integer.parseInt(monthStr);
         int day = Integer.parseInt(dayStr);
 
-        // 1,2 -> 1900년대생 / 3,4 -> 2000년대생 (간단 로직)
+        // 성별에 따라 1900 혹은 2000년대 결정
         if (genderCode == '1' || genderCode == '2') {
             year += 1900;
         } else if (genderCode == '3' || genderCode == '4') {
             year += 2000;
         } else {
-            // 기본값으로 1900년대생 처리
             year += 1900;
         }
 
         LocalDate birthDate = LocalDate.of(year, month, day);
         return Period.between(birthDate, LocalDate.now()).getYears();
-    }
-
-    /**
-     * 계좌번호 생성 예시 (실제 서비스라면 은행코드/난수규칙 등 적용)
-     */
-    private String generateAccountNumber() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 14);
     }
 }
