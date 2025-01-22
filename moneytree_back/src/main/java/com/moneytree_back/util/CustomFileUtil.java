@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor  // 실제 파일 저장 역할
 public class CustomFileUtil { // 파일 데이터 입출력을 담당
 
-    @Value("${game_store.upload.path}")
+    @Value("${moneytree_back.upload.path}")
     private String uploadPath;
     //파일을 저장할 디렉터리가 있는지 확인/없으면 생성
     @PostConstruct
