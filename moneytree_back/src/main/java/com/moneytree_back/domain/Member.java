@@ -1,5 +1,6 @@
-package com.moneytree_back.login.domain;
+package com.moneytree_back.domain;
 
+import com.moneytree_back.domain.MembershipType;
 import jakarta.persistence.*;
 import lombok.*;
 

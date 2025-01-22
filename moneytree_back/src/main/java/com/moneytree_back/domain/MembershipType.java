@@ -1,4 +1,4 @@
-package com.moneytree_back.login.domain;
+package com.moneytree_back.domain;
 
 public enum MembershipType {
 

@@ -2,15 +2,15 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import AppLayout from '../router/AppLayout';
-<<<<<<< HEAD
+
 import CommuAdd from '../pages/community/CommuAdd';
 import CommuCheck from '../pages/community/CommuCheck';
-=======
+
 import LoginPage from '../pages/member/LoginPage';
 import MakeMember from '../pages/member/MakeMember';
 import SimpleMakeMember from '../pages/member/SimpleMakeMember';
 import MakeAccount from '../pages/member/MakeAaccount';
->>>>>>> 05078882ae2d0c8fc9b24babf884ef8c9298696d
+
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
