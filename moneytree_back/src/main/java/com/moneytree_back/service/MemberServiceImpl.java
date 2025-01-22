@@ -4,7 +4,6 @@ import com.moneytree_back.domain.Member;
 import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.MemberDTO;
 import com.moneytree_back.repository.MemberRepository;
-import com.moneytree_back.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

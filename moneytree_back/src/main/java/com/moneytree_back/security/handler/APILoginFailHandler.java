@@ -16,15 +16,20 @@ import java.util.Map;
 public class APILoginFailHandler implements AuthenticationFailureHandler{
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
-            throws IOException, ServletException{
-        log.info("Login fail...."+ exception);
+    public void onAuthenticationFailure(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException exception
+    ) throws IOException, ServletException {
+        log.info("Login fail...." + exception);
 
+        // 실패 시 적절한 상태코드 (401 Unauthorized 등)
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=utf-8");
+
+        // 에러 메시지 JSON
         Gson gson = new Gson();
-
         String jsonStr = gson.toJson(Map.of("error", "ERROR_LOGIN"));
-
-        response.setContentType("application/json");
 
         PrintWriter printWriter = response.getWriter();
         printWriter.println(jsonStr);
