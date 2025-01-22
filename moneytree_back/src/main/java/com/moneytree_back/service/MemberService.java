@@ -1,11 +1,13 @@
-package com.moneytree_back.login.service;
+package com.moneytree_back.service;
 
-import com.moneytree_back.login.domain.Member;
-import com.moneytree_back.login.dto.MemberDTO;
+import com.moneytree_back.domain.Member;
+import com.moneytree_back.dto.MemberDTO;
 
 public interface MemberService {
     Member createMember(MemberDTO memberDTO);
 
     Member modifyMember(String id, MemberDTO memberDTO);
-    Member login(MemberDTO loginDTO); // 로그인 로직
+
+    // 로그인 로직 - 회원 타입(간편/정회원)에 따라 분기
+    Member login(MemberDTO loginDTO);
 }
