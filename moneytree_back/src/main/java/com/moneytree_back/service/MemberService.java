@@ -7,5 +7,7 @@ public interface MemberService {
     Member createMember(MemberDTO memberDTO);
 
     Member modifyMember(String id, MemberDTO memberDTO);
-    Member login(MemberDTO loginDTO); // 로그인 로직
+
+    // 로그인 로직 - 회원 타입(간편/정회원)에 따라 분기
+    Member login(MemberDTO loginDTO);
 }
