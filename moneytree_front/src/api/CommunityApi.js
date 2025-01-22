@@ -5,18 +5,19 @@ import axios from 'axios';
 //실제 배포시 proxy를 제거하고 배포해야함
 
 // const API_BASE_URL = 'http://localhost:8080/api/communities';
+const API_BASE_URL = 'api/communities'
 
 //enum에서 Hobby 관련 커뮤티가 작성된것을 가져오는 api
 export const fetchHobbyCommunity = async  (page = 0,size = 10) =>{
   // const response = await axios.get(`${API_BASE_URL}?postType=HOBBY&page=${page}&size=${size}`)
-  const response = await  axios.get(`api/communitites?postType=HOBBY&page=${page}&size=${size}`)
+  const response = await  axios.get(`${API_BASE_URL}?postType=HOBBY&page=${page}&size=${size}`)
   return response.data
 }
 
 //
 export const fetchRealEstateCommunity = async (page =0, size =10) =>{
   // const response = await  axios.get(`api/communitites?postType=HOBBY&page=${page}&size={size}`)
-  const response = await  axios.get(`api/communitites?postType=REAL_ESTATE&page=${page}&size=${size}`)
+  const response = await  axios.get(`api/communities?postType=REAL_ESTATE&page=${page}&size=${size}`)
   return response.data
 }
 

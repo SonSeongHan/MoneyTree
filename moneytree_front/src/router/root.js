@@ -2,6 +2,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import AppLayout from '../router/AppLayout';
+import CommuAdd from '../pages/community/CommuAdd';
+import CommuCheck from '../pages/community/CommuCheck';
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -81,12 +83,28 @@ const root = createBrowserRouter([
                 ),
             },
             {
-                path: 'community/hobby',
+                path: '/community/hobby',
                 element: (
                     <Suspense fallback={Loading}>
                         <HobbyCommunity />
                     </Suspense>
                 ),
+            },
+            {
+                path: 'community/hobby/add',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <CommuAdd />
+                  </Suspense>
+                )
+            },
+            {
+                path: 'community/check/:id',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <CommuCheck />
+                  </Suspense>
+                )
             },
             {
                 path: 'community/real-estate',
