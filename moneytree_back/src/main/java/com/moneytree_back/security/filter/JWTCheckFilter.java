@@ -2,6 +2,7 @@ package com.moneytree_back.security.filter;
 
 import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.MemberDTO;
+
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
 import jakarta.servlet.FilterChain;
@@ -11,45 +12,37 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Log4j2
-@Component // Spring 빈으로 등록
+@Log4j2             // 모든 요청에 대해 체크.
 public class JWTCheckFilter extends OncePerRequestFilter {
 
-    @Override
+    @Override   // 필터로 체크하지 않을 경로나 메서드(get/post)등을 지정하기 위해사용.
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // OPTIONS 요청은 필터링하지 않음
-        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+        // Preflight요청은 체크하지 않음
+        if (request.getMethod().equals("OPTIONS")) {
             return true;
         }
-
         String path = request.getRequestURI();
         String method = request.getMethod();
 
         log.info("check uri......................." + path);
+        //api/member/ 경로의 호출은 체크하지 않음
 
-        // /api/member/modify-pw는 필터링 처리
-
-        // /api/member/ 경로는 필터링하지 않음
-        if (path.startsWith("/api/member/")) {
+        // 이미지 조회 경로는 체크하지 않는다면
+        if (path.startsWith("/api/member/**")) {
             return true;
         }
 
-        // /api/member/make-account는 필터링하지 않음
-        if (path.startsWith("/api/accounts")) {
-            return true;
-        }
-
-        // 기본적으로 모든 요청은 필터링 처리
-        return true; //
+        return true;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -60,45 +53,41 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         String authHeaderStr = request.getHeader("Authorization");
 
         try {
-            // Authorization 헤더가 없는 경우 처리
             if (authHeaderStr == null || !authHeaderStr.startsWith("Bearer ")) {
-                throw new IllegalArgumentException("Authorization header is missing or invalid");
+                throw new IllegalArgumentException("Invalid Authorization header");
             }
 
-            // Bearer accessToken에서 토큰 추출
             String accessToken = authHeaderStr.substring(7);
             Map<String, Object> claims = JWTUtil.validateToken(accessToken);
 
             log.info("JWT claims: " + claims);
 
-            // JWT claims에서 데이터 추출
+            // JWT 클레임에서 필요한 데이터 추출
             String memberName = (String) claims.get("member_name");
-            String residentRegistrationNumber = (String) claims.get("residentRegistrationNumber");
+            String memberPassword = (String) claims.get("memberpassword");
             String membershipTypeStr = (String) claims.get("membershipType");
 
             // MembershipType Enum으로 변환
             MembershipType membershipType = MembershipType.valueOf(membershipTypeStr);
 
             // MemberDTO 생성
-            MemberDTO memberDTO = new MemberDTO(memberName, residentRegistrationNumber, membershipType);
+            MemberDTO memberDTO = new MemberDTO(memberName, memberPassword, membershipType);
 
-            log.info("-----------------------------------");
-            log.info(memberDTO);
-            log.info(memberDTO.getAuthorities());
+            // 디버깅 로그
+            log.info("Member Name: " + memberDTO.getMember_name());
+            log.info("Membership Type: " + membershipType.name());
 
-            // SecurityContext에 인증 정보 설정
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(memberDTO, memberPassword, memberDTO.getAuthorities());
+
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            // 필터 체인 진행
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             log.error("JWT Check Error..............");
             log.error(e.getMessage());
 
-            // 에러 메시지 응답
             Gson gson = new Gson();
             String msg = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
 

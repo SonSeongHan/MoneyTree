@@ -2,19 +2,22 @@ package com.moneytree_back.repository;
 
 import com.moneytree_back.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
 
-    // 중복 체크용 메서드 (예시)
+    // member_id 중복 체크
     boolean existsByMemberId(String memberId);
+
+    // 주민등록번호 중복 체크
     boolean existsByResidentRegistrationNumber(String rrn);
-    boolean existsByMemberPhoneNumber(String phone);
 
-    // 로그인(정회원) : 주민등록번호 + 비밀번호
-    Optional<Member> findByResidentRegistrationNumberAndMemberpassword(String rrn, String pw);
+    // 전화번호 중복 체크
+    boolean existsByMemberPhoneNumber(String phoneNumber);
 
-    // 로그인(간편회원) : 아이디 + 비밀번호
-    Optional<Member> findByMemberIdAndMemberpassword(String memberId, String pw);
+    // 로그인
+    Optional<Member> findByResidentRegistrationNumberAndMemberpassword(String rrn, String password);
 }
