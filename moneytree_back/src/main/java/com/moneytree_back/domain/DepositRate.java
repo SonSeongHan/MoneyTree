@@ -27,10 +27,16 @@ public class DepositRate {
     private DepositProduct depositProduct; // 외래 키
 
     @Column(name = "deposit_interest_rate", nullable = false, precision = 5, scale = 2)
-    private BigDecimal depositInterestRate;
+    private BigDecimal depositInterestRate; // 기본 금리
 
     @Column(name = "deposit_special_rate", precision = 5, scale = 2)
-    private BigDecimal depositSpecialRate; // 사용 여부는 선택
+    private BigDecimal depositSpecialRate; // 우대 금리
+
+    @Column(name = "deposit_condition", length = 500)
+    private String depositCondition; // 금리 적용 조건
+
+    @Column(name = "deposit_rate_description", length = 1000)
+    private String depositRateDescription; // 금리 적용 조건
 
     @CreationTimestamp
     @Column(name = "deposit_rate_created_at", updatable = false)

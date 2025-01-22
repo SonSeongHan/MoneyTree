@@ -2,6 +2,10 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import AppLayout from '../router/AppLayout';
+import LoginPage from '../pages/member/LoginPage';
+import MakeMember from '../pages/member/MakeMember';
+import SimpleMakeMember from '../pages/member/SimpleMakeMember';
+import MakeAccount from '../pages/member/MakeAaccount';
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -28,8 +32,40 @@ const root = createBrowserRouter([
                 index: true,
                 element: (
                     <Suspense fallback={Loading}>
-                        <Home />
+                        <LoginPage />
                     </Suspense>
+                ),
+            },
+            {
+                path: 'home',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <Home />
+                  </Suspense>
+                ),
+            },
+            {
+                path: 'make-account',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <MakeAccount />
+                  </Suspense>
+                ),
+            },
+            {
+                path: 'member/full/make',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <MakeMember />
+                  </Suspense>
+                ),
+            },
+            {
+                path: 'member/simple/make',
+                element: (
+                  <Suspense fallback={Loading}>
+                      <SimpleMakeMember />
+                  </Suspense>
                 ),
             },
             {

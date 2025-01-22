@@ -5,17 +5,18 @@ import com.moneytree_back.domain.DepositProduct;
 import com.moneytree_back.dto.DepositProductDTO;
 import com.moneytree_back.repository.DepositProductRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -25,6 +26,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class DepositProductServiceImpl implements DepositProductService {
 
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
     private final DepositProductRepository depositProductRepository; // 예금 상품 저장소
     private final WebClient webClient; // WebClient를 이용한 API 호출
     private final DepositApiConfig depositApiConfig; // API 관련 설정 정보
@@ -112,11 +115,22 @@ public class DepositProductServiceImpl implements DepositProductService {
             // 기존 데이터 삭제
             depositProductRepository.deleteAll();
 
+            // ID 시퀀스 초기화 (사용하는 DB에 따라 다른 방법 필요할 수 있음)
+            try {
+                EntityManager entityManager = entityManagerFactory.createEntityManager();
+                entityManager.getTransaction().begin();
+                entityManager.createNativeQuery("ALTER TABLE deposit_product AUTO_INCREMENT = 1").executeUpdate();
+                entityManager.getTransaction().commit();
+                entityManager.close();
+            } catch (Exception e) {
+                System.err.println("Failed to reset sequence: " + e.getMessage());
+            }
+
             List<DepositProductDTO> allProducts = new ArrayList<>();
             int pageNo = 1;
-            int maxPage = 3; // 최대 3페이지까지 조회
+            int maxPage = 20;
+            Set<String> productNames = new HashSet<>();
 
-            // 여러 페이지 조회
             while (pageNo <= maxPage) {
                 Map<String, Object> response = webClient.get()
                         .uri(depositApiConfig.getBaseUrl() + "?auth=" + depositApiConfig.getKey()
@@ -125,63 +139,108 @@ public class DepositProductServiceImpl implements DepositProductService {
                         .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                         .block();
 
-                if (response != null && response.containsKey("result")) {
-                    Map<String, Object> result = (Map<String, Object>) response.get("result");
-                    List<Map<String, Object>> baseList = (List<Map<String, Object>>) result.get("baseList");
+                if (response == null || !response.containsKey("result")) {
+                    break;
+                }
 
-                    if (baseList == null || baseList.isEmpty()) {
-                        break;
+                Map<String, Object> result = (Map<String, Object>) response.get("result");
+                List<Map<String, Object>> baseList = (List<Map<String, Object>>) result.get("baseList");
+
+                if (baseList == null || baseList.isEmpty()) {
+                    break;
+                }
+
+                for (Map<String, Object> item : baseList) {
+                    String productName = (String) item.get("fin_prdt_nm");
+                    String bankName = (String) item.get("kor_co_nm");
+                    String etcNote = (String) item.get("etc_note");
+
+                    if (productName == null || bankName == null || productNames.contains(productName)) {
+                        continue;
                     }
 
-                    List<DepositProductDTO> pageProducts = baseList.stream()
-                            .map(item -> {
-                                // 기존 매핑 로직 유지
-                                DepositProductDTO dto = new DepositProductDTO();
-                                dto.setDepositProductName((String) item.get("fin_prdt_nm"));
-                                dto.setBankName((String) item.get("kor_co_nm"));
-                                dto.setDepositJoinWay((String) item.get("join_way"));
+                    DepositProductDTO dto = new DepositProductDTO();
+                    dto.setDepositProductName(productName);
+                    dto.setBankName(bankName);
+                    dto.setDepositJoinWay((String) item.get("join_way"));
 
-                                // 최소금액 파싱
-                                String etcNote = (String) item.get("etc_note");
-                                BigDecimal minAmount = parseMinAmount(etcNote);
-                                if (minAmount != null) {
-                                    dto.setDepositMinAmount(minAmount);
-                                }
+                    BigDecimal minAmount = parseMinAmount(etcNote);
+                    if (minAmount == null) {
+                        minAmount = new BigDecimal("1000000");
+                    }
+                    dto.setDepositMinAmount(minAmount);
+                    dto.setDepositMaturityPeriod(generateRandomMaturityPeriod());
 
-                                // 만기 기간 설정 (6,12,24,36개월 중 랜덤)
-                                int[] maturityOptions = {6, 12, 24, 36};
-                                int randomIndex = (int) (Math.random() * maturityOptions.length);
-                                dto.setDepositMaturityPeriod(maturityOptions[randomIndex]);
-
-                                return dto;
-                            })
-                            .filter(dto -> dto.getDepositProductName() != null &&
-                                    dto.getBankName() != null &&
-                                    !dto.getBankName().isEmpty())
-                            .distinct()
-                            .collect(Collectors.toList());
-
-                    allProducts.addAll(pageProducts);
+                    productNames.add(productName);
+                    allProducts.add(dto);
                 }
+
                 pageNo++;
+
+                if (allProducts.size() >= 40) {
+                    break;
+                }
             }
 
-            // 중복 제거 후 30개 선택
-            List<DepositProductDTO> selectedProducts = allProducts.stream()
-                    .filter(dto -> dto.getDepositMinAmount() != null)
-                    .sorted(Comparator.comparing(DepositProductDTO::getDepositMinAmount))
-                    .distinct()
-                    .limit(30)
-                    .collect(Collectors.toList());
+            if (!allProducts.isEmpty()) {
+                List<DepositProductDTO> selectedProducts = selectProductsWithEvenDistribution(allProducts);
 
-            if (!selectedProducts.isEmpty()) {
-                saveDepositProducts(selectedProducts);
-                System.out.println("Total products saved: " + selectedProducts.size());
+                if (!selectedProducts.isEmpty()) {
+                    // ID를 1부터 순차적으로 설정
+                    for (int i = 0; i < selectedProducts.size(); i++) {
+                        DepositProduct entity = convertToEntity(selectedProducts.get(i));
+                        entity.setDepositProductId((long) (i + 1));  // ID를 1부터 시작하도록 설정
+                        depositProductRepository.save(entity);
+                    }
+                    System.out.println("Successfully saved " + selectedProducts.size() + " products with sequential IDs");
+                }
             }
         } catch (Exception e) {
             System.err.println("Error fetching deposit products: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // Entity 변환 메소드 추가
+    private DepositProduct convertToEntity(DepositProductDTO dto) {
+        DepositProduct entity = new DepositProduct();
+        entity.setDepositProductName(dto.getDepositProductName());
+        entity.setBankName(dto.getBankName());
+        entity.setDepositJoinWay(dto.getDepositJoinWay());
+        entity.setDepositMinAmount(dto.getDepositMinAmount());
+        entity.setDepositMaturityPeriod(dto.getDepositMaturityPeriod());
+        return entity;
+    }
+
+// 나머지 메소드들은 이전과 동일...
+
+    private List<DepositProductDTO> selectProductsWithEvenDistribution(List<DepositProductDTO> allProducts) {
+        if (allProducts.size() < 30) {
+            return allProducts; // 30개 미만이면 전체 반환
+        }
+
+        // 최소금액 기준으로 정렬
+        allProducts.sort(Comparator.comparing(DepositProductDTO::getDepositMinAmount));
+
+        List<DepositProductDTO> selectedProducts = new ArrayList<>();
+        int totalProducts = allProducts.size();
+        int targetSize = 30;
+
+        // 균등한 간격으로 선택
+        double step = (double) (totalProducts - 1) / (targetSize - 1);
+        for (int i = 0; i < targetSize; i++) {
+            int index = Math.min((int) (i * step), totalProducts - 1);
+            selectedProducts.add(allProducts.get(index));
+        }
+
+        // 선택된 상품들을 랜덤하게 섞기
+        Collections.shuffle(selectedProducts);
+        return selectedProducts;
+    }
+
+    private int generateRandomMaturityPeriod() {
+        int[] maturityOptions = {6, 12, 24, 36};
+        return maturityOptions[new Random().nextInt(maturityOptions.length)];
     }
 
     private BigDecimal parseMinAmount(String etcNote) {
@@ -190,14 +249,12 @@ public class DepositProductServiceImpl implements DepositProductService {
         }
 
         try {
-            // 최소금액/최저금액 관련 문구 찾기
             String[] patterns = {"최소[^0-9]*([0-9]+)", "최저[^0-9]*([0-9]+)"};
             for (String pattern : patterns) {
                 Pattern r = Pattern.compile(pattern);
                 Matcher m = r.matcher(etcNote);
                 if (m.find()) {
                     String amount = m.group(1);
-                    // 만원 단위로 되어있으면 10000 곱하기
                     if (etcNote.contains("만원")) {
                         return new BigDecimal(amount).multiply(new BigDecimal("10000"));
                     }

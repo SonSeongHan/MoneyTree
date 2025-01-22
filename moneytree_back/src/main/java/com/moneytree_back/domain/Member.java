@@ -1,11 +1,12 @@
-package com.moneytree_back.domain;
+package com.moneytree_back.login.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "members")
+@Table(name = "member")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,41 +14,44 @@ import java.time.LocalDateTime;
 @Builder
 public class Member {
 
+    // 여기서는 member_id를 String PK로 사용
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "member_id", nullable = false)
+    private String memberId;
 
     // 이름
-    private String name;
+    private String member_name;
 
-    // 주민등록번호(7자리 or 13자리)
+    // 주민등록번호(13자리) - 여기서는 DB 컬럼명 자동 생성
     private String residentRegistrationNumber;
 
     // 비밀번호
-    private String password;
+    private String memberpassword;
 
-    // 나이(자동 계산: RRN이 13자리일 때 계산)
-    private Integer age;
+    // 나이(주민등록번호 기반 계산해서 세팅)
+    private Integer member_age;
 
     // 핸드폰 번호
-    private String phoneNumber;
+    @Column(name = "member_phone_number")
+    private String memberPhoneNumber;
 
-    // 주소(정회원 필수, 간편회원 및 기타 매니저는 nullable)
-    private String address;
+    // 주소(정회원 필수)
+    private String member_address;
 
-    // 회원 유형
+    // 회원 유형 (SimpleMember, FullMember 등)
     @Enumerated(EnumType.STRING)
     private MembershipType membershipType;
 
-    // 계좌번호 (간편회원, 정회원만 생성, 그 외는 Null)
-    private String accountNumber;
+    // 계좌번호 (정회원 시 필수, SimpleMember면 null 가능)
+    private String member_accountNumber;
 
     // 직업(선택 사항)
-    private String job;
+    private String member_job;
 
     // 신용 등급(Null 가능)
-    private Integer creditScore;
+    private Integer member_creditScore;
 
     // 가입일
-    private LocalDateTime createdAt;
+    @Column(name = "member_created_day")
+    private LocalDateTime member_created_day;
 }
