@@ -130,7 +130,7 @@ const root = createBrowserRouter([
                 ),
             },
             {
-                path: 'community/hobby/add',
+                path: '/community/hobby/add',
                 element: (
                   <Suspense fallback={Loading}>
                       <CommuAdd />
@@ -138,7 +138,7 @@ const root = createBrowserRouter([
                 )
             },
             {
-                path: 'community/check/:id',
+                path: 'community/check/:postId',
                 element: (
                   <Suspense fallback={Loading}>
                       <CommuCheck />

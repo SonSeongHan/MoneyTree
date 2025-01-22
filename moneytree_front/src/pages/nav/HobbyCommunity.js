@@ -19,6 +19,7 @@ const HobbyCommunity = () => {
         setTotalPages(data.totalPages); // 총 페이지 수
       } catch (error) {
         console.error("취미 관련 커뮤니티 글을 불러올 수 없습니다:", error);
+        alert("데이터를 불러오는 중 오류가 발생했습니다.");
       } finally {
         setLoading(false);
       }
@@ -31,28 +32,29 @@ const HobbyCommunity = () => {
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < totalPages) {
       setPage(newPage);
+      navigate(`?page=${newPage}`);
     }
   };
 
   return (
     <div>
-      <h1>Hobby Community</h1>
+      <h1>취미 커뮤니티</h1>
 
       {/* 작성하기 버튼 */}
-      <button onClick={() => navigate("/hobby/add")}>작성하기</button>
+      <button onClick={() => navigate("/community/hobby/add")}>작성하기</button>
 
       {/* 커뮤니티 글 리스트 */}
       <div>
         <h2>커뮤니티 글</h2>
         {loading ? (
           <p>로딩 중...</p>
-        ) : (
+        ) : communities.length > 0 ? (
           <ul>
             {communities.map((community) => (
               <li
-                key={community.id}
+                key={community.postId}
                 style={{ cursor: "pointer" }}
-                onClick={() => navigate(`/hobby/check/${community.id}`)} // 클릭 시 상세 보기로 이동
+                onClick={() => navigate(`/community/check/${community.postId}`)} // 클릭 시 상세 보기로 이동
               >
                 <h3>{community.title}</h3>
                 <p>{community.content}</p>
@@ -66,6 +68,8 @@ const HobbyCommunity = () => {
               </li>
             ))}
           </ul>
+        ):(
+          <p>현재 해당 커뮤니티에 게시글이 없습니다.</p>
         )}
       </div>
 

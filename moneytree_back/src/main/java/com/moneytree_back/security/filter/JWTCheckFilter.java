@@ -40,6 +40,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if (path.startsWith("/api/communities")){
+            return true;
+        }
+
         return true;
     }
 

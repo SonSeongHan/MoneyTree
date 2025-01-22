@@ -27,11 +27,11 @@ public class CommunityServiceTest {
     void testSaveCommunity(){
 
         CommunityDTO communityDTO = new CommunityDTO();
-        communityDTO.setTitle("ㅓㅜㅏ");
-        communityDTO.setContent("아오 코쪽이들");
-        communityDTO.setMembershipType("FullMember");
+        communityDTO.setTitle("이미지 Url 빼고 보내본다5");
+        communityDTO.setContent("흐음");
+        communityDTO.setMembershipType("SimpleMember");
         communityDTO.setPostType("HOBBY");
-        communityDTO.setImageUrl("http://example.com/admin-test.jpg");
+        communityDTO.setImageUrl("");
         communityDTO.setCreatedAt(LocalDateTime.now());
 
 
@@ -39,7 +39,7 @@ public class CommunityServiceTest {
 
         communityService.saveCommunity(communityDTO);
 
-        Community savedCommunity = communityRepository.findAll().get(2); //데이터 확인
+        Community savedCommunity = communityRepository.findAll().get(3); //데이터 확인
 
         log.info("제목:{}",savedCommunity.getTitle());
         log.info("내용:{}",savedCommunity.getContent());

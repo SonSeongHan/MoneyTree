@@ -1,60 +1,65 @@
 import React, { useState } from "react";
 import { fetchSaveCommunity } from "../../api/CommunityApi";
-import { useNavigate } from "react-router-dom";
 
 const CommuAdd = () => {
-  const [form, setForm] = useState({ title: "", content: "", imageUrl: "" }); // 글 생성 폼
-  const navigate = useNavigate();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [file, setFile] = useState(null); // 이미지 파일 상태
 
-  // 폼 데이터 변경
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]); // 선택된 파일 설정
   };
 
-  // API 호출: 글 생성
-  const handleCreate = async () => {
-    if (!form.title || !form.content) {
-      alert("제목과 내용을 입력해주세요.");
-      return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // FormData를 사용하여 텍스트와 파일 데이터 전송
+    const formData = new FormData();
+    formData.append(
+      "communityDTO",
+      JSON.stringify({title,content})
+    );
+    if (file) {
+      formData.append("file", file);
     }
 
     try {
-      await fetchSaveCommunity({ ...form, postType: "HOBBY" }); // postType을 HOBBY로 설정
-      alert("글이 성공적으로 생성되었습니다.");
-      setForm({ title: "", content: "", imageUrl: "" }); // 폼 초기화
-      navigate("/hobby"); // 글 생성 후 HobbyCommunity로 이동
+      const response = await fetchSaveCommunity(formData);
+      alert("게시글이 성공적으로 등록되었습니다.");
+      console.log("응답 데이터:", response);
     } catch (error) {
-      console.error("글 생성에 실패했습니다:", error);
-      alert("글 생성에 실패했습니다.");
+      console.error("게시글 등록 실패:", error);
+      alert("게시글 등록 중 문제가 발생했습니다.");
     }
   };
 
   return (
     <div>
-      <h2>새 글 작성</h2>
-      <input
-        type="text"
-        name="title"
-        placeholder="제목"
-        value={form.title}
-        onChange={handleChange}
-      />
-      <textarea
-        name="content"
-        placeholder="내용"
-        value={form.content}
-        onChange={handleChange}
-      ></textarea>
-      <input
-        type="text"
-        name="imageUrl"
-        placeholder="이미지 URL (선택)"
-        value={form.imageUrl}
-        onChange={handleChange}
-      />
-      <button onClick={handleCreate}>작성</button>
-      <button onClick={() => navigate("/hobby")}>취소</button> {/* 취소 버튼 */}
+      <h1>커뮤니티 글 작성</h1>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>제목:</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>내용:</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>이미지 업로드:</label>
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+        </div>
+        <button type="submit">등록하기</button>
+      </form>
     </div>
   );
 };
