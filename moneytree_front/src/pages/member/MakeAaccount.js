@@ -1,10 +1,13 @@
+// src/components/MakeAccount.js
+
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-// import { createAccount } from "../api/AccountAPI"; // 실제 API 함수 임포트 (예시)
+import { useLocation, useNavigate } from "react-router-dom"; // useNavigate 추가
+import { createAccount } from "../../api/AccountAPI"; // 실제 API 함수 임포트
 
 const MakeAccount = () => {
-  // location으로부터 state를 가져온다 (회원가입에서 넘어온 값)
   const location = useLocation();
+  const navigate = useNavigate(); // 페이지 이동을 위한 navigate 훅
+
   const initialMemberId = location.state?.memberId || "";
 
   // 상태 정의
@@ -32,6 +35,9 @@ const MakeAccount = () => {
   useEffect(() => {
     const newAccountNumber = generateAccountNumber();
     setDandwAcId(newAccountNumber);
+    // 생성일을 오늘 날짜로 자동 설정
+    const today = new Date().toISOString().split('T')[0];
+    setCreatedAt(today);
   }, []); // 빈 배열이므로 마운트 시 1회만 실행
 
   // 폼 제출
@@ -42,87 +48,104 @@ const MakeAccount = () => {
 
     try {
       const accountData = {
-        member_id: memberId,
-        dandw_ac_id: dandwAcId,          // 이미 자동생성된 값
-        balance: balance,
-        account_password: accountPassword,
-        created_at: createdAt,
+        memberId: memberId,              // DTO에 맞게 키 수정
+        dandwAcId: dandwAcId,            // 이미 자동생성된 값
+        balance: parseFloat(balance) || 0, // 숫자형으로 변환, 기본값 0
+        accountPassword: accountPassword, // DTO에 맞게 키 수정
+        createdAt: createdAt,            // 날짜 형식 맞춤
+        accountType: "입금출금용",            // 기본값 설정 (필요 시 사용자 입력 가능)
       };
 
-      // 실제 API 호출 예시
-      // await createAccount(accountData);
+      // 실제 API 호출
+      const result = await createAccount(accountData);
 
       setSuccessMessage("계좌가 성공적으로 생성되었습니다!");
       // 필요하다면 이후 로직 추가 (예: 다른 페이지로 이동)
+      // 예: navigate('/some-page');
     } catch (error) {
-      setErrorMessage("계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setErrorMessage(error || "계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <h2>계좌 개설</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
+      <div style={styles.page}>
+        <div style={styles.container}>
+          <h2>계좌 개설</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
 
-          {/* 회원 고유 ID (readOnly로 수정 불가능하게) */}
-          <div style={styles.formGroup}>
-            <label>회원 고유 ID</label>
-            <input
-              type="text"
-              value={memberId}
-              onChange={(e) => setMemberId(e.target.value)}
-              readOnly
-              required
-            />
-          </div>
+            {/* 회원 고유 ID (readOnly로 수정 불가능하게) */}
+            <div style={styles.formGroup}>
+              <label>회원 고유 ID</label>
+              <input
+                  type="text"
+                  value={memberId}
+                  onChange={(e) => setMemberId(e.target.value)}
+                  readOnly
+                  required
+              />
+            </div>
 
-          {/* 자동 생성된 계좌번호 */}
-          <div style={styles.formGroup}>
-            <label>입출금 계좌번호</label>
-            <input
-              type="text"
-              value={dandwAcId}
-              onChange={(e) => setDandwAcId(e.target.value)}
-              readOnly  // 필요 시 readOnly 처리 (또는 원하는 경우 editable)
-              required
-            />
-          </div>
+            {/* 자동 생성된 계좌번호 */}
+            <div style={styles.formGroup}>
+              <label>입출금 계좌번호</label>
+              <input
+                  type="text"
+                  value={dandwAcId}
+                  onChange={(e) => setDandwAcId(e.target.value)}
+                  readOnly  // 필요 시 readOnly 처리 (또는 원하는 경우 editable)
+                  required
+              />
+            </div>
 
+            {/* 계좌 잔액 */}
+            <div style={styles.formGroup}>
+              <label>계좌 잔액</label>
+              <input
+                  type="number"
+                  value={balance}
+                  onChange={(e) => setBalance(e.target.value)}
+                  placeholder="잔액"
+                  required
+                  min="0"
+              />
+            </div>
 
-          <div style={styles.formGroup}>
-            <label>계좌 비밀번호</label>
-            <input
-              type="password"
-              value={accountPassword}
-              onChange={(e) => setAccountPassword(e.target.value)}
-              placeholder="비밀번호"
-              required
-            />
-          </div>
+            {/* 계좌 비밀번호 */}
+            <div style={styles.formGroup}>
+              <label>계좌 비밀번호</label>
+              <input
+                  type="password"
+                  value={accountPassword}
+                  onChange={(e) => setAccountPassword(e.target.value)}
+                  placeholder="비밀번호"
+                  required
+              />
+            </div>
 
-          <div style={styles.formGroup}>
-            <label>생성일</label>
-            <input
-              type="date"
-              value={createdAt}
-              onChange={(e) => setCreatedAt(e.target.value)}
-            />
-          </div>
+            {/* 생성일 */}
+            <div style={styles.formGroup}>
+              <label>생성일</label>
+              <input
+                  type="date"
+                  value={createdAt}
+                  onChange={(e) => setCreatedAt(e.target.value)}
+                  required
+              />
+            </div>
 
-          <button type="submit" style={styles.submitButton}>
-            계좌 개설하기
-          </button>
-        </form>
+            <button type="submit" style={styles.submitButton}>
+              계좌 개설하기
+            </button>
+          </form>
 
-        {errorMessage && (
-          <p style={{ color: "red", marginTop: "1rem" }}>{errorMessage}</p>
-        )}
-        {successMessage && (
-          <p style={{ color: "green", marginTop: "1rem" }}>{successMessage}</p>
-        )}
+          {errorMessage && (
+              <p style={{ color: "red", marginTop: "1rem" }}>{errorMessage}</p>
+          )}
+          {successMessage && (
+              <p style={{ color: "green", marginTop: "1rem" }}>{successMessage}</p>
+          )}
+        </div>
       </div>
-    </div>
   );
 };
 
