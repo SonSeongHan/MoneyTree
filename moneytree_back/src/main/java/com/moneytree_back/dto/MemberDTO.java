@@ -1,6 +1,6 @@
-package com.moneytree_back.login.dto;
+package com.moneytree_back.dto;
 
-import com.moneytree_back.login.domain.MembershipType;
+import com.moneytree_back.domain.MembershipType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;

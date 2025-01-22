@@ -1,6 +1,6 @@
 package com.moneytree_back.security.handler;
 
-import com.moneytree_back.login.dto.MemberDTO;
+import com.moneytree_back.dto.MemberDTO;
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
