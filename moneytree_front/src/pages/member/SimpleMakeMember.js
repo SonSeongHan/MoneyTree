@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createMember } from "../../api/MemberAPI"; // MemberAPI.js에서 함수 임포트
 
 const SimpleMakeMember = () => {
+  const [memberId, setMemberId] = useState(""); // 아이디 상태 추가
   const [memberName, setMemberName] = useState("");
   const [residentRegistrationNumber, setResidentRegistrationNumber] = useState("");
   const [memberPassword, setMemberPassword] = useState("");
@@ -21,6 +22,7 @@ const SimpleMakeMember = () => {
 
     try {
       const memberData = {
+        member_id: memberId, // 아이디 추가
         member_name: memberName,
         residentRegistrationNumber: residentRegistrationNumber,
         member_password: memberPassword,
@@ -28,7 +30,7 @@ const SimpleMakeMember = () => {
         member_address: memberAddress,
         member_job: memberJob,
         member_accountNumber: memberAccountNumber || null,
-        member_age: memberAge, // 나이 추가
+        member_age: memberAge,
         member_creditScore: null,
       };
 
@@ -42,79 +44,100 @@ const SimpleMakeMember = () => {
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <h2>회원가입</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label>이름</label>
-            <input
-              type="text"
-              value={memberName}
-              onChange={(e) => setMemberName(e.target.value)}
-              required
-            />
-          </div>
+      <div style={styles.page}>
+        <div style={styles.container}>
+          <h2>심플 회원가입</h2>
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.formGroup}>
+              <label>아이디</label>
+              <input
+                  type="text"
+                  value={memberId}
+                  onChange={(e) => setMemberId(e.target.value)}
+                  placeholder="아이디를 입력하세요"
+                  required
+              />
+            </div>
 
-          <div style={styles.formGroup}>
-            <label>나이</label> {/* 나이 입력 필드 */}
-            <input
-              type="number"
-              value={memberAge}
-              onChange={(e) => setMemberAge(e.target.value)}
-              placeholder="나이를 입력하세요"
-              required
-            />
-          </div>
+            <div style={styles.formGroup}>
+              <label>이름</label>
+              <input
+                  type="text"
+                  value={memberName}
+                  onChange={(e) => setMemberName(e.target.value)}
+                  required
+              />
+            </div>
 
-          <div style={styles.formGroup}>
-            <label>주민등록번호</label>
-            <input
-              type="text"
-              value={residentRegistrationNumber}
-              onChange={(e) => setResidentRegistrationNumber(e.target.value)}
-              placeholder="7자리 or 13자리"
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label>비밀번호</label>
-            <input
-              type="password"
-              value={memberPassword}
-              onChange={(e) => setMemberPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label>핸드폰 번호</label>
-            <input
-              type="text"
-              value={memberPhone}
-              onChange={(e) => setMemberPhone(e.target.value)}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label>주소</label>
-            <input
-              type="text"
-              value={memberAddress}
-              onChange={(e) => setMemberAddress(e.target.value)}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label>직업</label>
-            <input
-              type="text"
-              value={memberJob}
-              onChange={(e) => setMemberJob(e.target.value)}
-            />
-          </div>
-          <button type="submit" style={styles.submitButton}>회원가입</button>
-        </form>
-        {errorMessage && <p style={{ color: 'red', marginTop: '1rem' }}>{errorMessage}</p>}
-        {successMessage && <p style={{ color: 'green', marginTop: '1rem' }}>{successMessage}</p>}
+            <div style={styles.formGroup}>
+              <label>나이</label>
+              <input
+                  type="number"
+                  value={memberAge}
+                  onChange={(e) => setMemberAge(e.target.value)}
+                  placeholder="나이를 입력하세요"
+                  required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>주민등록번호</label>
+              <input
+                  type="text"
+                  value={residentRegistrationNumber}
+                  onChange={(e) => setResidentRegistrationNumber(e.target.value)}
+                  placeholder="7자리 또는 13자리"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>비밀번호</label>
+              <input
+                  type="password"
+                  value={memberPassword}
+                  onChange={(e) => setMemberPassword(e.target.value)}
+                  required
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>핸드폰 번호</label>
+              <input
+                  type="text"
+                  value={memberPhone}
+                  onChange={(e) => setMemberPhone(e.target.value)}
+                  placeholder="핸드폰 번호를 입력하세요"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>주소</label>
+              <input
+                  type="text"
+                  value={memberAddress}
+                  onChange={(e) => setMemberAddress(e.target.value)}
+                  placeholder="주소를 입력하세요"
+              />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>직업</label>
+              <input
+                  type="text"
+                  value={memberJob}
+                  onChange={(e) => setMemberJob(e.target.value)}
+                  placeholder="직업을 입력하세요"
+              />
+            </div>
+
+            <button type="submit" style={styles.submitButton}>
+              회원가입
+            </button>
+          </form>
+          {errorMessage && <p style={{ color: 'red', marginTop: '1rem' }}>{errorMessage}</p>}
+          {successMessage && <p style={{ color: 'green', marginTop: '1rem' }}>{successMessage}</p>}
+        </div>
       </div>
-    </div>
   );
 };
 

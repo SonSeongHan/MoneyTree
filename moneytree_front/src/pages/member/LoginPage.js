@@ -27,7 +27,7 @@ const LoginPage = () => {
 
     // 로그인 요청 데이터 구성
     const loginData = {
-      userId: userId,
+      member_id: userId, // 기존 userId 대신 member_id 사용
       member_password: password,
       membershipType: membershipType,
     };
@@ -38,19 +38,19 @@ const LoginPage = () => {
     }
 
     try {
-      // API 호출을 통해 로그인 처리
+      // API 호출
       const response = await login(loginData);
 
       if (response.data) {
         const { accessToken, refreshToken, member_id } = response.data;
 
-        // 쿠키에 로그인 정보 저장
+        // 쿠키 저장
         setCookie("access_token", accessToken, 1); // 1일 저장
         setCookie("refresh_token", refreshToken, 7); // 7일 저장
         setCookie("member", JSON.stringify(response.data), 1); // member 정보 저장
 
         setSuccessMessage("로그인 성공!");
-        navigate("/home"); // 로그인 성공 시 홈으로 이동
+        navigate("/home"); // 로그인 성공 후 홈 이동
       } else {
         setErrorMessage("로그인 실패");
       }
@@ -58,6 +58,7 @@ const LoginPage = () => {
       setErrorMessage("에러 발생: " + (error.response?.data || error.message));
     }
   };
+
 
   return (
       <div className="login-page">

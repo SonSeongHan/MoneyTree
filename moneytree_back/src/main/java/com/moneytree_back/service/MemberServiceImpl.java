@@ -94,9 +94,15 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member login(MemberDTO loginDTO) {
+        // 간편회원 로그인 (아이디와 비밀번호만 필요)
         if (loginDTO.getResidentRegistrationNumber() == null || loginDTO.getResidentRegistrationNumber().isBlank()) {
-            throw new IllegalArgumentException("주민등록번호는 필수 입력 항목입니다.");
+            return memberRepository.findByMemberIdAndMemberpassword(
+                    loginDTO.getMember_id(),
+                    loginDTO.getMember_password()
+            ).orElseThrow(() -> new IllegalArgumentException("간편회원 로그인 정보가 올바르지 않습니다."));
         }
+
+        // 정회원 로그인 (아이디, 주민등록번호, 비밀번호 필요)
         if (loginDTO.getMember_password() == null || loginDTO.getMember_password().isBlank()) {
             throw new IllegalArgumentException("비밀번호는 필수 입력 항목입니다.");
         }
@@ -107,8 +113,9 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findByResidentRegistrationNumberAndMemberpassword(
                 loginDTO.getResidentRegistrationNumber(),
                 loginDTO.getMember_password()
-        ).orElseThrow(() -> new IllegalArgumentException("로그인 정보가 올바르지 않습니다."));
+        ).orElseThrow(() -> new IllegalArgumentException("정회원 로그인 정보가 올바르지 않습니다."));
     }
+
 
     // 주민등록번호를 바탕으로 나이 계산
     private Integer calculateAgeFromRRN(String rrn) {
