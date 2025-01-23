@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,7 +19,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +43,7 @@ public class DepositProductServiceImpl implements DepositProductService {
     // 모든 예금 상품 조회
     @Override
     public List<DepositProductDTO> getAllDepositProducts() {
+        // DTO로 변환 후 반환
         return depositProductRepository.findAll().stream()
                 .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
                 .collect(Collectors.toList());
@@ -61,6 +60,7 @@ public class DepositProductServiceImpl implements DepositProductService {
     // 특정 은행의 예금 상품 조회
     @Override
     public List<DepositProductDTO> getDepositProductsByBankName(String bankName) {
+        // 은행명으로 검색하여 DTO로 변환
         return depositProductRepository.findByBankName(bankName).stream()
                 .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
                 .collect(Collectors.toList());
@@ -88,11 +88,16 @@ public class DepositProductServiceImpl implements DepositProductService {
         DepositProduct existingProduct = depositProductRepository.findById(depositProductId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 예금 상품이 존재하지 않습니다."));
 
-        // 기존 상품 정보 업데이트
+        // 데이터 필드 업데이트
         existingProduct.setDepositProductName(depositProductDTO.getDepositProductName());
         existingProduct.setBankName(depositProductDTO.getBankName());
         existingProduct.setDepositJoinWay(depositProductDTO.getDepositJoinWay());
         existingProduct.setDepositMinAmount(depositProductDTO.getDepositMinAmount());
+        existingProduct.setDepositMaturityPeriod(depositProductDTO.getDepositMaturityPeriod());
+        existingProduct.setDepositInterestRateType(depositProductDTO.getDepositInterestRateType());
+        existingProduct.setDepositBaseInterestRate(depositProductDTO.getDepositBaseInterestRate());
+        existingProduct.setDepositPrimeInterestRate(depositProductDTO.getDepositPrimeInterestRate());
+
 
         DepositProduct updatedProduct = depositProductRepository.save(existingProduct); // 업데이트된 상품 저장
         return modelMapper.map(updatedProduct, DepositProductDTO.class); // Entity -> DTO 변환
@@ -101,10 +106,32 @@ public class DepositProductServiceImpl implements DepositProductService {
     // 예금 상품 삭제
     @Override
     public void deleteDepositProduct(Long depositProductId) {
+        // 존재하는지 확인 후 삭제
         if (!depositProductRepository.existsById(depositProductId)) {
             throw new IllegalArgumentException("해당 예금 상품이 존재하지 않습니다.");
         }
         depositProductRepository.deleteById(depositProductId); // 상품 삭제
+    }
+
+    @Override
+    public List<DepositProductDTO> getDepositProductsByInterestRateType(String depositInterestRateType) {
+        return depositProductRepository.findByDepositInterestRateType(depositInterestRateType).stream()
+                .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DepositProductDTO> getDepositProductsByBaseInterestRateRange(BigDecimal minRate, BigDecimal maxRate) {
+        return depositProductRepository.findByDepositBaseInterestRateBetween(minRate, maxRate).stream()
+                .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DepositProductDTO> getDepositProductsByPrimeInterestRate(BigDecimal minPrimeRate) {
+        return depositProductRepository.findByDepositPrimeInterestRateGreaterThanEqual(minPrimeRate).stream()
+                .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
+                .collect(Collectors.toList());
     }
 
     // 서버 실행 시 api 호출
@@ -145,6 +172,7 @@ public class DepositProductServiceImpl implements DepositProductService {
 
                 Map<String, Object> result = (Map<String, Object>) response.get("result");
                 List<Map<String, Object>> baseList = (List<Map<String, Object>>) result.get("baseList");
+                List<Map<String, Object>> optionList = (List<Map<String, Object>>) result.get("optionList");
 
                 if (baseList == null || baseList.isEmpty()) {
                     break;
@@ -170,6 +198,20 @@ public class DepositProductServiceImpl implements DepositProductService {
                     }
                     dto.setDepositMinAmount(minAmount);
                     dto.setDepositMaturityPeriod(generateRandomMaturityPeriod());
+
+                    // 옵션 데이터 매핑
+                    if (optionList != null) {
+                        optionList.stream()
+                                .filter(option -> {
+                                    return option.get("fin_prdt_cd").equals(item.get("fin_prdt_cd"));
+                                })
+                                .findFirst()
+                                .ifPresent(option -> {
+                                    dto.setDepositInterestRateType((String) option.get("intr_rate_type_nm"));
+                                    dto.setDepositBaseInterestRate(new BigDecimal(option.get("intr_rate").toString()));
+                                    dto.setDepositPrimeInterestRate(new BigDecimal(option.get("intr_rate2").toString()));
+                                });
+                    }
 
                     productNames.add(productName);
                     allProducts.add(dto);
@@ -199,6 +241,7 @@ public class DepositProductServiceImpl implements DepositProductService {
             System.err.println("Error fetching deposit products: " + e.getMessage());
             e.printStackTrace();
         }
+
     }
 
     // Entity 변환 메소드 추가
@@ -209,10 +252,11 @@ public class DepositProductServiceImpl implements DepositProductService {
         entity.setDepositJoinWay(dto.getDepositJoinWay());
         entity.setDepositMinAmount(dto.getDepositMinAmount());
         entity.setDepositMaturityPeriod(dto.getDepositMaturityPeriod());
+        entity.setDepositInterestRateType(dto.getDepositInterestRateType()); // 추가
+        entity.setDepositBaseInterestRate(dto.getDepositBaseInterestRate()); // 추가
+        entity.setDepositPrimeInterestRate(dto.getDepositPrimeInterestRate()); // 추가
         return entity;
     }
-
-// 나머지 메소드들은 이전과 동일...
 
     private List<DepositProductDTO> selectProductsWithEvenDistribution(List<DepositProductDTO> allProducts) {
         if (allProducts.size() < 30) {

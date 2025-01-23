@@ -19,6 +19,9 @@ public class DepositProductDTO {
     private String depositJoinWay;
     private BigDecimal depositMinAmount;
     private Integer depositMaturityPeriod;
+    private String depositInterestRateType;
+    private BigDecimal depositBaseInterestRate;
+    private BigDecimal depositPrimeInterestRate;
     private LocalDateTime depositProductCreatedAt;
     private LocalDateTime depositProductUpdatedAt;
 }
