@@ -28,17 +28,19 @@ const MakeMember = () => {
 
     try {
       // 회원가입에 필요한 데이터 객체
+
       const memberData = {
-        member_id: memberId,
+        memberId: memberId,
         member_name: memberName,
         residentRegistrationNumber: residentRegistrationNumber,
-        member_password: memberPassword,
+        memberpassword: memberPassword,
         member_phoneNumber: memberPhone,
         member_address: memberAddress,
         member_job: memberJob,
-        member_accountNumber: memberAccountNumber || null,
+        accountNumber: memberAccountNumber || null,
         member_age: memberAge,
         member_creditScore: null,
+
       };
 
       // 실제 API 호출 (예시)

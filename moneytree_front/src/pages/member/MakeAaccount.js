@@ -48,24 +48,25 @@ const MakeAccount = () => {
 
     try {
       const accountData = {
-        memberId: memberId,              // DTO에 맞게 키 수정
-        dandwAcId: dandwAcId,            // 이미 자동생성된 값
-        balance: parseFloat(balance) || 0, // 숫자형으로 변환, 기본값 0
-        accountPassword: accountPassword, // DTO에 맞게 키 수정
-        createdAt: createdAt,            // 날짜 형식 맞춤
-        accountType: "입금출금용",            // 기본값 설정 (필요 시 사용자 입력 가능)
+        memberId,
+        dandwAcId,
+        balance: parseFloat(balance) || 0,
+        accountPassword,
+        createdAt,
+        accountType: "입금출금용",
       };
 
-      // 실제 API 호출
-      const result = await createAccount(accountData);
+      // API 호출
+      await createAccount(accountData);
 
       setSuccessMessage("계좌가 성공적으로 생성되었습니다!");
-      // 필요하다면 이후 로직 추가 (예: 다른 페이지로 이동)
-      // 예: navigate('/some-page');
+      alert("계좌가 성공적으로 생성되었습니다.")
+      navigate("/"); // 성공 페이지로 이동 (필요 시 구현)
     } catch (error) {
-      setErrorMessage(error || "계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setErrorMessage("계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
+
 
   return (
       <div style={styles.page}>
