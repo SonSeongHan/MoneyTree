@@ -29,11 +29,11 @@ public class MemberController {
     }
 
     // 기타 API 엔드포인트
-    @PostMapping("/login")
-    public ResponseEntity<Member> login(@RequestBody MemberDTO loginDTO) {
-        Member member = memberService.login(loginDTO);
-        return ResponseEntity.ok(member);
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<Member> login(@RequestBody MemberDTO loginDTO) {
+//        Member member = memberService.login(loginDTO);
+//        return ResponseEntity.ok(member);
+//    }
 
     @PutMapping("/modify/{id}")
     public ResponseEntity<Member> updateMember(@PathVariable String  id, @RequestBody MemberDTO memberDTO) {

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createMember } from "../../api/MemberAPI"; // MemberAPI.js에서 함수 임포트
 
 const SimpleMakeMember = () => {
@@ -15,6 +16,8 @@ const SimpleMakeMember = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -22,14 +25,14 @@ const SimpleMakeMember = () => {
 
     try {
       const memberData = {
-        member_id: memberId, // 아이디 추가
+        memberId: memberId, // 필드명 일치시킴
         member_name: memberName,
         residentRegistrationNumber: residentRegistrationNumber,
-        member_password: memberPassword,
+        memberpassword: memberPassword,
         member_phoneNumber: memberPhone,
         member_address: memberAddress,
         member_job: memberJob,
-        member_accountNumber: memberAccountNumber || null,
+        accountNumber: memberAccountNumber || null,
         member_age: memberAge,
         member_creditScore: null,
       };
@@ -38,6 +41,7 @@ const SimpleMakeMember = () => {
       await createMember(memberData);
 
       setSuccessMessage("회원가입이 완료되었습니다!");
+      navigate("/"); // 회원가입 성공 시 리다이렉트
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "회원가입 중 오류가 발생했습니다.");
     }
