@@ -38,7 +38,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         // /api/member/modify-pw는 필터링 처리
 
         // /api/member/ 경로는 필터링하지 않음
-        if (path.startsWith("/api/member/")) {
+        if (path.startsWith("/api/members/make")) {
             return true;
         }
 

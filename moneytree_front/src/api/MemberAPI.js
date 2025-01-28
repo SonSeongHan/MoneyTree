@@ -1,38 +1,44 @@
+// src/api/MemberAPI.js
 import axios from "axios";
+import { API_SERVER_HOST } from "./todoApi";
 
-const BASE_URL = "http://localhost:8080/api/members";
+const host = `${API_SERVER_HOST}/api/members`; // Player API 경로
+// Axios 기본 설정: 인증 헤더 제거하고, 쿠키를 포함한 요청 설정
+const memberAxios = axios.create({
+  baseURL: host,
+  withCredentials: true, // 쿠키 기반 인증
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
+export const loginPost = async (loginParam) => {
+  // HTTP POST 요청을 통해 FormData를 전송
+  const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
+
+  const form = new FormData();
+  form.append("username", loginParam.email); // username에 이메일 추가
+  form.append("password", loginParam.pw); // password에 비밀번호 추가
+
+  const res = await axios.post(`${host}/login`, form, header);
+
+  return res.data;
+};
+
+
+// 로그인 API
 export const login = async (loginData) => {
-  return axios.post(`${BASE_URL}/login`, loginData);
+  const form = new FormData();
+  form.append("member_id", loginData.member_id);
+  form.append("member_password", loginData.member_password);
+  form.append("membershipType", loginData.membershipType);
+
+  const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
+  return memberAxios.post(`/login`, form, header);
 };
 
+
+// 회원 생성 API
 export const createMember = async (memberData) => {
-  return axios.post(`${BASE_URL}/make`, memberData);
-};
-
-export const updateMember = async (id, memberData) => {
-  return axios.put(`${BASE_URL}/modify/${id}`, memberData);
-};
-
-export const deleteMember = async (id) => {
-  return axios.delete(`${BASE_URL}/delete/${id}`);
-};
-
-/**
- * 계좌 생성 API 호출 함수
- * @param {Object} accountData - 계좌 생성에 필요한 데이터
- * @returns {Promise} - Axios Promise 객체
- */
-export const createAccount = async (accountData) => {
-  try {
-    const response = await axios.post(BASE_URL, accountData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return response.data; // 성공 시 응답 데이터 반환
-  } catch (error) {
-    // 에러 처리 (필요 시 커스터마이징)
-    throw error.response?.data || '계좌 생성 중 오류가 발생했습니다.';
-  }
+  return memberAxios.post(`/make`, memberData);
 };

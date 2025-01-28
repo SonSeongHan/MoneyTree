@@ -2,6 +2,7 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.Member;
+import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.DandwacDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.MemberRepository;
@@ -19,23 +20,30 @@ public class DandwacServiceImpl implements DandwacService {
 
     @Override
     public Dandwac createAccount(DandwacDTO dto) {
-        // 1) member_id로 Member 엔티티 조회
+        // 1) Member 엔티티 조회
         Member member = memberRepository.findById(dto.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 ID입니다."));
 
-        // 2) DandwAccount 엔티티 생성
+        // 2) Dandwac 엔티티 생성
         Dandwac account = new Dandwac();
         account.setDandwAcId(dto.getDandwAcId());
         account.setMember(member);
-        account.setAccountType(dto.getAccountType() != null ? dto.getAccountType() : /*기본값*/ null);
+        account.setAccountType(dto.getAccountType());
         account.setBalance(dto.getBalance());
-        // 실제 서비스에서는 비밀번호 암호화 로직을 추가하는 것을 권장 (BCrypt 등)
         account.setAccountPassword(dto.getAccountPassword());
-        account.setCreatedAt(dto.getCreatedAt() != null ? dto.getCreatedAt() : LocalDate.now());
+        account.setCreatedAt(LocalDate.now());
 
-        // 3) 저장
-        return dandwAccountRepository.save(account);
+        // 3) 계좌 저장
+        dandwAccountRepository.save(account);
+
+        // 4) Member 엔티티의 계좌번호 업데이트
+        member.setMember_accountNumber(account.getDandwAcId());
+        member.setMembershipType(MembershipType.FullMember); // 회원 유형 변경
+        memberRepository.save(member);
+
+        return account;
     }
+
 
     @Override
     public Dandwac getAccount(String dandwAcId) {
