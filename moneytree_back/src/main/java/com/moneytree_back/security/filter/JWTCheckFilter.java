@@ -46,6 +46,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/accounts")) {
             return true;
         }
+        //
+        if (path.startsWith("/api/deposit-products/**")) {
+            return true;
+        }
 
         // 기본적으로 모든 요청은 필터링 처리
         return true; //

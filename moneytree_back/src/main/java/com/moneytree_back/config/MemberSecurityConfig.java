@@ -52,6 +52,7 @@ public class MemberSecurityConfig {
                     auth.requestMatchers("/api/members/login").permitAll();     // 로그인 인증 제외
                     auth.requestMatchers("/api/members/make").permitAll();      // 회원가입 인증 제외
                     auth.requestMatchers("/api/accounts/**").permitAll();       // 계좌 생성 인증 제외
+                    auth.requestMatchers("/api/deposit-products/**").permitAll(); // 예금 상품 인증 제외
                     auth.anyRequest().authenticated();                           // 나머지 요청은 인증 필요
                 });
 

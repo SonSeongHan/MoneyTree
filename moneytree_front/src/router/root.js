@@ -20,6 +20,7 @@ const Fund = lazy(() => import('../pages/nav/Fund'));
 const Stock = lazy(() => import('../pages/nav/Stock'));
 const HobbyCommunity = lazy(() => import('../pages/nav/HobbyCommunity'));
 const RealEstateCommunity = lazy(() => import('../pages/nav/RealEstateCommunity'));
+const DepositDetailPage = lazy(() => import('../pages/recommends/DepositDetailPage'));
 
 // 라우트 설정
 const root = createBrowserRouter([
@@ -90,6 +91,14 @@ const root = createBrowserRouter([
                     <Suspense fallback={Loading}>
                         <DepositSaving />
                     </Suspense>
+                ),
+            },
+            {
+                path: 'deposit/:id', // 새로운 라우트 추가
+                element: (
+                  <Suspense fallback={Loading}>
+                      <DepositDetailPage />
+                  </Suspense>
                 ),
             },
             {

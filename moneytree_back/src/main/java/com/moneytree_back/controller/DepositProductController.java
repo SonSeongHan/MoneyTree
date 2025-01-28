@@ -1,0 +1,63 @@
+package com.moneytree_back.controller;
+
+import com.moneytree_back.domain.DepositProduct;
+import com.moneytree_back.dto.DepositProductDTO;
+import com.moneytree_back.service.DepositProductService;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/deposit-products")
+public class DepositProductController {
+
+    private final DepositProductService depositProductService;
+
+    public DepositProductController(DepositProductService depositProductService) {
+        this.depositProductService = depositProductService;
+    }
+
+    // 전체 상품 조회
+    @GetMapping("/all")
+    public List<DepositProductDTO> getAllDepositProducts() {
+        return depositProductService.getAllDepositProducts();
+    }
+
+    // 특정 예금 상품 상세 조회
+    @GetMapping("/{id}")
+    public DepositProductDTO getDepositProductById(@PathVariable Long id) {
+        return depositProductService.getDepositProductById(id);
+    }
+
+    // 은행 이름으로 필터링
+    @GetMapping("/filter-by-bank")
+    public List<DepositProductDTO> getDepositProductsByBankName(@RequestParam String bankName){
+        return depositProductService.getDepositProductsByBankName(bankName);
+    }
+
+    // 예금 상품 최소 금액 이상 필터링
+    @GetMapping("/filter-by-min-amount")
+    public List<DepositProductDTO> getDepositProductsByMinAmount(@RequestParam BigDecimal minAmount){
+        return depositProductService.getDepositProductsByMinAmount(minAmount);
+    }
+
+    // 이율 유형별 조회
+    @GetMapping("/filter-by-interest-rate-type")
+    public List<DepositProductDTO> getDepositProductsByInterestRateType(@RequestParam String depositInterestRateType){
+        return depositProductService.getDepositProductsByInterestRateType(depositInterestRateType);
+    }
+
+    // 기본 이자율 범위 내 조회
+    @GetMapping("/filter-by-base-interest-rate")
+    public List<DepositProductDTO> getDepositProductsByBaseInterestRate(@RequestParam BigDecimal minDepositBaseInterestRate, @RequestParam BigDecimal maxDepositBaseInterestRate) {
+        return depositProductService.getDepositProductsByBaseInterestRateRange(minDepositBaseInterestRate, maxDepositBaseInterestRate);
+    }
+
+    // 최고 우대 이자율 이상 조회
+    @GetMapping("/filter-by-prime-interest-rate")
+    public List<DepositProductDTO> getDepositProductsByPrimeInterestRate(@RequestParam BigDecimal minDepositPrimeInterestRate) {
+        return depositProductService.getDepositProductsByPrimeInterestRate(minDepositPrimeInterestRate);
+    }
+}
