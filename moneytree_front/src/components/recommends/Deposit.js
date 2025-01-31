@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchAllDeposits } from '../../api/DepositAPI';
+import DepositAPI from '../../api/DepositAPI';
+import '../../css/recommends/Deposit.css';
 
 const Deposit = () => {
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 8; // 한 페이지에 표시할 아이템 수
+  const itemsPerPage = 8;
   const navigate = useNavigate();
+
+  // 세션 스토리지에서 저장된 페이지 인덱스를 불러오기 (없으면 0)
+  const [currentPage, setCurrentPage] = useState(() => {
+    return Number(sessionStorage.getItem('depositPage')) || 0;
+  });
 
   useEffect(() => {
     const fetchDeposits = async () => {
       try {
-        const data = await fetchAllDeposits();
+        const data = await DepositAPI.getAllDeposits();
         setDeposits(data);
       } catch (err) {
-        console.error('Error fetching deposits : ', err);
+        console.error('Error fetching deposits: ', err);
         setError('예금 데이터를 가져오는 중 문제가 발생하였습니다.');
       } finally {
         setLoading(false);
@@ -25,93 +30,57 @@ const Deposit = () => {
     fetchDeposits();
   }, []);
 
-  if (loading) return <p>로딩 중입니다...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p className="dep-loading-state">로딩 중입니다...</p>;
+  if (error) return <p className="dep-error-state">{error}</p>;
   if (!deposits || deposits.length === 0) {
-    return <p>표시할 예금 상품이 없습니다.</p>;
+    return <p className="dep-empty-state">표시할 예금 상품이 없습니다.</p>;
   }
 
   const totalPages = Math.ceil(deposits.length / itemsPerPage);
 
+  // 페이지 변경 시 세션 스토리지에 저장
   const handlePageClick = (pageIndex) => {
     setCurrentPage(pageIndex);
+    sessionStorage.setItem('depositPage', pageIndex);
   };
 
   const startIndex = currentPage * itemsPerPage;
   const currentItems = deposits.slice(startIndex, startIndex + itemsPerPage);
 
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)', // 2열로 변경
-    gap: '20px',
-    padding: '20px 300px', // 양 옆 공간 추가
-  };
-
-  const paginationStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '20px',
-    gap: '10px',
-  };
-
-  const pageButtonStyle = (isActive) => ({
-    width: isActive ? '30px' : '20px',
-    height: '20px',
-    borderRadius: '10px',
-    backgroundColor: isActive ? '#007BFF' : '#ddd',
-    border: 'none',
-    cursor: 'pointer',
-    transition: 'width 0.3s ease',
-  });
-
-  const itemStyle = {
-    cursor: 'pointer',
-    border: '1px solid #ddd',
-    borderRadius: '30px', // 사각형 모서리를 둥글게
-    padding: '40px', // 크기를 키움
-    textAlign: 'center',
-    width: '500px',
-    height: '100px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    transition: 'transform 0.3s ease',
-  };
-
-  const itemHoverStyle = {
-    transform: 'scale(1.05)',
-  };
-
   return (
-    <div>
-      <div style={gridStyle}>
+    <div className="dep-container">
+      <div className="dep-product-grid">
         {currentItems.map((deposit) => (
           <div
             key={deposit.depositProductId}
-            onClick={() => navigate(`/deposit/${deposit.depositProductId}`)}
-            style={itemStyle}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            className="dep-product-card"
+            onClick={() => {
+              sessionStorage.setItem('depositPage', currentPage); // 현재 페이지 저장
+              navigate(`/deposit/${deposit.depositProductId}`);
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') navigate(`/deposit/${deposit.depositProductId}`);
+              if (e.key === 'Enter') {
+                sessionStorage.setItem('depositPage', currentPage);
+                navigate(`/deposit/${deposit.depositProductId}`);
+              }
             }}
           >
-            <h3 style={{ fontSize: '16px', margin: '0' }}>{deposit.depositProductName}</h3>
-            <p style={{ fontSize: '14px', margin: '5px 0' }}>{deposit.depositMaturityPeriod}개월</p>
-            <p style={{ fontSize: '14px', margin: '0' }}>이율: {deposit.depositBaseInterestRate}%</p>
+            <h3 className="dep-product-title">{deposit.depositProductName}</h3>
+            <p className="dep-product-period">{deposit.depositMaturityPeriod}개월</p>
+            <p className="dep-product-rate">이율: {deposit.depositBaseInterestRate}%</p>
           </div>
         ))}
       </div>
-      <div style={paginationStyle}>
+      <div className="dep-pagination-wrap">
         {Array.from({ length: totalPages }).map((_, index) => (
           <button
             key={index}
             onClick={() => handlePageClick(index)}
-            style={pageButtonStyle(index === currentPage)}
+            className={`dep-pagination-btn ${
+              index === currentPage ? 'dep-pagination-btn--active' : ''
+            }`}
           />
         ))}
       </div>

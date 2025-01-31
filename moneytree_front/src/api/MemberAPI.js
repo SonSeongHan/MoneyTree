@@ -1,4 +1,3 @@
-// src/api/MemberAPI.js
 import axios from "axios";
 import { API_SERVER_HOST } from "./todoApi";
 

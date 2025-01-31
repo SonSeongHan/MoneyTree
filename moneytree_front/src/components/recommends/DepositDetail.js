@@ -1,31 +1,31 @@
-import React, {useEffect, useState} from 'react';
-import {useParams} from 'react-router-dom';
-import {fetchDepositById} from '../../api/DepositAPI';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import DepositAPI from '../../api/DepositAPI';
 
 const DepositDetail = () => {
-  const {id} = useParams(); // URL에서 ID 가져오기
+  const { depositProductId } = useParams(); // URL에서 ID 가져오기
   const [deposit, setDeposit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchDepositDetail = async() => {
-      try{
-        const data = await fetchDepositById(id);
+    const fetchDepositDetail = async () => {
+      try {
+        const data = await DepositAPI.getDepositById(depositProductId);
         setDeposit(data);
-      }catch(err){
-        console.error('Error fetching deposit details : ', err);
+      } catch (err) {
+        console.error('Error fetching deposit details: ', err);
         setError('상품 데이터를 가져오지 못하였습니다.');
-      }finally{
+      } finally {
         setLoading(false);
       }
     };
     fetchDepositDetail();
-  },[id]);
+  }, [depositProductId]);
 
-  if(loading) return <p>로딩 중....</p>;
-  if(error) return <p>{error}</p>;
-  if(!deposit) return <p>해당 상품 정보를 찾을 수 없습니다.</p>;
+  if (loading) return <p>로딩 중....</p>;
+  if (error) return <p>{error}</p>;
+  if (!deposit) return <p>해당 상품 정보를 찾을 수 없습니다.</p>;
 
   return (
     <div className="deposit-detail">

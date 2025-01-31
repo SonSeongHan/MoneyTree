@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.recommendApi;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
