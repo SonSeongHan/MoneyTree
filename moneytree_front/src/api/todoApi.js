@@ -14,3 +14,4 @@ const fetchData = async (url, params = {}) => {
     throw error;
   }
 };
+

@@ -2,6 +2,7 @@ package com.moneytree_back.security.filter;
 
 import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.MemberDTO;
+
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
 import jakarta.servlet.FilterChain;
@@ -42,6 +43,27 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+
+        if (path.startsWith("/api/communities") && method.equalsIgnoreCase("GET")){
+            return true;
+        }
+
+        if (path.startsWith("/api/communities") && method.equalsIgnoreCase("POST")){
+            return false;
+        }
+
+        if (path.startsWith("/api/communities/")){
+           return false;
+        }
+
+        if (path.startsWith("/api/community/replies")){
+            return true;
+        }
+
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("POST")){
+            return false;
+        }
+
         // /api/member/make-account는 필터링하지 않음
         if (path.startsWith("/api/accounts")) {
             return true;
@@ -50,6 +72,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/deposit-products/**")) {
             return true;
         }
+
 
         // 기본적으로 모든 요청은 필터링 처리
         return true; //
@@ -76,9 +99,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             log.info("JWT claims: " + claims);
 
             // JWT claims에서 데이터 추출
+            String memberId = (String) claims.get("memberId");
             String memberName = (String) claims.get("member_name");
             String residentRegistrationNumber = (String) claims.get("residentRegistrationNumber");
             String membershipTypeStr = (String) claims.get("membershipType");
+
+            log.info("memberId 추출 결과: " + memberId);
+            log.info("memberName 추출 결과: " + memberName);
+            log.info("membershipTypeStr 추출 결과: " + membershipTypeStr);
 
             // MembershipType Enum으로 변환
             MembershipType membershipType = MembershipType.valueOf(membershipTypeStr);

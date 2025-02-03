@@ -13,7 +13,7 @@ const jwtAxios = axios.create({
 // Request Interceptor: 요청에 Authorization 헤더 추가
 jwtAxios.interceptors.request.use(
   (config) => {
-    const playerInfo = getCookie('player');
+    const playerInfo = getCookie('member');
 
     if (playerInfo) {
       try {
@@ -53,7 +53,7 @@ jwtAxios.interceptors.response.use(
 
 // JWT 디코딩 및 이메일 추출
 export const decodeJWT = () => {
-  const playerCookie = getCookie('player');
+  const playerCookie = getCookie('member');
   if (!playerCookie) {
     console.warn('No player cookie found.');
     return null;
@@ -81,7 +81,7 @@ export const decodeJWT = () => {
 };
 
 export const decodeNicknameFromJWT = () => {
-  const playerCookie = getCookie("player");
+  const playerCookie = getCookie("member");
   if (!playerCookie) {
     console.warn("No player cookie found.");
     return null;
@@ -119,7 +119,7 @@ export const decodeNicknameFromJWT = () => {
 
 // JWT 디코딩 유틸리티 함수
 export const decodedJWT = () => {
-  const playerCookie = getCookie("player");
+  const playerCookie = getCookie("member");
   if (!playerCookie) {
     console.warn("No player cookie found.");
     return null;

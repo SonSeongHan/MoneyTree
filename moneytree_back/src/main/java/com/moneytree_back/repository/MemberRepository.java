@@ -20,6 +20,8 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     // 로그인(간편회원) : 아이디 + 비밀번호
     Optional<Member> findByMemberIdAndMemberpassword(String memberId, String pw);
 
+    //MemberId로 Member 조회(사용처:커뮤니티)
+    Optional<Member> findByMemberId(String memberId);
 
     @Query("SELECT m FROM Member m WHERE m.memberId = :memberId")
     Member getWithRoles(@Param("memberId") String memberId);

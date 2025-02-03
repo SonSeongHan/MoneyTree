@@ -36,9 +36,47 @@ public class MemberController {
 //    }
 
     @PutMapping("/modify/{id}")
-    public ResponseEntity<Member> updateMember(@PathVariable String  id, @RequestBody MemberDTO memberDTO) {
+    public ResponseEntity<Member> updateMember(@PathVariable String id, @RequestBody MemberDTO memberDTO) {
         Member updatedMember = memberService.modifyMember(id, memberDTO);
         return ResponseEntity.ok(updatedMember);
+    }
+
+    // 비밀번호 변경 API 추가
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@RequestBody MemberDTO memberDTO) {
+        try {
+            memberService.changePassword(
+                    memberDTO.getMemberId(),
+                    memberDTO.getMemberpassword(), // 기존 비밀번호
+                    memberDTO.getAccountNumber()  // 새 비밀번호 (accountNumber 필드 사용)
+            );
+            return ResponseEntity.ok("비밀번호 변경 성공");
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().equals("현재 비밀번호가 일치하지 않습니다.")) {
+                return ResponseEntity.status(401).body("현재 비밀번호가 일치하지 않습니다.");
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/changeName")
+    public ResponseEntity<String> changeMemberName(@RequestBody MemberDTO memberDTO) {
+        if (memberDTO.getMemberId() == null || memberDTO.getMemberpassword() == null || memberDTO.getMember_name() == null) {
+            return ResponseEntity.badRequest().body("모든 필드를 입력해야 합니다.");
+        }
+
+        boolean success = memberService.changeMemberName(
+                memberDTO.getMemberId(),   // 기존 아이디
+                memberDTO.getMember_name(), // 변경할 이름
+                memberDTO.getMemberpassword() // 비밀번호
+        );
+
+        if (success) {
+            return ResponseEntity.ok("이름 변경 성공");
+        } else {
+            return ResponseEntity.badRequest().body("이름 변경 실패");
+        }
     }
 
 }
