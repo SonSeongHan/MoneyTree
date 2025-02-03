@@ -1,38 +1,36 @@
+// src/api/MemberAPI.js
 import axios from "axios";
+import { API_SERVER_HOST } from "./todoApi";
 
-const BASE_URL = "http://localhost:8080/api/members";
+const host = `${API_SERVER_HOST}/api/members`; // Member API 경로
 
-export const login = async (loginData) => {
-  return axios.post(`${BASE_URL}/login`, loginData);
-};
+// Axios 기본 설정: 인증 헤더 제거하고, 쿠키를 포함한 요청 설정
+const memberAxios = axios.create({
+  baseURL: host,
+  withCredentials: true, // 쿠키 기반 인증
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
+// 로그인 API
+
+
+// 회원 생성 API
 export const createMember = async (memberData) => {
-  return axios.post(`${BASE_URL}/make`, memberData);
+  return memberAxios.post(`/make`, memberData);
 };
 
-export const updateMember = async (id, memberData) => {
-  return axios.put(`${BASE_URL}/modify/${id}`, memberData);
+// 비밀번호 변경 API
+export const changePassword = async (passwordData) => {
+  return memberAxios.post(`/changePassword`, passwordData);
 };
 
-export const deleteMember = async (id) => {
-  return axios.delete(`${BASE_URL}/delete/${id}`);
+// 아이디 변경 API
+export const changeId = async (idData) => {
+  return memberAxios.post(`/changeId`, idData);
 };
 
-/**
- * 계좌 생성 API 호출 함수
- * @param {Object} accountData - 계좌 생성에 필요한 데이터
- * @returns {Promise} - Axios Promise 객체
- */
-export const createAccount = async (accountData) => {
-  try {
-    const response = await axios.post(BASE_URL, accountData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return response.data; // 성공 시 응답 데이터 반환
-  } catch (error) {
-    // 에러 처리 (필요 시 커스터마이징)
-    throw error.response?.data || '계좌 생성 중 오류가 발생했습니다.';
-  }
+export const changeName = async (nameData) => {
+  return memberAxios.post(`/changeName`, nameData);
 };

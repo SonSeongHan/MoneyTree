@@ -1,57 +1,68 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { login } from "../api/MemberAPI";
+import { loginPost } from "../api/MemberAPI";
 import { getCookie, removeCookie, setCookie } from "../util/cookieUtil";
 
-// 초기 상태 정의
 const initState = {
-  member: null, // 로그인한 회원 정보
-  isAuthenticated: false, // 로그인 상태
-  error: null, // 에러 메시지
+  email: "",
+  user: { role: null }, // 초기 role 값 추가
 };
 
-// 쿠키에서 멤버 정보 로드
-const loadMemberFromCookie = () => {
-  const memberCookie = getCookie("member");
-  return memberCookie ? JSON.parse(memberCookie) : null;
+const loadMemberCookie = () => {
+  //쿠키에서 로그인 정보 로딩
+  const memberInfo = getCookie("member");
+
+  //닉네임 처리하여 사용자가 입력한 값중에 특수문자나 공백이 포함되면 디코딩하여 제대로 된 형태로 표시
+  if (memberInfo && memberInfo.nickname) {
+    memberInfo.nickname = decodeURIComponent(memberInfo.nickname);
+  }
+  return memberInfo;
 };
 
-// 비동기 로그인 요청 (Thunk)
-export const loginPostAsync = createAsyncThunk(
-    "login/loginPostAsync",
-    async (loginData, { rejectWithValue }) => {
-        try {
-            const response = await login(loginData); // MemberAPI의 login 호출
-            return response.data; // API 응답 데이터 반환
-        } catch (error) {
-            return rejectWithValue(error.response?.data || "로그인 요청 실패");
-        }
-    }
-);
-
-const loginSlice = createSlice({
-    name: "login",
-    initialState: {
-        ...initState,
-        member: loadMemberFromCookie(), // 쿠키에서 멤버 정보 로드
-        isAuthenticated: !!loadMemberFromCookie(),
-    },
-    reducers: {
-        logout: (state) => {
-            removeCookie("member"); // 쿠키 제거
-            return { ...initState };
-        },
-    },
-    extraReducers: (builder) => {
-        builder.addCase(loginPostAsync.fulfilled, (state, action) => {
-            const memberData = action.payload; // API 응답 데이터
-            setCookie("member", JSON.stringify(memberData), 1); // 쿠키에 저장 (1일)
-            state.member = memberData;
-            state.isAuthenticated = true;
-        });
-    },
+export const loginPostAsync = createAsyncThunk("loginPostAsync", (param) => {
+  return loginPost(param);
 });
 
+// slice: action과 reducer처리를 하는 함수
+const loginSlice = createSlice({
+  name: "LoginSlice",
+  initialState: loadMemberCookie() || initState, // 쿠키가 없다면 초깃값 사용
+  reducers: {
+    login: (state, action) => {
+      console.log("login....");
 
-// 액션 및 리듀서 내보내기
-export const { logout } = loginSlice.actions;
+      // 소셜 로그인 회원이 사용
+      const payload = action.payload;
+      setCookie("player", JSON.stringify(payload), 1); // 1일
+
+      return payload;
+    },
+    logout: (state, action) => {
+      console.log("logout....");
+      removeCookie("player");
+      return { ...initState };
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginPostAsync.fulfilled, (state, action) => {
+        console.log("fulfilled"); //완료
+        const payload = action.payload;
+
+        // 정상적인 로그인시에만 저장
+        if (!payload.error) {
+          setCookie("player", JSON.stringify(payload), 1); //1일
+          // setCookie("member", JSON.stringify(payload),1/24)  //시간
+        }
+        return payload;
+      })
+      .addCase(loginPostAsync.pending, (state, action) => {
+        console.log("pending"); //처리중
+      })
+      .addCase(loginPostAsync.rejected, (state, action) => {
+        console.log("rejected"); // 에러
+      });
+  },
+});
+
+export const { login, logout } = loginSlice.actions;
 export default loginSlice.reducer;

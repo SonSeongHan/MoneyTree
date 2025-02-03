@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -20,7 +21,6 @@ public class Community {
     @Column(name = "post_id")
     private Long postId;
 
-    //MemberType을 도메인에 생성했지만 테이블의 현재 상태는 NOT NULL이 아니므로 NULL 상태도 통과됨
     @Enumerated(EnumType.STRING)
     @Column(name = "membership_type")
     private MembershipType membershipType;
@@ -44,6 +44,15 @@ public class Community {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
+
+    @ManyToOne
+    @JoinColumn(name = "member_id",nullable = false)
+    private Member member;
+
+    @OneToMany(mappedBy = "community")
+    private List<CommunityReplies> communityRepliesList;
 
 }

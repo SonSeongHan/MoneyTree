@@ -4,9 +4,9 @@ package com.moneytree_back.repository;
 import com.moneytree_back.domain.Dandwac;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-/**
- * 입출금 계좌 JPA Repository
- */
+import java.util.Optional;
+
 public interface DandwacRepository extends JpaRepository<Dandwac, String> {
-    // 기본적인 CRUD 메서드는 JpaRepository가 제공
+    // member가 가진 dandw_ac_id를 찾는 쿼리 메서드
+    Optional<Dandwac> findByMember_MemberId(String memberId);
 }

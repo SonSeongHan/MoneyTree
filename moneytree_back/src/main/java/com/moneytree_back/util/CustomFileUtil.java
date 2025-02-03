@@ -38,6 +38,7 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
         }
 
         uploadPath = tempFolder.getAbsolutePath();
+        log.info("업로드 경로: {}", uploadPath);
 
         log.info("-------------------------------------");
         log.info(uploadPath);
@@ -53,7 +54,7 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
 
         for (MultipartFile multipartFile : files) {
 
-            String savedName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
+            String savedName = UUID.randomUUID() + "_" + multipartFile.getOriginalFilename();
 
             Path savePath = Paths.get(uploadPath, savedName);
 
@@ -61,7 +62,9 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
                 Files.copy(multipartFile.getInputStream(), savePath);
                 String contentType = multipartFile.getContentType();
                 if(contentType != null && contentType.startsWith("image")){
-                    Path thumbnailPath = Paths.get(uploadPath, "s_"+savedName);
+
+                    String thumbnailName = "s_" + savedName;
+                    Path thumbnailPath = Paths.get(uploadPath, thumbnailName);
 
                     Thumbnails.of(savePath.toFile())
                             .size(200, 200)
@@ -72,6 +75,7 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
                 throw new RuntimeException(e.getMessage());
             }
         }//end for
+
         return uploadNames;
     }
 

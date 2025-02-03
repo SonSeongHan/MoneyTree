@@ -3,11 +3,13 @@ package com.moneytree_back.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.time.ZonedDateTime;
 import java.util.*;
 
+@Component
 @Log4j2
 public class JWTUtil {
     private static final String SECRET_KEY = "1234567890123456789012345678901234567890"; // 30자 이상
@@ -26,12 +28,10 @@ public class JWTUtil {
                 .compact();
     }
 
-
-
     // JWT 검증 메서드
     public static Map<String, Object> validateToken(String token) {
         if (isTokenBlacklisted(token)) {
-            throw new PlayerJWTException("Token is blacklisted");
+            throw new MemberJWTException("Token is blacklisted");
         }
 
         try {
@@ -43,15 +43,15 @@ public class JWTUtil {
                     .parseClaimsJws(token) // 파싱 및 검증
                     .getBody();
         } catch (MalformedJwtException e) {
-            throw new PlayerJWTException("MalFormed");
+            throw new MemberJWTException("MalFormed");
         } catch (ExpiredJwtException e) {
-            throw new PlayerJWTException("Expired");
+            throw new MemberJWTException("Expired");
         } catch (InvalidClaimException e) {
-            throw new PlayerJWTException("Invalid");
+            throw new MemberJWTException("Invalid");
         } catch (JwtException e) {
-            throw new PlayerJWTException("JWTError");
+            throw new MemberJWTException("JWTError");
         } catch (Exception e) {
-            throw new PlayerJWTException("Error");
+            throw new MemberJWTException("Error");
         }
     }
 
@@ -61,7 +61,7 @@ public class JWTUtil {
             Map<String, Object> claims = validateToken(token);
             return generateToken(claims, newExpiryMinutes);
         } catch (Exception e) {
-            throw new PlayerJWTException("Error refreshing token: " + e.getMessage());
+            throw new MemberJWTException("Error refreshing token: " + e.getMessage());
         }
     }
 
@@ -78,7 +78,7 @@ public class JWTUtil {
         } catch (ExpiredJwtException e) {
             return true; // 만료됨
         } catch (Exception e) {
-            throw new PlayerJWTException("Error checking token expiry: " + e.getMessage());
+            throw new MemberJWTException("Error checking token expiry: " + e.getMessage());
         }
     }
 

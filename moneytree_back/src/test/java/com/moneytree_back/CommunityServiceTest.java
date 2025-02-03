@@ -27,9 +27,9 @@ public class CommunityServiceTest {
     void testSaveCommunity(){
 
         CommunityDTO communityDTO = new CommunityDTO();
-        communityDTO.setTitle("이미지 Url 빼고 보내본다5");
-        communityDTO.setContent("흐음");
-        communityDTO.setMembershipType("SimpleMember");
+        communityDTO.setTitle("정회원인데");
+        communityDTO.setContent("**펀드 날아오른다 형 믿고 와라");
+        communityDTO.setMembershipType("FullMember");
         communityDTO.setPostType("HOBBY");
         communityDTO.setImageUrl("");
         communityDTO.setCreatedAt(LocalDateTime.now());

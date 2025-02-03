@@ -2,10 +2,7 @@ package com.moneytree_back.security.filter;
 
 import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.MemberDTO;
-<<<<<<< HEAD
 
-=======
->>>>>>> 1cf2655218af686c8ba01f6e9d22ad7d9d06a07b
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
 import jakarta.servlet.FilterChain;
@@ -42,23 +39,36 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         // /api/member/modify-pw는 필터링 처리
 
         // /api/member/ 경로는 필터링하지 않음
-        if (path.startsWith("/api/member/")) {
+        if (path.startsWith("/api/members/make")) {
             return true;
         }
 
-<<<<<<< HEAD
-        if (path.startsWith("/api/communities")){
+
+        if (path.startsWith("/api/communities") && method.equalsIgnoreCase("GET")){
             return true;
         }
 
-        return true;
-    }
-=======
+        if (path.startsWith("/api/communities") && method.equalsIgnoreCase("POST")){
+            return false;
+        }
+
+        if (path.startsWith("/api/communities/")){
+           return false;
+        }
+
+        if (path.startsWith("/api/community/replies")){
+            return true;
+        }
+
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("POST")){
+            return false;
+        }
+
         // /api/member/make-account는 필터링하지 않음
         if (path.startsWith("/api/accounts")) {
             return true;
         }
->>>>>>> 1cf2655218af686c8ba01f6e9d22ad7d9d06a07b
+
 
         // 기본적으로 모든 요청은 필터링 처리
         return true; //
@@ -85,9 +95,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             log.info("JWT claims: " + claims);
 
             // JWT claims에서 데이터 추출
+            String memberId = (String) claims.get("memberId");
             String memberName = (String) claims.get("member_name");
             String residentRegistrationNumber = (String) claims.get("residentRegistrationNumber");
             String membershipTypeStr = (String) claims.get("membershipType");
+
+            log.info("memberId 추출 결과: " + memberId);
+            log.info("memberName 추출 결과: " + memberName);
+            log.info("membershipTypeStr 추출 결과: " + membershipTypeStr);
 
             // MembershipType Enum으로 변환
             MembershipType membershipType = MembershipType.valueOf(membershipTypeStr);

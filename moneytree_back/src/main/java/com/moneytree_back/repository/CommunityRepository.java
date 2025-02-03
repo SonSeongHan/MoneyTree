@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
-    Page<Community> findByPostType(PostType postType, Pageable pageable);
+    Page<Community> findAllByPostType(PostType postType,Pageable pageable);
 }
 

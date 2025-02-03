@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "member")
@@ -21,6 +22,7 @@ public class Member {
     private String memberId;
 
     // 이름
+    @Column(name = "member_name")
     private String member_name;
 
     // 주민등록번호(13자리) - 여기서는 DB 컬럼명 자동 생성
@@ -55,4 +57,12 @@ public class Member {
     // 가입일
     @Column(name = "member_created_day")
     private LocalDateTime member_created_day;
+
+    //커뮤니티에서 멤버 id를 조회해서 membership_type을 구분해서 커뮤니티 글을 작성 시에 입력되기 위해
+    @OneToMany(mappedBy = "member")
+    private List<Community> communities;
+
+    //커뮤니티 글에서 멤버 id를 fk로 가지고 와서 작성자 정보를 가져오기 위해 작성
+    @OneToMany(mappedBy = "member")
+    private List<CommunityReplies> communityReplies;
 }

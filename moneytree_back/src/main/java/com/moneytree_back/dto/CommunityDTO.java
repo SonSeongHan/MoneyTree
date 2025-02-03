@@ -1,33 +1,38 @@
 package com.moneytree_back.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CommunityDTO {
     private Long postId;
-    //    private String member; 나중에 로그인 유저 로직 짜여지면 사용가능
+    private String memberId;
     private String postType;
-    private String membershipType;
     private String title;
     private String content;
     private String imageUrl;
+    private String membershipType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public CommunityDTO() {}
 
-    public CommunityDTO(Long postId,String postType, String membershipType, String title, String content, String imageUrl) {
-        this.postId = postId;
-        this.postType = postType;
-        this.membershipType = membershipType;
-        this.title = title;
-        this.content = content;
-        this.imageUrl = imageUrl;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
+
+//    public CommunityDTO(Long postId, String memberId, String postType, String title, String content, String imageUrl, String membershipType) {
+//        this.postId = postId;
+//        this.memberId = memberId;
+//        this.postType = postType;
+//        this.title = title;
+//        this.content = content;
+//        this.imageUrl = imageUrl;
+//        this.membershipType = membershipType;
+//        this.createdAt = LocalDateTime.now();
+//        this.updatedAt = LocalDateTime.now();
+//    }
 
 
 }
