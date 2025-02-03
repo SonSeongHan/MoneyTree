@@ -85,6 +85,54 @@ const root = createBrowserRouter([
         ),
       },
       {
+        path: 'products/deposit-saving',
+        element: (
+          <Suspense fallback={Loading}>
+            <DepositSaving />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'deposit/:depositProductId', // 새로운 라우트 추가
+        element: (
+          <Suspense fallback={Loading}>
+            <DepositDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'saving/:savingProductId', // 새로운 적금 상세 페이지 경로
+        element: (
+          <Suspense fallback={Loading}>
+            <SavingDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/fund-stock',
+        element: (
+          <Suspense fallback={Loading}>
+            <FundStock />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/fund',
+        element: (
+          <Suspense fallback={Loading}>
+            <Fund />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/stock',
+        element: (
+          <Suspense fallback={Loading}>
+            <Stock />
+          </Suspense>
+        ),
+      },
+      {
         path: 'realestate',
         element: (
           <Suspense fallback={Loading}>
@@ -256,54 +304,6 @@ const root = createBrowserRouter([
             element: (
               <Suspense fallback={Loading}>
                 <RealEstate />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'products/deposit-saving',
-            element: (
-              <Suspense fallback={Loading}>
-                <DepositSaving />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'deposit/:depositProductId', // 새로운 라우트 추가
-            element: (
-              <Suspense fallback={Loading}>
-                <DepositDetailPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'saving/:savingProductId', // 새로운 적금 상세 페이지 경로
-            element: (
-              <Suspense fallback={Loading}>
-                <SavingDetailPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'products/fund-stock',
-            element: (
-              <Suspense fallback={Loading}>
-                <FundStock />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'products/fund',
-            element: (
-              <Suspense fallback={Loading}>
-                <Fund />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'products/stock',
-            element: (
-              <Suspense fallback={Loading}>
-                <Stock />
               </Suspense>
             ),
           },
