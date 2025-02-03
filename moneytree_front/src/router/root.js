@@ -23,126 +23,126 @@ const SavingDetailPage = lazy(() => import('../pages/recommends/SavingDetailPage
 
 // 라우트 설정
 const root = createBrowserRouter([
-    {
-        path: '/',
-        element: <AppLayout />, // 네비게이션을 포함할 레이아웃
-        children: [
-            {
-                // '/' 경로를 들어왔을 때 첫 화면
-                index: true,
-                element: (
-                    <Suspense fallback={Loading}>
-                        <LoginPage />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'home',
-                element: (
-                  <Suspense fallback={Loading}>
-                      <Home />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'make-account',
-                element: (
-                  <Suspense fallback={Loading}>
-                      <MakeAccount />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'member/full/make',
-                element: (
-                  <Suspense fallback={Loading}>
-                      <MakeMember />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'member/simple/make',
-                element: (
-                  <Suspense fallback={Loading}>
-                      <SimpleMakeMember />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'mypage',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <MyPage />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'realestate',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <RealEstate />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'products/deposit-saving',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <DepositSaving />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'deposit/:depositProductId', // 새로운 라우트 추가
-                element: (
-                  <Suspense fallback={Loading}>
-                      <DepositDetailPage />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'saving/:savingProductId', // 새로운 적금 상세 페이지 경로
-                element: (
-                  <Suspense fallback={Loading}>
-                      <SavingDetailPage />
-                  </Suspense>
-                ),
-            },
-            {
-                path: 'products/fund-stock',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <FundStock />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'products/fund',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <Fund />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'products/stock',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <Stock />
-                    </Suspense>
-                ),
-            },
-            {
-                path: 'community/hobby',
-                element: (
-                    <Suspense fallback={Loading}>
-                        <HobbyCommunity />
-                    </Suspense>
-                ),
-            },
+  {
+    path: '/',
+    element: <AppLayout />, // 네비게이션을 포함할 레이아웃
+    children: [
+      {
+        // '/' 경로를 들어왔을 때 첫 화면
+        index: true,
+        element: (
+          <Suspense fallback={Loading}>
+            <LoginPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'home',
+        element: (
+          <Suspense fallback={Loading}>
+            <Home />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'make-account',
+        element: (
+          <Suspense fallback={Loading}>
+            <MakeAccount />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'member/full/make',
+        element: (
+          <Suspense fallback={Loading}>
+            <MakeMember />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'member/simple/make',
+        element: (
+          <Suspense fallback={Loading}>
+            <SimpleMakeMember />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'mypage',
+        element: (
+          <Suspense fallback={Loading}>
+            <MyPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'realestate',
+        element: (
+          <Suspense fallback={Loading}>
+            <RealEstate />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/deposit-saving',
+        element: (
+          <Suspense fallback={Loading}>
+            <DepositSaving />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'deposit/:depositProductId', // 새로운 라우트 추가
+        element: (
+          <Suspense fallback={Loading}>
+            <DepositDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'saving/:savingProductId', // 새로운 적금 상세 페이지 경로
+        element: (
+          <Suspense fallback={Loading}>
+            <SavingDetailPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/fund-stock',
+        element: (
+          <Suspense fallback={Loading}>
+            <FundStock />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/fund',
+        element: (
+          <Suspense fallback={Loading}>
+            <Fund />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'products/stock',
+        element: (
+          <Suspense fallback={Loading}>
+            <Stock />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'community/hobby',
+        element: (
+          <Suspense fallback={Loading}>
+            <HobbyCommunity />
+          </Suspense>
+        ),
+      },
 
-        ],
-    },
+    ],
+  },
 ]);
 
 export default root;
