@@ -51,6 +51,9 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         claims.put("membershipType", membershipType);
         claims.put("member_name", memberName);
 
+        // 2) JWT 만들기 위해 claim에 넣을 정보 준비
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("memberId", memberId);
         // 필요하다면 membershipType, 주민등록번호 등도 추가 가능
 
         // 3) JWT 토큰 생성
@@ -61,6 +64,8 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("RefreshToken: {}" , refreshToken);
         log.info("member_name:{}", memberName);
 
+        log.info("AccessToken: " + accessToken);
+        log.info("RefreshToken: " + refreshToken);
 
         // 응답으로 JSON 내려주기
         Map<String, Object> responseData = new HashMap<>();

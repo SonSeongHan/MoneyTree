@@ -29,11 +29,14 @@ public class MemberDTO extends org.springframework.security.core.userdetails.Use
     private Integer member_creditScore;
     private Integer changeMemberName;
 
-
     public MemberDTO(String memberId, String memberPassword, MembershipType membershipType) {
         super(
                 memberId,
                 "", //체크필터쪽에서 MemberDTO 생성하는 코드를 보면 password를 포함해서 생성하는게 아님.
+    public MemberDTO(String memberId, String memberPassword, MembershipType membershipType) {
+        super(
+                memberId,
+                memberPassword,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + membershipType.name()))
         );
         this.memberId = memberId;
@@ -41,14 +44,11 @@ public class MemberDTO extends org.springframework.security.core.userdetails.Use
         this.membershipType = membershipType;
     }
 
-
     public MemberDTO() {
         // 파라미터 없는 기본 생성자
         // (User 상위 클래스는 아이디/패스워드/권한을 꼭 넣어야 하므로 임시 값 세팅)
         super("default_id", "default_pw", new ArrayList<>());
     }
-
-
 
     public Map<String, Object> getClaims() {
         Map<String, Object> dataMap = new HashMap<>();

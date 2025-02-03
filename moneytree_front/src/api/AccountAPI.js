@@ -1,4 +1,3 @@
-// AccountAPI.js
 import axios from 'axios';
 import { getCookie } from '../util/cookieUtil';
 

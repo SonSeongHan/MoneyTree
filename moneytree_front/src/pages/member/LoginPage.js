@@ -9,6 +9,9 @@ import CertificateLogin from "../../components/CertificateLogin";
 const LoginPage = () => {
     // 로그인 컴포넌트 초기 state
     const [userType, setUserType] = useState("SimpleMember"); // "SimpleMember" | "FullMember" | "Certificate"
+const LoginPage = () => {
+    // 로그인 컴포넌트 초기 state
+    const [userType, setUserType] = useState("SimpleMember");
     const [userId, setUserId] = useState("");
     const [password, setPassword] = useState("");
     const [rrn, setRrn] = useState(""); // 주민등록번호 (정회원일 경우)
@@ -22,6 +25,7 @@ const LoginPage = () => {
     const handleFullSignUp = () => navigate("/member/full/make");
 
     // 일반(간편/정회원) 로그인 요청
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setErrorMessage("");
@@ -33,7 +37,7 @@ const LoginPage = () => {
             formData.append("memberId", userId);
             formData.append("memberpassword", password);
 
-            // 정회원(FullMember)일 경우에만 주민등록번호 파라미터 추가
+            // 정회원(FullMember)일 경우에만 주민등록번호 파라미터를 추가
             if (userType === "FullMember") {
                 formData.append("residentRegistrationNumber", rrn);
             }
@@ -80,6 +84,7 @@ const LoginPage = () => {
             const serverErrorMessage =
                 error.response?.data?.message ||
                 "로그인 중 오류가 발생했습니다.";
+
             setErrorMessage(serverErrorMessage);
         }
     };
@@ -90,6 +95,7 @@ const LoginPage = () => {
                 <h2>로그인</h2>
 
                 {/* 유저 타입(간편, 정회원, 인증서) 선택 */}
+
                 <div className="user-type-selection">
                     <label>
                         <input
@@ -180,6 +186,7 @@ const LoginPage = () => {
                 {successMessage && (
                     <p className="success-message">{successMessage}</p>
                 )}
+
             </div>
         </div>
     );

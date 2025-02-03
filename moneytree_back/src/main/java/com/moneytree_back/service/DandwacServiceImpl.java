@@ -27,6 +27,11 @@ public class DandwacServiceImpl implements DandwacService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 ID입니다."));
 
         // (2) Dandwac 엔티티 생성
+        // 1) Member 엔티티 조회
+        Member member = memberRepository.findById(dto.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 ID입니다."));
+
+        // 2) Dandwac 엔티티 생성
         Dandwac account = new Dandwac();
         account.setDandwAcId(dto.getDandwAcId());
         account.setMember(member);
@@ -41,10 +46,17 @@ public class DandwacServiceImpl implements DandwacService {
         // (4) Member 업데이트
         member.setMember_accountNumber(account.getDandwAcId());
         member.setMembershipType(MembershipType.FullMember);
+        // 3) 계좌 저장
+        dandwAccountRepository.save(account);
+
+        // 4) Member 엔티티의 계좌번호 업데이트
+        member.setMember_accountNumber(account.getDandwAcId());
+        member.setMembershipType(MembershipType.FullMember); // 회원 유형 변경
         memberRepository.save(member);
 
         return account;
     }
+
 
     @Override
     public Dandwac getAccount(String dandwAcId) {

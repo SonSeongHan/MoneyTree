@@ -19,8 +19,8 @@ public class DepositAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "deposit_account_id", updatable = false, nullable = false)
-    private Long depositAccountId; // 기본키
+    @Column(name = "deposit_account_number", updatable = false, nullable = false)
+    private Long depositAccountNumber; // 기본 키, 예금 계좌 번호
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deposit_product_id", nullable = false)
