@@ -60,18 +60,6 @@ public class MemberSecurityConfig {
         customLoginFilter.setAuthenticationSuccessHandler(apiLoginSuccessHandler); //new를 없애고 수정
         customLoginFilter.setAuthenticationFailureHandler(new APILoginFailHandler());
 
-        // 폼 파라미터 이름 설정
-        // (기본 UsernamePasswordAuthenticationFilter는 username/password만 읽음)
-        customLoginFilter.setUsernameParameter("memberId");
-        customLoginFilter.setPasswordParameter("memberpassword");
-
-        // 인증 매니저 주입
-        customLoginFilter.setAuthenticationManager(authenticationManager);
-
-        // 로그인 성공/실패 시 동작할 핸들러 설정
-        customLoginFilter.setAuthenticationSuccessHandler(new APILoginSuccessHandler());
-        customLoginFilter.setAuthenticationFailureHandler(new APILoginFailHandler());
-
         return customLoginFilter;
     }
 
