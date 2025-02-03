@@ -1,0 +1,183 @@
+/* 댓글 전체 컨테이너 */
+.comment-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 댓글 헤더 (제목 영역) */
+.comment-header {
+  font-size: 1.2em;
+  color: #333333;
+  border-bottom: 2px solid #007aff;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+/* 댓글 목록 스타일 */
+.comment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.comment-item {
+  padding: 15px;
+  border-bottom: 1px solid #e1e1e1;
+  transition: background-color 0.2s;
+}
+
+.comment-item:hover {
+  background-color: #f9f9f9;
+}
+
+/* 댓글 메타 정보 */
+.comment-meta {
+  font-size: 0.85em;
+  color: #777777;
+  margin-bottom: 5px;
+}
+
+/* 댓글 본문 텍스트 */
+.comment-text {
+  font-size: 1em;
+  color: #444444;
+  margin-bottom: 10px;
+}
+
+/* 댓글 액션 버튼 (수정, 삭제) */
+.comment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.comment-actions .btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background-color 0.2s;
+}
+
+.btn.edit-btn {
+  background-color: #ffc107;
+  color: #ffffff;
+}
+
+.btn.edit-btn:hover {
+  background-color: #e0a800;
+}
+
+.btn.delete-btn {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.btn.delete-btn:hover {
+  background-color: #c82333;
+}
+
+/* 인라인 댓글 수정 폼 */
+.comment-edit-form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.edit-input {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn.save-btn {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.btn.save-btn:hover {
+  background-color: #218838;
+}
+
+.btn.cancel-btn {
+  background-color: #6c757d;
+  color: #ffffff;
+}
+
+.btn.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+/* 페이지 네비게이션 영역 */
+.pagination {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.pagination button {
+  margin: 0 4px;
+  padding: 6px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination button:hover {
+  background-color: #f1f1f1;
+}
+
+.pagination .page-button.active {
+  background-color: #007aff;
+  color: #ffffff;
+  font-weight: bold;
+  border-color: #007aff;
+}
+
+/* 댓글 작성 폼 */
+.comment-create-form {
+  margin-top: 20px;
+}
+
+.create-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  font-size: 1em;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.btn.create-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007aff;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn.create-btn:hover {
+  background-color: #005bb5;
+}
