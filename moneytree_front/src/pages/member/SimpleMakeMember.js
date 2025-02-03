@@ -41,6 +41,8 @@ const SimpleMakeMember = () => {
       await createMember(memberData);
 
       setSuccessMessage("회원가입이 완료되었습니다!");
+      alert("회원가입이 완료되었습니다!"); // 얼럿 추가
+
       navigate("/"); // 회원가입 성공 시 리다이렉트
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "회원가입 중 오류가 발생했습니다.");

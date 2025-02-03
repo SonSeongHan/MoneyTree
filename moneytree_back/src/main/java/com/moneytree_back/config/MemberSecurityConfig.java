@@ -23,11 +23,12 @@ import java.util.Arrays;
 
 @Configuration
 @Log4j2
-@RequiredArgsConstructor
+@RequiredArgsConstructor //Lombok이 자동으로 의존성 주입
 @EnableMethodSecurity
 public class MemberSecurityConfig {
 
     private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final APILoginSuccessHandler apiLoginSuccessHandler; //추가 (승훈)
 
     /**
      * Spring Security 6.x 에서 AuthenticationManager를 직접 빈으로 얻어오기 위한 설정
@@ -46,6 +47,18 @@ public class MemberSecurityConfig {
 
         // 이 필터가 동작할 URL
         customLoginFilter.setFilterProcessesUrl("/api/members/login");
+
+        // 폼 파라미터 이름 설정
+        // (기본 UsernamePasswordAuthenticationFilter는 username/password만 읽음)
+        customLoginFilter.setUsernameParameter("memberId");
+        customLoginFilter.setPasswordParameter("memberpassword");
+
+        // 인증 매니저 주입
+        customLoginFilter.setAuthenticationManager(authenticationManager);
+
+        // 로그인 성공/실패 시 동작할 핸들러 설정
+        customLoginFilter.setAuthenticationSuccessHandler(apiLoginSuccessHandler); //new를 없애고 수정
+        customLoginFilter.setAuthenticationFailureHandler(new APILoginFailHandler());
 
         // 폼 파라미터 이름 설정
         // (기본 UsernamePasswordAuthenticationFilter는 username/password만 읽음)
@@ -125,4 +138,6 @@ public class MemberSecurityConfig {
 
         return http.build();
     }
+
 }
+

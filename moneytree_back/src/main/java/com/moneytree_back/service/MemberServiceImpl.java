@@ -26,7 +26,6 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("이미 사용 중인 member_id입니다.");
         }
 
-
         // 2. 주민등록번호 중복 검사
         if (memberRepository.existsByResidentRegistrationNumber(memberDTO.getResidentRegistrationNumber())) {
             throw new IllegalArgumentException("이미 가입된 주민등록번호입니다.");
@@ -91,6 +90,29 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.save(member);
     }
 
+    // 비밀번호 변경 로직
+    @Override
+    public boolean changePassword(String memberId, String currentPassword, String newPassword) {
+        // 1. 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
+
+        // 2. 현재 비밀번호 확인
+        if (!member.getMemberpassword().equals(currentPassword)) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다."); // 예외 발생
+        }
+
+        // 3. 새 비밀번호 유효성 체크
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("새 비밀번호가 유효하지 않습니다.");
+        }
+
+        // 4. 비밀번호 변경
+        member.setMemberpassword(newPassword);
+        memberRepository.save(member);
+
+        return true;
+    }
 
 //    @Override
 //    public Member login(MemberDTO loginDTO) {
@@ -122,8 +144,6 @@ public class MemberServiceImpl implements MemberService {
 
 
 
-
-
     // 주민등록번호를 바탕으로 나이 계산
     private Integer calculateAgeFromRRN(String rrn) {
         String yearStr = rrn.substring(0, 2);
@@ -147,4 +167,25 @@ public class MemberServiceImpl implements MemberService {
         LocalDate birthDate = LocalDate.of(year, month, day);
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
+
+    @Override
+    public boolean changeMemberName(String memberId, String newName, String password) {
+        // 1. 기존 회원 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
+
+        // 2. 현재 비밀번호 검증
+        if (!member.getMemberpassword().equals(password)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 3. 이름 변경
+        member.setMember_name(newName);
+        memberRepository.save(member);
+
+        return true;
+    }
+
+
+
 }

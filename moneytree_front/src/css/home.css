@@ -1,0 +1,305 @@
+/* 전체 컨테이너 */
+.home-container {
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더 */
+.home-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 0 2rem;
+    height: 60px;
+}
+
+/* 로고 */
+.logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #369;
+}
+
+/* 메뉴 */
+.menu ul {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu li {
+    cursor: pointer;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.menu li:hover {
+    color: #000;
+}
+
+/* 사용자 정보 영역 */
+.user-info {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.user-info a {
+    color: #666;
+    text-decoration: none;
+    margin: 0 0.3rem;
+}
+
+.user-info a:hover {
+    color: #000;
+}
+
+/* 메인 */
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    flex-grow: 1;
+}
+
+/* 공통 섹션 스타일 */
+section {
+    margin-bottom: 2rem;
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.03);
+}
+
+/* 섹션별 스타일 */
+/* 환영 섹션 */
+.welcome-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* 투자정보 박스 (회원 전용) */
+.investment-box {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    position: relative;
+}
+
+.investment-box h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* 도넛 차트 */
+.donut-chart {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(#48a 0% 50%, #ccc 50% 100%);
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.donut-inner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 비회원 박스 */
+.non-member-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.non-member-box .placeholder {
+    width: 300px;
+    height: 150px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* 소비내역 섹션 */
+.spending-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.spending-section h4 {
+    margin: 0.5rem 0;
+    font-weight: normal;
+    color: #666;
+}
+
+.pie-chart {
+    width: 200px;
+    height: 200px;
+    background: conic-gradient(#fa6 0% 40%, #ccc 40% 100%);
+    border-radius: 50%;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: bold;
+}
+
+.spending-section ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.spending-section ul li {
+    margin: 0.3rem 0;
+    color: #666;
+}
+
+/* 추천 상품 섹션 */
+.recommended-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.product-slider {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.product-card {
+    flex: 0 0 150px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    color: #333;
+    background-color: #fafafa;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.product-card p:first-child {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+/* 뉴스 섹션 */
+.news-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.news-section ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.news-section li {
+    margin-bottom: 1rem;
+}
+
+.news-section strong {
+    display: block;
+    color: #333;
+    margin-bottom: 0.3rem;
+}
+
+/* 펀드/주식 섹션 */
+.fund-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+/* 테이블 스타일 */
+.fund-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fund-section th,
+.fund-section td {
+    border: 1px solid #eee;
+    padding: 0.8rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.fund-section thead {
+    background-color: #f1f1f1;
+}
+
+.fund-section tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* 푸터 */
+.home-footer {
+    background-color: #fff;
+    border-top: 1px solid #e5e5e5;
+    text-align: center;
+    padding: 1rem 2rem;
+}
+
+.footer-links {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.footer-links span {
+    font-size: 0.9rem;
+}
+
+/* 반응형 간단 처리 예시 */
+@media (max-width: 768px) {
+    .home-header {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+    }
+
+    .menu ul {
+        flex-wrap: wrap;
+    }
+
+    main {
+        width: 95%;
+        margin: 1rem auto;
+    }
+
+    section {
+        padding: 1rem;
+    }
+
+    .product-slider {
+        flex-wrap: nowrap; /* 모바일에서도 스크롤 유지 */
+    }
+}

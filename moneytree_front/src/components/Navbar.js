@@ -12,6 +12,7 @@ function NavBar() {
   useEffect(() => {
     // 쿠키에서 사용자 정보 가져오기
     const memberData = getCookie('member');
+    // console.log("쿠키 데이터 확인:", memberData);
     console.log("쿠키 데이터 확인:", memberData);
 
     if (memberData && typeof memberData === "object") {
@@ -53,6 +54,7 @@ function NavBar() {
       <nav className="navbar">
         {/* 로고 */}
         <div className="navbar-logo">
+          <NavLink to="/home">로고</NavLink>
           <NavLink to="/">로고</NavLink>
         </div>
 
@@ -84,6 +86,8 @@ function NavBar() {
 
         {/* 우측 */}
         <div className="navbar-right">
+          {/* memberName을 NavLink로 변경하여 클릭 시 마이페이지로 이동 */}
+          <NavLink to="/allmanagement" className="navbar-username">{memberName}</NavLink>
           <span className="navbar-username">{memberName}</span>
           <button className="navbar-logout" onClick={handleLogout}>로그아웃</button>
         </div>
