@@ -14,7 +14,7 @@ const EstateCommunityComment = ({ postId }) => {
   // 댓글 목록을 페이지네이션해서 가져오기
   const fetchComments = () => {
     axios
-      .get(`http://localhost:8080/api/estate-community/${postId}/comments?page=${page}&size=10`)
+      .get(`http://localhost:8080/api/comments?postId=${postId}&page=${page}&size=10`)
       .then((response) => {
         // 응답 JSON 구조: { content: [...], totalPages: ..., ... }
         if (response.data && response.data.content !== undefined) {
