@@ -33,10 +33,6 @@ public class MemberDTO extends org.springframework.security.core.userdetails.Use
         super(
                 memberId,
                 "", //체크필터쪽에서 MemberDTO 생성하는 코드를 보면 password를 포함해서 생성하는게 아님.
-    public MemberDTO(String memberId, String memberPassword, MembershipType membershipType) {
-        super(
-                memberId,
-                memberPassword,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + membershipType.name()))
         );
         this.memberId = memberId;

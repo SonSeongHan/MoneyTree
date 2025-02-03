@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import AppLayout from "../router/AppLayout";
 import LoginPage from "../pages/member/LoginPage";
@@ -7,7 +7,6 @@ import SimpleMakeMember from "../pages/member/SimpleMakeMember";
 import MakeAccount from "../pages/member/MakeAaccount";
 import AccountManagement from "../components/AccountManagement";
 import AllManagement from "../pages/nav/AllManagement";
-
 import ChangeName from "../components/ChangeName";
 import MakeCertificate from "../components/MakeCertigicate";
 import CommuUpdate from '../pages/community/CommuUpdate';
@@ -42,12 +41,10 @@ const ApartmentDetails = lazy(() => import('../pages/estate/ApartmentDetails'));
 
 const root = createBrowserRouter([
   {
-
     path: "/",
-    element: <AppLayout />, // 네비게이션을 포함할 레이아웃
+    element: <AppLayout />,
     children: [
       {
-        // '/' 경로를 들어왔을 때 첫 화면
         index: true,
         element: (
           <Suspense fallback={Loading}>
@@ -56,7 +53,6 @@ const root = createBrowserRouter([
         ),
       },
       {
-
         path: "home",
         element: (
           <Suspense fallback={Loading}>
@@ -73,11 +69,18 @@ const root = createBrowserRouter([
         ),
       },
       {
-
         path: "member/full/make",
         element: (
           <Suspense fallback={Loading}>
             <MakeMember />
+          </Suspense>
+        ),
+      },
+      {
+        path: "member/simple/make",
+        element: (
+          <Suspense fallback={Loading}>
+            <SimpleMakeMember />
           </Suspense>
         ),
       },
@@ -105,7 +108,6 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
-
       {
         path: "allmanagement",
         element: (
@@ -114,13 +116,16 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
-
       {
-        path: "member/simple/make",
+        path: "mypage",
         element: (
           <Suspense fallback={Loading}>
-            <SimpleMakeMember />
-        path: 'products/deposit-saving',
+            <MyPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "products/deposit-saving",
         element: (
           <Suspense fallback={Loading}>
             <DepositSaving />
@@ -128,7 +133,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'deposit/:depositProductId', // 새로운 라우트 추가
+        path: "deposit/:depositProductId",
         element: (
           <Suspense fallback={Loading}>
             <DepositDetailPage />
@@ -136,7 +141,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'saving/:savingProductId', // 새로운 적금 상세 페이지 경로
+        path: "saving/:savingProductId",
         element: (
           <Suspense fallback={Loading}>
             <SavingDetailPage />
@@ -144,14 +149,26 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: "mypage",
-        element: (
-          <Suspense fallback={Loading}>
-            <MyPage />
-        path: 'products/fund-stock',
+        path: "products/fund-stock",
         element: (
           <Suspense fallback={Loading}>
             <FundStock />
+          </Suspense>
+        ),
+      },
+      {
+        path: "products/fund",
+        element: (
+          <Suspense fallback={Loading}>
+            <Fund />
+          </Suspense>
+        ),
+      },
+      {
+        path: "products/stock",
+        element: (
+          <Suspense fallback={Loading}>
+            <Stock />
           </Suspense>
         ),
       },
@@ -160,31 +177,11 @@ const root = createBrowserRouter([
         element: (
           <Suspense fallback={Loading}>
             <RealEstate />
-        path: 'products/fund',
-        element: (
-          <Suspense fallback={Loading}>
-            <Fund />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'products/stock',
-        element: (
-          <Suspense fallback={Loading}>
-            <Stock />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'realestate',
-        element: (
-          <Suspense fallback={Loading}>
-            <RealEstate />
           </Suspense>
         ),
         children: [
           {
-            path: 'search',
+            path: "search",
             element: (
               <Suspense fallback={Loading}>
                 <EstateSearchResult />
@@ -192,7 +189,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'map',
+            path: "map",
             element: (
               <Suspense fallback={Loading}>
                 <KakaoMap />
@@ -200,7 +197,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:name',
+            path: "details/:name",
             element: (
               <Suspense fallback={Loading}>
                 <SearchDetails />
@@ -208,7 +205,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:id',
+            path: "details/:id",
             element: (
               <Suspense fallback={Loading}>
                 <ApartmentDetails />
@@ -218,55 +215,42 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'products/deposit-saving',
-        element: (
-          <Suspense fallback={Loading}>
-            <DepositSaving />
-          </Suspense>
-        ),
-      },
-      {
-        path: "products/fund",
-        element: (
-          <Suspense fallback={Loading}>
-            <Fund />
-        path: 'deposit/:depositProductId',
-        element: (
-          <Suspense fallback={Loading}>
-            <DepositDetailPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: "products/stock",
-        element: (
-          <Suspense fallback={Loading}>
-            <Stock />
-        path: 'saving/:savingProductId',
-        element: (
-          <Suspense fallback={Loading}>
-            <SavingDetailPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/community/hobby",
+        path: "community/hobby",
         element: (
           <Suspense fallback={Loading}>
             <HobbyCommunity />
           </Suspense>
         ),
       },
-
       {
         path: "community/real-estate",
-        element: (
-          <Suspense fallback={Loading}>
-            <RealEstateCommunity />
-          </Suspense>
-        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityList />
+              </Suspense>
+            ),
+          },
+          {
+            path: "new",
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityForm />
+              </Suspense>
+            ),
+          },
+          {
+            path: ":id",
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityDetail />
+              </Suspense>
+            ),
+          },
+        ],
       },
-
       {
         path: "community/check/:postId",
         element: (
@@ -280,119 +264,6 @@ const root = createBrowserRouter([
             element: (
               <Suspense fallback={Loading}>
                 <CommuReply />
-        path: 'products/fund',
-        element: (
-          <Suspense fallback={Loading}>
-            <Fund />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'products/stock',
-        element: (
-          <Suspense fallback={Loading}>
-            <Stock />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'community/hobby',
-        element: (
-          <Suspense fallback={Loading}>
-            <HobbyCommunity />
-          </Suspense>
-        ),
-      },
-      // 부동산 커뮤니티 관련 페이지를 이제 /community/real-estate 경로에 배치합니다.
-      {
-        path: 'community/real-estate',
-        children: [
-          {
-            index: true,
-            element: (
-              <Suspense fallback={Loading}>
-                <EstateCommunityList />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'new',
-            element: (
-              <Suspense fallback={Loading}>
-                <EstateCommunityForm />
-              </Suspense>
-            ),
-          },
-          {
-            path: ':id',
-            element: (
-              <Suspense fallback={Loading}>
-                <EstateCommunityDetail />
-              </Suspense>
-            ),
-          },
-          {
-            // '/' 경로를 들어왔을 때 첫 화면
-            index: true,
-            element: (
-              <Suspense fallback={Loading}>
-                <LoginPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'home',
-            element: (
-              <Suspense fallback={Loading}>
-                <Home />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'make-account',
-            element: (
-              <Suspense fallback={Loading}>
-                <MakeAccount />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'member/full/make',
-            element: (
-              <Suspense fallback={Loading}>
-                <MakeMember />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'member/simple/make',
-            element: (
-              <Suspense fallback={Loading}>
-                <SimpleMakeMember />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'mypage',
-            element: (
-              <Suspense fallback={Loading}>
-                <MyPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'realestate',
-            element: (
-              <Suspense fallback={Loading}>
-                <RealEstate />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'community/hobby',
-            element: (
-              <Suspense fallback={Loading}>
-                <HobbyCommunity />
               </Suspense>
             ),
           },
@@ -406,19 +277,17 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
-
       {
-        path: "/community/:type/add",
+        path: "community/:type/add",
         element: (
           <Suspense fallback={Loading}>
             <CommuAdd />
           </Suspense>
         ),
-      // 기존 /community/estate 로 접근 시 /community/real-estate 로 리다이렉트
+      },
       {
-        path: 'community/estate',
+        path: "community/estate",
         element: <Navigate to="/community/real-estate" replace />,
-
       },
     ],
   },

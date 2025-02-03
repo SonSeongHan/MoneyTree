@@ -88,7 +88,6 @@ function NavBar() {
         <div className="navbar-right">
           {/* memberName을 NavLink로 변경하여 클릭 시 마이페이지로 이동 */}
           <NavLink to="/allmanagement" className="navbar-username">{memberName}</NavLink>
-          <span className="navbar-username">{memberName}</span>
           <button className="navbar-logout" onClick={handleLogout}>로그아웃</button>
         </div>
       </nav>
