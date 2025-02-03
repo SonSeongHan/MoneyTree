@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EstateCommunityPostRepository extends JpaRepository<EstateCommunityPost, Long> {
-  // 추가적인 쿼리 메서드가 필요하면 정의
+  // 기본적으로 findAll(Pageable pageable)를 제공하므로 별도 추가 구현은 필요하지 않습니다.
 }

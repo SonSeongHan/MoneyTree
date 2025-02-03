@@ -18,11 +18,19 @@ const EstateCommunityForm = () => {
       formData.append('image', image);
     }
 
+    // FormData 확인용 로그
+    for (let key of formData.keys()) {
+      console.log(key, formData.get(key));
+    }
+
     axios
       .post('http://localhost:8080/api/estate-community', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      .then(() => navigate('/community/estate'))
+      .then((response) => {
+        console.log('게시글 작성 성공:', response.data);
+        navigate('/community/real-estate');
+      })
       .catch((error) => console.error('게시글 작성 중 오류 발생:', error));
   };
 
@@ -53,7 +61,15 @@ const EstateCommunityForm = () => {
             borderRadius: '5px',
           }}
         />
-        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
+        <input
+          type="file"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              setImage(e.target.files[0]);
+              console.log('파일 선택됨:', e.target.files[0]);
+            }
+          }}
+        />
         <button
           type="submit"
           style={{
