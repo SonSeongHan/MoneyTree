@@ -23,4 +23,5 @@ public class SavingProductDTO {
     private BigDecimal savingPrimeInterestRate; // 최고 우대 이자율
     private LocalDateTime savingProductCreatedAt; // 생성 일자
     private LocalDateTime savingProductUpdatedAt; // 수정 일자
+
 }

@@ -5,9 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix="saving.api")
+@ConfigurationProperties(prefix="fund.api")
 @Data
-public class SavingApiConfig {
+public class FundApiConfig {
     private String key;
     private String baseUrl;
 }

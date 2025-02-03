@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix="deposit.api")
 @Data
 public class DepositApiConfig {
-
     private String key;
     private String baseUrl;
 }

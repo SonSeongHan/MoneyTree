@@ -15,7 +15,7 @@ const Home = lazy(() => import('../pages/nav/Home'));
 const MyPage = lazy(() => import('../pages/nav/Mypage'));
 const RealEstate = lazy(() => import('../pages/nav/RealEstate'));
 const DepositSaving = lazy(() => import('../pages/nav/DepositSaving'));
-const InstallmentSaving = lazy(() => import('../pages/nav/InstallmentSaving'));
+const FundStock = lazy(() => import('../pages/nav/FundStock'));
 const Fund = lazy(() => import('../pages/nav/Fund'));
 const Stock = lazy(() => import('../pages/nav/Stock'));
 const HobbyCommunity = lazy(() => import('../pages/nav/HobbyCommunity'));
@@ -111,10 +111,10 @@ const root = createBrowserRouter([
                 ),
             },
             {
-                path: 'products/installment-saving',
+                path: 'products/fund-stock',
                 element: (
                     <Suspense fallback={Loading}>
-                        <InstallmentSaving />
+                        <FundStock />
                     </Suspense>
                 ),
             },
