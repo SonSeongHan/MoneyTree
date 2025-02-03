@@ -1,4 +1,3 @@
-
 import { createBrowserRouter } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import AppLayout from '../router/AppLayout';
@@ -33,9 +32,9 @@ const root = createBrowserRouter([
                 // '/' 경로를 들어왔을 때 첫 화면
                 index: true,
                 element: (
-                    <Suspense fallback={Loading}>
-                        <LoginPage />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <LoginPage />
+                  </Suspense>
                 ),
             },
             {
@@ -73,25 +72,25 @@ const root = createBrowserRouter([
             {
                 path: 'mypage',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <MyPage />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <MyPage />
+                  </Suspense>
                 ),
             },
             {
                 path: 'realestate',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <RealEstate />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <RealEstate />
+                  </Suspense>
                 ),
             },
             {
                 path: 'products/deposit-saving',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <DepositSaving />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <DepositSaving />
+                  </Suspense>
                 ),
             },
             {
@@ -113,41 +112,41 @@ const root = createBrowserRouter([
             {
                 path: 'products/fund-stock',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <FundStock />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <FundStock />
+                  </Suspense>
                 ),
             },
             {
                 path: 'products/fund',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <Fund />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <Fund />
+                  </Suspense>
                 ),
             },
             {
                 path: 'products/stock',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <Stock />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <Stock />
+                  </Suspense>
                 ),
             },
             {
                 path: 'community/hobby',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <HobbyCommunity />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <HobbyCommunity />
+                  </Suspense>
                 ),
             },
             {
                 path: 'community/real-estate',
                 element: (
-                    <Suspense fallback={Loading}>
-                        <RealEstateCommunity />
-                    </Suspense>
+                  <Suspense fallback={Loading}>
+                      <RealEstateCommunity />
+                  </Suspense>
                 ),
             },
         ],
