@@ -1,7 +1,5 @@
 package com.moneytree_back.config;
 
-import com.moneytree_back.config.CustomAuthenticationProvider;
-import com.moneytree_back.config.CustomLoginFilter;
 import com.moneytree_back.security.handler.APILoginFailHandler;
 import com.moneytree_back.security.handler.APILoginSuccessHandler;
 import com.moneytree_back.security.handler.CustomAccessDeniedHandler;
@@ -11,10 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -23,103 +24,110 @@ import java.util.Arrays;
 
 @Configuration
 @Log4j2
-@RequiredArgsConstructor //Lombok이 자동으로 의존성 주입
+@RequiredArgsConstructor
 @EnableMethodSecurity
 public class MemberSecurityConfig {
 
     private final CustomAuthenticationProvider customAuthenticationProvider;
-    private final APILoginSuccessHandler apiLoginSuccessHandler; //추가 (승훈)
+    private final CertificateAuthenticationProvider certificateAuthenticationProvider;
+    private final APILoginSuccessHandler apiLoginSuccessHandler;
 
-    /**
-     * Spring Security 6.x 에서 AuthenticationManager를 직접 빈으로 얻어오기 위한 설정
-     */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public APILoginFailHandler apiLoginFailHandler() {
+        return new APILoginFailHandler();
     }
 
     /**
-     * 우리가 만든 CustomLoginFilter 등록
+     * 명시적으로 두 Provider를 포함하는 AuthenticationManager를 생성
+     */
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(Arrays.asList(customAuthenticationProvider, certificateAuthenticationProvider));
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
+
+    /**
+     * 일반 로그인용 CustomLoginFilter 등록 (엔드포인트: /api/members/login)
      */
     @Bean
     public CustomLoginFilter customLoginFilter(AuthenticationManager authenticationManager) throws Exception {
         CustomLoginFilter customLoginFilter = new CustomLoginFilter();
-
-        // 이 필터가 동작할 URL
         customLoginFilter.setFilterProcessesUrl("/api/members/login");
-
-        // 폼 파라미터 이름 설정
-        // (기본 UsernamePasswordAuthenticationFilter는 username/password만 읽음)
         customLoginFilter.setUsernameParameter("memberId");
         customLoginFilter.setPasswordParameter("memberpassword");
-
-        // 인증 매니저 주입
         customLoginFilter.setAuthenticationManager(authenticationManager);
-
-        // 로그인 성공/실패 시 동작할 핸들러 설정
-        customLoginFilter.setAuthenticationSuccessHandler(apiLoginSuccessHandler); //new를 없애고 수정
-        customLoginFilter.setAuthenticationFailureHandler(new APILoginFailHandler());
-
+        customLoginFilter.setAuthenticationSuccessHandler(apiLoginSuccessHandler);
+        customLoginFilter.setAuthenticationFailureHandler(apiLoginFailHandler());
         return customLoginFilter;
     }
 
     /**
-     * CORS 설정 (필요시 수정)
+     * 인증서 로그인용 CertificateLoginFilter 등록 (엔드포인트: /api/members/certificateLogin)
      */
+    @Bean
+    public CertificateLoginFilter certificateLoginFilter(AuthenticationManager authenticationManager) throws Exception {
+        CertificateLoginFilter certificateLoginFilter = new CertificateLoginFilter();
+        certificateLoginFilter.setAuthenticationManager(authenticationManager);
+        certificateLoginFilter.setAuthenticationSuccessHandler(apiLoginSuccessHandler);
+        certificateLoginFilter.setAuthenticationFailureHandler(apiLoginFailHandler());
+        return certificateLoginFilter;
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 허용할 프론트 주소
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
-        // 허용할 HTTP Method들
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        // 허용할 헤더들
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        // 인증 정보(쿠키 등) 허용 여부
         configuration.setAllowCredentials(true);
-        // 노출할 헤더들
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh-Token"));
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
     /**
-     * Spring Security FilterChain 구성
+     * SecurityFilterChain 구성
      */
     @Bean
-    public SecurityFilterChain filterChain(org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
-
+    public SecurityFilterChain filterChain(org.springframework.security.config.annotation.web.builders.HttpSecurity http,
+                                           AuthenticationManager authenticationManager) throws Exception {
         log.info(">>>>> Security config init <<<<<");
 
-        // 세션 사용 X
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.csrf(csrf -> csrf.disable());
-        http.httpBasic(basic -> basic.disable());
+        // 세션 사용 안 함, CSRF, HTTP Basic, 폼 로그인 비활성화 및 CORS 설정 적용
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(basic -> basic.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .formLogin(form -> form.disable());
 
-        // CORS 적용
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        // 두 Provider 모두 등록은 이미 AuthenticationManager에 포함됨
 
-        // 기본 formLogin을 disable
-        http.formLogin(form -> form.disable());
+        // 등록된 AuthenticationManager의 Provider 목록 출력 (ProviderManager로 캐스팅)
+        if (authenticationManager instanceof ProviderManager) {
+            ProviderManager pm = (ProviderManager) authenticationManager;
+            log.info("Registered AuthenticationProviders: {}", pm.getProviders());
+        }
 
-        // 커스텀 Provider 등록
-        http.authenticationProvider(customAuthenticationProvider);
-
-        // CustomLoginFilter를 UsernamePasswordAuthenticationFilter 이전에 등록
+        // 필터 등록
         http.addFilterBefore(
-                customLoginFilter(authenticationManager(null)),
-                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+                certificateLoginFilter(authenticationManager),
+                UsernamePasswordAuthenticationFilter.class
+        );
+        http.addFilterBefore(
+                customLoginFilter(authenticationManager),
+                UsernamePasswordAuthenticationFilter.class
         );
 
-        // 요청 허용 범위
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().permitAll()
         );
 
-        // 접근 거부 핸들러
         http.exceptionHandling(config ->
                 config.accessDeniedHandler(new CustomAccessDeniedHandler())
         );
