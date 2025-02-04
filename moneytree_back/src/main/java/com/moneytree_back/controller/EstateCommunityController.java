@@ -38,15 +38,12 @@ public class EstateCommunityController {
    * @return 게시글 목록 배열을 포함하는 ResponseEntity
    */
   @GetMapping
-  public ResponseEntity<List<EstateCommunityPostDTO>> getAllPosts(
+  public ResponseEntity<Page<EstateCommunityPostDTO>> getAllPosts(
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "10") int size) {
-    // 서비스 계층에서 페이지네이션된 Page 객체를 가져옵니다.
     Page<EstateCommunityPostDTO> postPage = communityService.getAllPosts(page, size);
-    // 실제 게시글 목록은 Page 객체의 content에 포함되어 있으므로 이를 반환합니다.
-    return ResponseEntity.ok(postPage.getContent());
+    return ResponseEntity.ok(postPage);
   }
-
   /**
    * 특정 게시글의 상세 정보를 조회하는 엔드포인트입니다.
    *
