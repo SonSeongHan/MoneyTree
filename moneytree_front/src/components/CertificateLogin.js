@@ -66,7 +66,7 @@ const CertificateLogin = () => {
         try {
             // 서버로 인증서 파일 내용과 파싱 결과를 전송
             // (백엔드에서 '은행 인증서' 문구 포함 여부, ID/이름 유효성 등을 다시 한번 확인)
-            const response = await axios.post("http://localhost:8080/api/certificateLogin", {
+            const response = await axios.post("http://localhost:8080/api/members/certificateLogin", {
                 fileContent,
                 parsedId,
                 parsedName,
@@ -98,33 +98,33 @@ const CertificateLogin = () => {
     };
 
     return (
-        <div style={{ margin: "50px" }}>
-            <h2>인증서 로그인 (파일 업로드)</h2>
+      <div style={{ margin: "50px" }}>
+          <h2>인증서 로그인 (파일 업로드)</h2>
 
-            <div style={{ marginBottom: "20px" }}>
-                <label>인증서 파일 업로드: </label>
-                <input type="file" accept=".txt" onChange={handleFileChange} />
+          <div style={{ marginBottom: "20px" }}>
+              <label>인증서 파일 업로드: </label>
+              <input type="file" accept=".txt" onChange={handleFileChange} />
+          </div>
+
+          <button onClick={handleLogin}>인증서 로그인</button>
+
+          {message && (
+            <p style={{ marginTop: "20px", color: message.includes("성공") ? "green" : "red" }}>
+                {message}
+            </p>
+          )}
+
+          {/* 디버깅용 정보 */}
+          {fileContent && (
+            <div style={{ marginTop: "20px" }}>
+                <h4>파일 내용</h4>
+                <pre>{fileContent}</pre>
+                <h4>파싱 결과</h4>
+                <p>ID: {parsedId}</p>
+                <p>이름: {parsedName}</p>
             </div>
-
-            <button onClick={handleLogin}>인증서 로그인</button>
-
-            {message && (
-                <p style={{ marginTop: "20px", color: message.includes("성공") ? "green" : "red" }}>
-                    {message}
-                </p>
-            )}
-
-            {/* 디버깅용 정보 */}
-            {fileContent && (
-                <div style={{ marginTop: "20px" }}>
-                    <h4>파일 내용</h4>
-                    <pre>{fileContent}</pre>
-                    <h4>파싱 결과</h4>
-                    <p>ID: {parsedId}</p>
-                    <p>이름: {parsedName}</p>
-                </div>
-            )}
-        </div>
+          )}
+      </div>
     );
 };
 
