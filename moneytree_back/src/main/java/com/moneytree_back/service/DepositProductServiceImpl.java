@@ -1,6 +1,6 @@
 package com.moneytree_back.service;
 
-import com.moneytree_back.config.recommendApi.DepositApiConfig;
+import com.moneytree_back.config.DepositApiConfig;
 import com.moneytree_back.domain.DepositProduct;
 import com.moneytree_back.dto.DepositProductDTO;
 import com.moneytree_back.repository.DepositProductRepository;

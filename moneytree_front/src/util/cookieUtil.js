@@ -28,7 +28,6 @@ export const getCookie = (name) => {
 
   try {
     return JSON.parse(cookieValue); // JSON 파싱 적용
-
   } catch (error) {
     console.error("❌ 쿠키 JSON 파싱 오류:", error);
     return null;
@@ -49,4 +48,3 @@ export const getMemberIdFromCookie = () => {
   const raw = getCookie("member"); // 이미 JSON 객체로 변환됨
   return raw?.memberId || null;
 };
-

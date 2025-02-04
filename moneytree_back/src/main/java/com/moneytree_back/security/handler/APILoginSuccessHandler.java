@@ -19,9 +19,9 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component // 스프링이 관리하도록 설정
+@Component //스프링이 관리하도록 설정하고
 @Log4j2
-@RequiredArgsConstructor
+@RequiredArgsConstructor //롬복을 사용하여 의존성 자동 주입
 public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final MemberRepository memberRepository;
@@ -32,47 +32,47 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
             throws IOException, ServletException {
         log.info(">>> APILoginSuccessHandler invoked - authentication: {}", authentication);
 
-        // principal이 MemberDTO 인지, 아니면 단순 String인지 검사
-        Object principal = authentication.getPrincipal();
-        String memberId = null;
-        if (principal instanceof MemberDTO) {
-            memberId = ((MemberDTO) principal).getMemberId();
-        } else if (principal instanceof String) {
-            memberId = (String) principal;
-        } else {
-            throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
-        }
+        // 1) principal에 MemberDTO를 넣은 경우 vs. 그냥 memberId(String)만 있는 경우
+        // 여기서는 provider에서
+        //   UsernamePasswordAuthenticationToken(memberId, password, authorities)
+        // 로 넘겼으므로 principal = memberId(String)
+        String memberId = (String) authentication.getPrincipal();
 
-        // DB 조회
+        //기존 코드에서 수정한 부분(승훈)
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다."));
         String membershipType = member.getMembershipType().name();
         String memberName = member.getMember_name();
+        //기존 코드에서 수정한 부분(승훈)
 
-        // JWT claims 준비
+        // 2) JWT 만들기 위해 claim에 넣을 정보 준비
         Map<String, Object> claims = new HashMap<>();
         claims.put("memberId", memberId);
         claims.put("membershipType", membershipType);
         claims.put("member_name", memberName);
 
-        // JWT 토큰 생성 (유효기간은 예시입니다)
+        // 필요하다면 membershipType, 주민등록번호 등도 추가 가능
+
+        // 3) JWT 토큰 생성
         String accessToken = JWTUtil.generateToken(claims, 60);        // 60분
-        String refreshToken = JWTUtil.generateToken(claims, 60 * 24);    // 24시간
+        String refreshToken = JWTUtil.generateToken(claims, 60 * 24);  // 24시간
 
-        log.info("AccessToken: {}", accessToken);
-        log.info("RefreshToken: {}", refreshToken);
-        log.info("member_name: {}", memberName);
+        log.info("AccessToken: {}",  accessToken);
+        log.info("RefreshToken: {}" , refreshToken);
+        log.info("member_name:{}", memberName);
 
-        // 응답 JSON 생성
+
+        // 응답으로 JSON 내려주기
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("memberId", memberId);
         responseData.put("member_name", memberName);
-        responseData.put("membershipType", membershipType);
+        responseData.put("membershipType", membershipType); //추가 (승훈)
         responseData.put("accessToken", accessToken);
         responseData.put("refreshToken", refreshToken);
 
         String jsonStr = new Gson().toJson(responseData);
-        log.info("jsonStr: {}", jsonStr);
+
+        log.info("jsonStr: {}" , jsonStr);
 
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter out = response.getWriter();

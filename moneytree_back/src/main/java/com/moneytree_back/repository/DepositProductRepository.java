@@ -20,7 +20,7 @@ public interface DepositProductRepository extends JpaRepository<DepositProduct, 
     List<DepositProduct> findByDepositMinAmountGreaterThanEqual(BigDecimal depositMinAmount);
 
     // 만기 기간별 예금 상품 조회
-    List<DepositProduct> findByDepositMaturityPeriod(Integer depositMaturityPeriod);
+    List<DepositProduct> findByDepositMaturityPeriod(Integer maturityPeriod);
 
     // 특정 이름의 예금 상품 조회 (부분 검색 포함)
     @Query("SELECT dp FROM DepositProduct dp WHERE dp.depositProductName LIKE %:depositProductName%")

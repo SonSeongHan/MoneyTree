@@ -114,35 +114,6 @@ public class MemberServiceImpl implements MemberService {
         return true;
     }
 
-//    @Override
-//    public Member login(MemberDTO loginDTO) {
-//        // 1) DB에서 member_id로 조회 (없으면 예외)
-//        Member member = memberRepository.findById(loginDTO.getMemberId())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
-//
-//        // 2) membershipType에 따라 분기
-//        if (member.getMembershipType() == MembershipType.SimpleMember) {
-//            // 간편회원: 아이디 + 비밀번호만 확인
-//            if (!member.getMemberpassword().equals(loginDTO.getMemberpassword())) {
-//                throw new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다.");
-//            }
-//            return member; // 로그인 성공
-//        }
-//        else if (member.getMembershipType() == MembershipType.FullMember) {
-//            // 정회원: 아이디 + 비밀번호 + 주민등록번호 모두 확인
-//            if (!member.getMemberpassword().equals(loginDTO.getMemberpassword())
-//                    || !member.getResidentRegistrationNumber().equals(loginDTO.getResidentRegistrationNumber())) {
-//                throw new IllegalArgumentException("아이디, 주민등록번호 또는 비밀번호가 잘못되었습니다.");
-//            }
-//            return member; // 로그인 성공
-//        }
-//        else {
-//            // 그 밖의 MembershipType 처리 (필요 시)
-//            throw new IllegalArgumentException("지원하지 않는 회원 유형입니다.");
-//        }
-//    }
-
-
 
     // 주민등록번호를 바탕으로 나이 계산
     private Integer calculateAgeFromRRN(String rrn) {

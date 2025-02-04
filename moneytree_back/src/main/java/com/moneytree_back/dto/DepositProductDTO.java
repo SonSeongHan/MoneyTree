@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class DepositProductDTO {
-
     private Long depositProductId;
     private String depositProductName;
     private String bankName;
@@ -25,5 +24,4 @@ public class DepositProductDTO {
     private BigDecimal depositPrimeInterestRate;
     private LocalDateTime depositProductCreatedAt;
     private LocalDateTime depositProductUpdatedAt;
-
 }
