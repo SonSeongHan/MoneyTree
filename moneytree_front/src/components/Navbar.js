@@ -13,6 +13,7 @@ function NavBar() {
     // 쿠키에서 사용자 정보 가져오기
     const memberData = getCookie('member');
     // console.log("쿠키 데이터 확인:", memberData);
+    console.log("쿠키 데이터 확인:", memberData);
 
     if (memberData && typeof memberData === "object") {
       // 이미 파싱된 객체일 경우
@@ -54,6 +55,7 @@ function NavBar() {
         {/* 로고 */}
         <div className="navbar-logo">
           <NavLink to="/home">로고</NavLink>
+          <NavLink to="/">로고</NavLink>
         </div>
 
         {/* 메뉴 */}
@@ -66,7 +68,7 @@ function NavBar() {
             {showProductDropdown && (
                 <ul className="dropdown">
                   <li><NavLink to="/products/deposit-saving">예금/적금</NavLink></li>
-                  <li><NavLink to="/products/installment-saving">펀드/주식</NavLink></li>
+                  <li><NavLink to="/products/fund-stock">펀드/주식</NavLink></li>
                 </ul>
             )}
           </li>

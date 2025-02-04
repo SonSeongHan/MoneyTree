@@ -7,7 +7,7 @@ import {getCookie} from '../../util/cookieUtil';
 const CommuCheck = () => {
   const { postId } = useParams(); // URL에서 ID를 가져옴
   const [community, setCommunity] = useState(null); // 선택된 커뮤니티 데이터
-  const [imageUrls, setImageUrls] = useState([]);
+  const [imageUrl, setImageUrl] = useState(null);
   const navigate = useNavigate();
 
   const loggedInUser = getCookie("member");
@@ -20,19 +20,9 @@ const CommuCheck = () => {
       try {
         const data = await fetchGetCommunityById(postId); // 특정 ID의 글 조회
         setCommunity(data);
-
-        if (data.imageUrls && data.imageUrls?.length > 0) {
-          try {
-            // 여러 개의 이미지 가져오기
-            const originalImageUrls = await Promise.all(
-              data.imageUrls.map(async (img) => {
-                return await fetchFile(img.replace("s_", "")); // 썸네일 제거 후 원본 이미지 요청
-              })
-            );
-            setImageUrls(originalImageUrls);
-          } catch (error) {
-            console.error("이미지를 불러오는 중 오류 발생:", error);
-          }
+        if(data.imageUrl){
+          const orginalImageUrl = await fetchFile(data.imageUrl.replace("s_",""));
+          setImageUrl(orginalImageUrl);
         }
       } catch (error) {
         console.error("글을 불러오는 데 실패했습니다:", error);
@@ -78,16 +68,7 @@ const CommuCheck = () => {
       <h4>작성자: {loggedInUserId}({userRole})</h4>
       <h3>제목: {community.title}</h3>
       <p>내용: {community.content}</p>
-
-      {/* 여러 개의 이미지 출력 */}
-      {imageUrls.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          {imageUrls.map((url, index) => (
-            <img key={index} src={url} alt={`community-${index}`} style={{ maxWidth: "150px", borderRadius: "5px" }} />
-          ))}
-        </div>
-      )}
-
+      {imageUrl && <img src={imageUrl} alt={community.title}/>}
       <div>
       <button onClick={() => navigate(-1)}>목록</button>
         {loggedInUserId.memberId === community.memberId && (

@@ -36,19 +36,19 @@ const MakeCertificate = () => {
     };
 
     return (
-        <div style={{ margin: "50px" }}>
-            <h2>인증서 발급 (간단 예시 - 쿠키값 포함)</h2>
-            <p>
-                아래 버튼을 클릭하면 "은행 인증서" 문구와 쿠키에 있는 사용자 정보가
-                포함된 텍스트 파일이 다운로드됩니다.
-            </p>
-            <button onClick={handleDownloadCertificate}>인증서 다운로드</button>
-            <div style={{ marginTop: "20px" }}>
-                <strong>현재 쿠키상의 사용자 정보</strong>
-                <p>ID: {userId || "없음"}</p>
-                <p>이름: {userName || "없음"}</p>
-            </div>
-        </div>
+      <div style={{ margin: "50px" }}>
+          <h2>인증서 발급 (간단 예시 - 쿠키값 포함)</h2>
+          <p>
+              아래 버튼을 클릭하면 "은행 인증서" 문구와 쿠키에 있는 사용자 정보가
+              포함된 텍스트 파일이 다운로드됩니다.
+          </p>
+          <button onClick={handleDownloadCertificate}>인증서 다운로드</button>
+          <div style={{ marginTop: "20px" }}>
+              <strong>현재 쿠키상의 사용자 정보</strong>
+              <p>ID: {userId || "없음"}</p>
+              <p>이름: {userName || "없음"}</p>
+          </div>
+      </div>
     );
 };
 

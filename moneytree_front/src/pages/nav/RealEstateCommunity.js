@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchFile, fetchRealEstateCommunity } from '../../api/CommunityApi';
 import { useNavigate } from "react-router-dom";
+import {getCookie} from '../../util/cookieUtil';
 import jwtAxios from '../../util/jwtUtil';
 
 const RealEstateCommunity = () => {
@@ -10,6 +11,7 @@ const RealEstateCommunity = () => {
   const [loading, setLoading] = useState(false); // 로딩 상태
   const navigate = useNavigate();
 
+  const memberData =getCookie("member");
 
   // 취미 커뮤니티 글 가져오기
   useEffect(() => {
@@ -23,9 +25,9 @@ const RealEstateCommunity = () => {
 
         const communitiesWithThumbnails = await Promise.all(
           data.content.map(async (community) => {
-            if (community.imageUrls && community.imageUrls.length > 0) {
+            if (community.imageUrl) {
               try {
-                const thumbnailUrl = await fetchFile(`s_${community.imageUrls[0]}`);
+                const thumbnailUrl = await fetchFile(`s_${community.imageUrl}`);
                 return { ...community, thumbnailUrl };
               } catch (fileError) {
                 console.error("썸네일을 가져오는 중에 오류 발생:", fileError);
@@ -77,9 +79,9 @@ const RealEstateCommunity = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => navigate(`/community/check/${community.postId}`)} // 클릭 시 상세 보기로 이동
               >
-                <h3>{community.memberId}: {community.title}</h3>
+                <h3>{community.memberId}{community.title}</h3>
                 <p>{community.content}</p>
-                {community.imageUrls && community.imageUrls.length > 0 && (
+                {community.imageUrl ? (
                   <img
                     src={community.thumbnailUrl}
                     alt={community.title}
@@ -90,7 +92,9 @@ const RealEstateCommunity = () => {
                       borderRadius: "5px",
                     }}
                   />
-                )}
+                ) : (
+                  <p>썸네일 이미지가 없습니다.</p>
+                  )}
               </li>
             ))}
           </ul>

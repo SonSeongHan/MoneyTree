@@ -14,4 +14,6 @@ public interface MemberService {
 
     boolean changeMemberName(String currentId, String newId, String password);
 
+    // 로그인 로직 - 회원 타입(간편/정회원)에 따라 분기
+//    Member login(MemberDTO loginDTO);
 }

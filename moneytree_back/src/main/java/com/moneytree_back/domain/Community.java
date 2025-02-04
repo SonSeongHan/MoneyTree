@@ -35,8 +35,8 @@ public class Community {
     @Column(name="content",nullable = false)
     private String content;
 
-//    @Column(name = "image_url")
-//    private String imageUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -53,6 +53,6 @@ public class Community {
     private Member member;
 
     @OneToMany(mappedBy = "community")
-    private List<CommunityImage> images;
+    private List<CommunityReplies> communityRepliesList;
 
 }

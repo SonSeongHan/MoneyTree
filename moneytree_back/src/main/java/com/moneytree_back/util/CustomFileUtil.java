@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @Log4j2
@@ -44,8 +46,8 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
     //업로드한 파일을 uuid값으로 업데이트한 후 저장
     public List<String> saveFiles(List<MultipartFile> files)throws RuntimeException{
 
-        if(files == null || files.isEmpty()){
-            return Collections.emptyList();
+        if(files == null || files.size() == 0){
+            return null; //List.of();
         }
 
         List<String> uploadNames = new ArrayList<>();

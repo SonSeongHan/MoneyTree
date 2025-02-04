@@ -1,7 +1,6 @@
 package com.moneytree_back.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -56,33 +55,29 @@ public class CommunityController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SimpleMember','FullMember','ADMIN','InquiryManager')")
     public ResponseEntity<CommunityDTO> saveCommunity(
-            @RequestParam("communityDTO") String communityDTOJson, // ✅ JSON 문자열 받기
+            @RequestParam("communityDTO") String communityDTOJson,
             @RequestParam(value = "files",required = false) List<MultipartFile> files){
-
-        log.info("커뮤니티DTO 받은 값들: {}", communityDTOJson);
 
         //JSON 문자열로 전달된 communityDTO를 객체로 변환
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 지원 모듈 등록
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // 알 수 없는 필드 무시
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,false); // ISO-8601 포맷 사용 설정
 
         CommunityDTO communityDTO;
-
         try{
             communityDTO = objectMapper.readValue(communityDTOJson,CommunityDTO.class);
             log.info("커뮤니티DTO 받은 값들: {}" , communityDTO); // 디버그용 로그
         } catch (JsonProcessingException e) {
-            log.error("커뮤니티 DTO 파싱 실패: {}", e.getMessage());
             throw new RuntimeException("커뮤니티 DTO 파싱 실패ㅜ",e);
         }
 
-        // memberId가 null일 경우 예외 처리
-        if (communityDTO.getMemberId() == null || communityDTO.getMemberId().isEmpty()) {
-            throw new IllegalArgumentException("Member ID is missing.");
+        //파일 저장 처리(필요 시)
+        if(files != null && !files.isEmpty()){
+            List<String> savedFileNames = customFileUtil.saveFiles(files);
+            communityDTO.setImageUrl(savedFileNames.get(0));
         }
 
-        communityService.saveCommunity(communityDTO,files);
+        communityService.saveCommunity(communityDTO);
         return ResponseEntity.status(201).body(communityDTO);
     }
 
@@ -95,24 +90,10 @@ public class CommunityController {
     @PreAuthorize("hasAnyRole('SimpleMember','FullMember','ADMIN','InquiryManager')")
     public ResponseEntity<CommunityDTO> updateCommunity(
             @PathVariable Long postId,
-            @RequestPart("CommunityDTO") String communityDTOJson,
-            @RequestParam(value = "files",required = false) List<MultipartFile> files) {
-
-        // JSON 문자열을 객체로 변환
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 지원
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        CommunityDTO communityDTO;
-        try {
-            communityDTO = objectMapper.readValue(communityDTOJson, CommunityDTO.class);
-            log.info("업데이트할 커뮤니티DTO: {}", communityDTO);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("커뮤니티 DTO 파싱 실패", e);
-        }
+            @RequestBody CommunityDTO communityDTO){
         communityDTO.setPostId(postId);
-        communityService.updateCommunity(communityDTO,files);
-        return ResponseEntity.status(201).body(communityDTO);
+        communityService.updateCommunity(communityDTO);
+        return ResponseEntity.ok(communityDTO);
     }
 
     @DeleteMapping("/delete/{postId}")
