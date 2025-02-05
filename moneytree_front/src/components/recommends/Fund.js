@@ -1,4 +1,3 @@
-// Fund.js
 import React, { useEffect, useState, useRef } from 'react';
 import FundAPI from '../../api/FundAPI';
 import '../../css/recommends/Fund.css';

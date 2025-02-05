@@ -36,7 +36,7 @@ public class WebClientConfig {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 // 다른 api를 불러올 때는 각각 다른 baseUrl을 사용해야함
-                .baseUrl("https://www.kvic.or.kr")
+                //.baseUrl("https://www.kvic.or.kr")
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
