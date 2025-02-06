@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "estate_community_post")
 public class EstateCommunityPost {
 
   @Id
@@ -15,7 +16,14 @@ public class EstateCommunityPost {
 
   private String title;
   private String content;
-  private String author;
+
+  // Member와의 연관관계로 작성자 정보를 저장 (DB에는 member_id 컬럼으로 저장)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
+  private Member member;
+
+  // 새로 추가된 카테고리 필드
+  private String category;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
@@ -31,55 +39,72 @@ public class EstateCommunityPost {
 
   public EstateCommunityPost() {}
 
-  // Getter, Setter
+  // Getter 및 Setter
+
   public Long getId() {
     return id;
   }
   public void setId(Long id) {
     this.id = id;
   }
+
   public String getTitle() {
     return title;
   }
   public void setTitle(String title) {
     this.title = title;
   }
+
   public String getContent() {
     return content;
   }
   public void setContent(String content) {
     this.content = content;
   }
-  public String getAuthor() {
-    return author;
+
+  public Member getMember() {
+    return member;
   }
-  public void setAuthor(String author) {
-    this.author = author;
+  public void setMember(Member member) {
+    this.member = member;
   }
+
+  // 새로 추가된 category 필드에 대한 getter/setter
+  public String getCategory() {
+    return category;
+  }
+  public void setCategory(String category) {
+    this.category = category;
+  }
+
   public LocalDateTime getCreatedAt() {
     return createdAt;
   }
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
+
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
   }
   public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
+
   public List<Comment> getComments() {
     return comments;
   }
   public void setComments(List<Comment> comments) {
     this.comments = comments;
   }
+
   public String getImageUrl() {
     return imageUrl;
   }
   public void setImageUrl(String imageUrl) {
     this.imageUrl = imageUrl;
   }
+
   public String getImageFileName() {
     return imageFileName;
   }
