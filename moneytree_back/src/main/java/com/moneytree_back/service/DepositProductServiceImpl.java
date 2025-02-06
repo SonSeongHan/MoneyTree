@@ -74,6 +74,14 @@ public class DepositProductServiceImpl implements DepositProductService {
                 .collect(Collectors.toList());
     }
 
+    // 예치 기한별 예금 상품 조회
+    @Override
+    public List<DepositProductDTO> getDepositsByMaturityPeriod(int depositMaturityPeriod) {
+        return depositProductRepository.findByDepositMaturityPeriod(depositMaturityPeriod).stream()
+                .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
+                .collect(Collectors.toList());
+    }
+
     // 예금 상품 생성
     @Override
     public DepositProductDTO createDepositProduct(DepositProductDTO depositProductDTO) {
