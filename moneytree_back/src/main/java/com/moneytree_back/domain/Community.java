@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,10 +46,10 @@ public class Community {
     @JoinColumn(name = "member_id",nullable = false)
     private Member member;
 
-    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityImage> images;
 
-    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL)
-    private List<CommunityReplies> replies;
+    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommunityReplies> replies = new ArrayList<>();
 
 }

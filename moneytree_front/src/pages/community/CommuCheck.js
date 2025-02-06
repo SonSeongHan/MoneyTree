@@ -51,11 +51,10 @@ const CommuCheck = () => {
     if(!confirmDelete) return;
 
     try {
-      const data = await fetchDeleteCommunity(postId);
+      await fetchDeleteCommunity(postId);
 
-      if(data.memberId !==loggedInUserId){
-        alert("권한이 없습니다.");
-        navigate(-1);
+      if(community.memberId !== loggedInUserId){
+        alert("답글 삭제 권한이 없습니다.");
         return;
       }
 

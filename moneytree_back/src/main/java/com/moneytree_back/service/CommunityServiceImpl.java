@@ -6,6 +6,7 @@ import com.moneytree_back.domain.Member;
 import com.moneytree_back.domain.PostType;
 import com.moneytree_back.dto.CommunityDTO;
 import com.moneytree_back.repository.CommunityImageRepository;
+import com.moneytree_back.repository.CommunityRepliesRepository;
 import com.moneytree_back.repository.CommunityRepository;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.util.CustomFileUtil;
@@ -30,6 +31,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final MemberRepository memberRepository;
     private final CommunityImageRepository communityImageRepository;
     private final CustomFileUtil customFileUtil;
+    private final CommunityRepliesRepository communityRepliesRepository;
 
     @Override
     public Page<CommunityDTO> getPagedAllCommunity(PostType postType,Pageable pageable) {
@@ -211,28 +213,9 @@ public class CommunityServiceImpl implements CommunityService {
         Community community = communityRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Community not found."));
 
-        List<CommunityImage> images = community.getImages();
-        System.out.println("삭제할 이미지 리스트: " + images);
-
-        List<String> fileNames = new ArrayList<>();
-
-        if (images != null && !images.isEmpty()) {
-            for (CommunityImage image : images) {
-                if(image.getImageUrl() != null) {
-                    fileNames.add(image.getImageUrl());
-                }
-            }
-            communityImageRepository.saveAll(images);
-        }
-
-        customFileUtil.deleteFiles(fileNames);
-        System.out.println("이미지 삭제 완료: " + fileNames);
-
-        communityImageRepository.deleteByCommunityId(postId);
-        log.info("데이터베이스에서 이미지 삭제 완료");
-
-        communityRepository.deleteById(postId);
-        log.info("게시글 삭제 완료 {}",postId);
+        //게시글 삭제
+        communityRepository.delete(community);
+        log.info("게시글 삭제 완료");
     }
 
 }
