@@ -76,7 +76,7 @@ function NavBar() {
             {showCommunityDropdown && (
                 <ul className="dropdown">
                   <li><NavLink to="/community/hobby">취미 커뮤니티</NavLink></li>
-                  <li><NavLink to="/community/real-estate">부동산 커뮤니티</NavLink></li>
+                  <li><NavLink to="/community/real_estate">부동산 커뮤니티</NavLink></li>
                 </ul>
             )}
           </li>

@@ -8,12 +8,11 @@ const CommuAdd = () => {
   const [postType, setPostType] = useState(type || "HOBBY");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [file, setFile] = useState(null); // 이미지 파일 상태
+  const [files, setFiles] = useState([]); // 이미지 파일 상태
   const navigate = useNavigate();
 
   // 쿠키에서 accessToken 가져오기
   const loggedInUser = getCookie("member");
-  // let accessToken = null;
   let loggedInUserId = loggedInUser.memberId;
 
   if (!loggedInUserId) {
@@ -22,36 +21,29 @@ const CommuAdd = () => {
   }
 
   const handleFileChange = (event) => {
-    setFile(Array.from(event.target.files)); // 선택된 파일 설정
+    setFiles([...event.target.files]); // 선택된 파일 설정
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // FormData를 사용하여 텍스트와 파일 데이터 전송
-    const formData = new FormData();
-    formData.append(
-      "communityDTO",
-      JSON.stringify({
-        title,
-        content,
-        postType,
-        memberId: loggedInUserId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-    );
-    if (file.length > 0) {
-      file.forEach((fileItem) => {
-      formData.append("files", fileItem);
-      });
-    }
+
+    const communityData = {
+      title,
+      content,
+      postType,
+      memberId: loggedInUserId,  // ✅ memberId가 null인지 확인 필요
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    console.log("보내는 데이터:",communityData);
 
     try {
-      const response = await fetchSaveCommunity(formData);
+      const response = await fetchSaveCommunity(communityData,files);
+      console.log("응답 데이터:", response);
       alert("게시글이 성공적으로 등록되었습니다.");
       navigate(`/community/${postType.toLowerCase()}`);
-      console.log("응답 데이터:", response);
     } catch (error) {
       console.error("게시글 등록 실패:", error);
       alert("게시글 등록 중 문제가 발생했습니다.");

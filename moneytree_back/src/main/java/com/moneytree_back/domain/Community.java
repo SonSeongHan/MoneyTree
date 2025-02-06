@@ -35,24 +35,20 @@ public class Community {
     @Column(name="content",nullable = false)
     private String content;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
-
-
     @ManyToOne
     @JoinColumn(name = "member_id",nullable = false)
     private Member member;
 
-    @OneToMany(mappedBy = "community")
-    private List<CommunityReplies> communityRepliesList;
+    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL)
+    private List<CommunityImage> images;
+
+    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL)
+    private List<CommunityReplies> replies;
 
 }

@@ -170,7 +170,7 @@ const root = createBrowserRouter([
       },
 
       {
-        path: "community/real-estate",
+        path: "community/real_estate",
         element: (
           <Suspense fallback={Loading}>
             <RealEstateCommunity />
