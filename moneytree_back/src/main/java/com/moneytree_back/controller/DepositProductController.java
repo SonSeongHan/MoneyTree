@@ -2,6 +2,7 @@ package com.moneytree_back.controller;
 
 import com.moneytree_back.dto.DepositProductDTO;
 import com.moneytree_back.service.DepositProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -57,5 +58,13 @@ public class DepositProductController {
     @GetMapping("/prime-interest-rate")
     public List<DepositProductDTO> getDepositProductsByPrimeInterestRate(@RequestParam BigDecimal minDepositPrimeInterestRate) {
         return depositProductService.getDepositProductsByPrimeInterestRate(minDepositPrimeInterestRate);
+    }
+
+    // 예치 기간 예금 상품 조회
+    @GetMapping("/maturity-period")
+    public ResponseEntity<List<DepositProductDTO>> getDepositsByMaturityPeriod(
+            @RequestParam int depositMaturityPeriod) {
+        List<DepositProductDTO> depositProducts = depositProductService.getDepositsByMaturityPeriod(depositMaturityPeriod);
+        return ResponseEntity.ok(depositProducts);
     }
 }

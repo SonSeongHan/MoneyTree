@@ -57,8 +57,16 @@ const Fund = () => {
           const nextPage = prevPage + 1;
           const startIndex = (nextPage - 1) * itemsPerPage;
           const newFunds = allFunds.slice(startIndex, startIndex + itemsPerPage);
+
+          // Map : 기존 데이터 중복값 자동 덮어쓰기
           if (newFunds.length > 0) {
-            setFunds((prevFunds) => [...prevFunds, ...newFunds]);
+            setFunds((prevFunds) => {
+              const fundMap = new Map();
+              [...prevFunds, ...newFunds].forEach(fund => {
+                fundMap.set(fund.fundProductId, fund);
+              });
+              return Array.from(fundMap.values()); // 중복 제거 후 업데이트
+            });
           }
           return nextPage;
         });

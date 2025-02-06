@@ -42,40 +42,35 @@ public class StockProductServiceImpl implements StockProductService {
         try {
             // 기존 데이터 삭제
             stockProductRepository.deleteAll();
-
-            // ID 시퀀스 초기화 (기존 코드 유지)
             resetSequence();
 
-            // 어제 날짜 가져오기
-            LocalDate yesterday = LocalDate.now().minusDays(1);
-            String formattedDate = yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            // 어제 날짜 가져오기 (데이터 없으면 하루씩 감소)
+            LocalDate date = LocalDate.now().minusDays(1);
+            String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            // 첫 페이지로 총 개수 확인
-            Map<String, Object> firstResponse = fetchStockData(formattedDate, 1);
-            if (firstResponse == null || !firstResponse.containsKey("response")) {
-                throw new RuntimeException("Failed to fetch initial stock data");
-            }
+            List<StockProduct> stockProducts = new ArrayList<>();
 
-            // 총 데이터 수와 필요한 페이지 수 계산
-            Map<String, Object> body = (Map<String, Object>) ((Map<String, Object>) firstResponse.get("response")).get("body");
-            int totalCount = Integer.parseInt(body.get("totalCount").toString());
-            int numOfRows = 30;
-            int totalPages = (int) Math.ceil((double) totalCount / numOfRows);
+            // 데이터가 나올 때까지 날짜를 하루씩 줄이며 찾기 (최대 7일)
+            for (int i = 0; i < 3; i++) {
+                System.out.println("Trying date: " + formattedDate);
 
-            List<StockProduct> allStockProducts = new ArrayList<>();
-
-            // 모든 페이지 조회
-            for (int page = 1; page <= totalPages; page++) {
-                Map<String, Object> response = fetchStockData(formattedDate, page);
+                Map<String, Object> response = fetchStockData(formattedDate, 1);
                 if (response != null && response.containsKey("response")) {
-                    List<StockProduct> pageProducts = parseStockProducts(response);
-                    allStockProducts.addAll(pageProducts);
+                    stockProducts = parseStockProducts(response);
+
+                    if (!stockProducts.isEmpty()) {
+                        break; // 데이터가 있으면 루프 종료
+                    }
                 }
+                // 데이터가 없으면 하루 전으로 다시 시도
+                date = date.minusDays(1);
+                formattedDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             }
 
             // 저장
-            stockProductRepository.saveAll(allStockProducts);
-            System.out.println("Successfully saved " + allStockProducts.size() + " stock products");
+            stockProductRepository.saveAll(stockProducts);
+            System.out.println("Successfully saved " + stockProducts.size() + " stock products");
+
         } catch (Exception e) {
             System.err.println("Error fetching stock products: " + e.getMessage());
             e.printStackTrace();
