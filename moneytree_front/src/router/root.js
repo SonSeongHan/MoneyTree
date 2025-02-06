@@ -23,7 +23,6 @@ const Home = lazy(() => import("../pages/nav/Home"));
 const MyPage = lazy(() => import("../pages/nav/Mypage"));
 const RealEstate = lazy(() => import("../pages/nav/RealEstate"));
 const DepositSaving = lazy(() => import("../pages/nav/DepositSaving"));
-const InstallmentSaving = lazy(() => import("../pages/nav/InstallmentSaving"));
 const Fund = lazy(() => import("../pages/nav/Fund"));
 const Stock = lazy(() => import("../pages/nav/Stock"));
 const HobbyCommunity = lazy(() => import("../pages/nav/HobbyCommunity"));
@@ -133,14 +132,6 @@ const root = createBrowserRouter([
         element: (
           <Suspense fallback={Loading}>
             <DepositSaving />
-          </Suspense>
-        ),
-      },
-      {
-        path: "products/installment-saving",
-        element: (
-          <Suspense fallback={Loading}>
-            <InstallmentSaving />
           </Suspense>
         ),
       },
