@@ -21,7 +21,6 @@ const CommuReply = () => {
   const navigate = useNavigate();
   const loggedInUser = getCookie('member');
   const loggedInUserId = loggedInUser?.memberId;
-  const loogedInUserName = loggedInUser?.member_name;
   const userRole = loggedInUser?.membershipType;
   console.log("로그인한 유저 정보:", loggedInUser);
   console.log("memberId:", loggedInUser?.memberId);
@@ -40,7 +39,7 @@ const CommuReply = () => {
       }
     };
     loadReplies();
-  },[page]);
+  },[postId,page]);
 
   const handleCreateReply = async () => {
     if(!newReplyContent.trim()) {
@@ -49,13 +48,13 @@ const CommuReply = () => {
     }
 
     try {
-
       const newReply = {
         postId,
-        // membershipType,
+        membershipType:loggedInUser.membershipType,
         memberId: loggedInUser.memberId,
         content: newReplyContent,
       };
+      console.log("새로 작성하는 답글 정보:",newReply)
       await fetchCreateReply(newReply);
       setnewReplyContent("");
       alert("답글이 성공적으로 추가되었습니다.");
@@ -94,7 +93,7 @@ const CommuReply = () => {
       seteditReplyId(null);
       setEditReplyContent("");
       alert("답글이 성공적으로 수정되었습니다.");
-      // window.location.reload();
+      window.location.reload();
     } catch (error){
       console.error("답글 수정 실패:",error);
       alert("답글 수정 중 오류가 발생했습니다.");
@@ -104,18 +103,14 @@ const CommuReply = () => {
   const handleDeleteReply = async (replyId) => {
     if (!window.confirm("이 답글을 삭제 하시겠습니까?")) return;
 
-    const data = await fetchDeleteCommunity(replyId);
-    if(data.memberId !== loggedInUserId) {
-      alert("권한이 없습니다.");
-      navigate(-1);
+    const targetReply = replies.find(reply => reply.replyId === replyId)
+    if(!targetReply || targetReply.memberId !== loggedInUserId){
+      alert("답글 삭제 권한이 없습니다.");
       return;
     }
 
-
-
     try {
       await fetchDeleteReply(replyId);
-
       alert("답글이 성공적으로 삭제되었습니다.");
       window.location.reload();
     } catch (error) {
