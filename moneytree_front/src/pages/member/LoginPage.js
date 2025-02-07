@@ -5,12 +5,12 @@ import { setCookie } from '../../util/cookieUtil';
 // ---- 추가: 인증서 로그인용 컴포넌트 임포트 ----
 import CertificateLogin from '../../components/CertificateLogin';
 
-const LoginPage = ({ onLoginSuccess }) => {
+const LoginPage = () => {
   // 로그인 컴포넌트 초기 state
   const [userType, setUserType] = useState('SimpleMember');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [rrn, setRrn] = useState(''); // 정회원일 경우 주민등록번호
+  const [rrn, setRrn] = useState(''); // 주민등록번호 (정회원일 경우)
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -48,7 +48,7 @@ const LoginPage = ({ onLoginSuccess }) => {
       if (response && response.data) {
         const { memberId, member_name, membershipType, accessToken, refreshToken } = response.data;
 
-        // 쿠키에 로그인 정보 저장 (유효기간 1일)
+        // 쿠키에 토큰 저장
         setCookie(
           'member',
           JSON.stringify({
@@ -62,15 +62,12 @@ const LoginPage = ({ onLoginSuccess }) => {
         );
 
         setSuccessMessage('로그인 성공!');
-        // 로그인 성공 후 화면 전환 없이 모달만 닫기 (부모에서 onLoginSuccess 호출)
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        }
-        // (추가로 navigate('/home') 등 화면 전환을 하지 않음)
+        navigate('/home');
       }
     } catch (error) {
       // 에러 메시지 추출
       const serverErrorMessage = error.response?.data?.message || '로그인 중 오류가 발생했습니다.';
+
       setErrorMessage(serverErrorMessage);
     }
   };
@@ -121,7 +118,6 @@ const LoginPage = ({ onLoginSuccess }) => {
             navigate={navigate}
             setErrorMessage={setErrorMessage}
             setSuccessMessage={setSuccessMessage}
-            onLoginSuccess={onLoginSuccess}
           />
         ) : (
           <form onSubmit={handleLogin}>
@@ -163,11 +159,8 @@ const LoginPage = ({ onLoginSuccess }) => {
         )}
 
         <div className="signup-buttons">
-          {/* 회원가입 링크 */}
-          <button onClick={() => (window.location.href = '/member/simple/make')}>
-            간편회원가입
-          </button>
-          <button onClick={() => (window.location.href = '/member/full/make')}>정회원가입</button>
+          <button onClick={handleSimpleSignUp}>간편회원가입</button>
+          <button onClick={handleFullSignUp}>정회원가입</button>
         </div>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         {successMessage && <p className="success-message">{successMessage}</p>}
