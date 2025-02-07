@@ -17,4 +17,5 @@ public class DandwacDTO {
     private BigDecimal balance;        // 잔액
     private String accountPassword;    // 계좌 비밀번호
     private LocalDate createdAt;       // 생성일
+
 }

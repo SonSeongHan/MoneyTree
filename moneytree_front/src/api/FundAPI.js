@@ -3,7 +3,6 @@ import axios, { baseURL } from '../util/jwtUtil';
 const FUND_API_BASE_URL = `${baseURL}/api/fund-products`;
 
 const FundAPI = {
-
   // 모든 펀드 상품 가져오기
   getAllFunds: async () => {
     try {
@@ -19,7 +18,7 @@ const FundAPI = {
   getFundsByPage: async (page, limit = 10) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/all`, {
-        params: { page, limit },  // 페이지 & 개수 제한 추가
+        params: { page, limit },
       });
       return response.data;
     } catch (error) {
@@ -87,6 +86,22 @@ const FundAPI = {
       return response.data;
     } catch (error) {
       console.error('Error fetching funds by redemption fee:', error);
+      throw error;
+    }
+  },
+
+  // ✅ 전체 필터링 (백엔드 통합 API 호출)
+  getFilteredFunds: async (filters) => {
+    try {
+      // 필터 값이 비어있으면 undefined로 설정 → API 요청에서 불필요한 params 제거
+      const validFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== '' && value !== undefined)
+      );
+
+      const response = await axios.get(`${FUND_API_BASE_URL}/filter`, { params: validFilters });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching filtered funds:', error);
       throw error;
     }
   },

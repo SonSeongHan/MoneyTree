@@ -74,6 +74,20 @@ public class FundProductServiceImpl implements FundProductService {
                 .collect(Collectors.toList());
     }
 
+    // 전체 필터링
+    @Override
+    public List<FundProductDTO> getFilteredFundProducts(
+            BigDecimal minFundTotalAmount, BigDecimal maxFundTotalAmount,
+            BigDecimal minFundManagementFee, BigDecimal maxFundRedemptionFee,
+            LocalDate fundProductMaturityDate
+    ) {
+        return fundProductRepository.findFilteredFundProducts(
+                        minFundTotalAmount, maxFundTotalAmount, minFundManagementFee, maxFundRedemptionFee, fundProductMaturityDate
+                ).stream()
+                .map(product -> modelMapper.map(product, FundProductDTO.class))
+                .collect(Collectors.toList());
+    }
+
     @PostConstruct
     public void fetchAndStoreFundProducts() {
         try {
