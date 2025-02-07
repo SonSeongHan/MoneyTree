@@ -15,6 +15,19 @@ const FundAPI = {
     }
   },
 
+  // 페이지별 펀드 데이터 가져오기 -> 10개씩
+  getFundsByPage: async (page, limit = 10) => {
+    try {
+      const response = await axios.get(`${FUND_API_BASE_URL}/all`, {
+        params: { page, limit },  // 페이지 & 개수 제한 추가
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching funds for page ${page}:`, error);
+      throw error;
+    }
+  },
+
   // 특정 펀드 상품 가져오기
   getFundById: async (fundProductId) => {
     try {

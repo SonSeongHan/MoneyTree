@@ -1,0 +1,152 @@
+/* Stock.css */
+.stock-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stock-item-container {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.stock-item-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stock-item {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stock-rank {
+    width: 30px;
+    height: 30px;
+    background: #f5f5f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #666;
+}
+
+.stock-name {
+    flex: 2;
+    font-weight: 600;
+    font-size: 16px;
+    margin-left: 12px;
+}
+
+.stock-price {
+    flex: 1;
+    text-align: right;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.stock-change {
+    width: 100px;
+    text-align: right;
+    font-size: 14px;
+    margin: 0 20px;
+}
+
+.stock-positive {
+    color: #ff3b30;
+}
+
+.stock-negative {
+    color: #007aff;
+}
+
+.stock-expand-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.stock-expand-btn.expanded {
+    transform: rotate(45deg);
+    background: #007aff;
+    color: white;
+}
+
+.stock-details {
+    padding: 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+    animation: slideDown 0.3s ease-out;
+}
+
+.stock-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stock-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.stock-detail-label {
+    color: #666;
+    font-size: 13px;
+}
+
+.stock-detail-value {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading and Error States */
+.stock-loading-state,
+.stock-error-state,
+.stock-empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+.stock-error-state {
+    color: #ff3b30;
+}

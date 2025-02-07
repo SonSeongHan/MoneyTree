@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Log4j2
@@ -22,8 +24,12 @@ public class CommunityRepliesController {
 
     //답글 등록하기
     @PostMapping
+    @PreAuthorize("hasAnyRole('SimpleMember','FullMember','ADMIN','InquiryManager')")
     public ResponseEntity<CommunityRepliesDTO> createReply(
             @RequestBody CommunityRepliesDTO communityRepliesDTO) {
+
+        log.info(" 프론트에서 받은 DTO: {}", communityRepliesDTO);
+
         communityRepliesService.saveCommunityReplies(communityRepliesDTO);
         return ResponseEntity.ok(communityRepliesDTO);
     }
@@ -49,6 +55,7 @@ public class CommunityRepliesController {
     }
 
     @PutMapping("/{replyId}")
+    @PreAuthorize("hasAnyRole('SimpleMember','FullMember','ADMIN','InquiryManager')")
     public ResponseEntity<CommunityRepliesDTO> updateReply(
             @PathVariable Long replyId,
             @RequestBody CommunityRepliesDTO communityRepliesDTO) {
@@ -59,7 +66,10 @@ public class CommunityRepliesController {
 
 
     @DeleteMapping("/{replyId}")
+    @PreAuthorize("hasAnyRole('SimpleMember','FullMember','ADMIN','InquiryManager')")
     public void deleteReply(@PathVariable Long replyId) {
+
+        log.info("지우려는 replyId: {}", replyId);
         communityRepliesService.deleteCommunityRepliesById(replyId);
     }
 

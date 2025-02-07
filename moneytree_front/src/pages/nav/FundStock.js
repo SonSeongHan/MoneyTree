@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Fund from '../../components/recommends/Fund';
-// import '../../css/recommends/FundStock.css';
-//import Stock from '../../components/recommends/Stock';
+import Stock from '../../components/recommends/Stock';
 
 function FundStock() {
   const [activeTab, setActiveTab] = useState('fund');
@@ -48,7 +47,7 @@ function FundStock() {
       </div>
 
       <div className="fundstock-content-area">
-        <Fund />
+        {activeTab === 'fund' ? <Fund /> : <Stock />}
       </div>
     </div>
   );
