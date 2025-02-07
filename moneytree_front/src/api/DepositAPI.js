@@ -89,6 +89,29 @@ const DepositAPI = {
       throw error;
     }
   },
+
+  // 전체 필터링
+  searchDeposits: async (searchParams) => {
+    try {
+      const response = await axios.get(`${DEPOSIT_API_BASE_URL}/search`, {
+        params: {
+          bankName: searchParams.bankName,
+          depositMinAmount: searchParams.minAmount,
+          depositInterestRateType: searchParams.depositType === 'simple' ? '단리' :
+            searchParams.depositType === 'compound' ? '복리' : undefined,
+          minDepositBaseInterestRate: searchParams.minInterestRate,
+          maxDepositBaseInterestRate: searchParams.maxInterestRate,
+          minDepositPrimeInterestRate: searchParams.primeRate,
+          depositMaturityPeriod: searchParams.maturityPeriod
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error searching deposits:', error);
+      throw error;
+    }
+  },
+
 };
 
 export default DepositAPI;

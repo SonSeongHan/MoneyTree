@@ -18,18 +18,21 @@ const Deposit = () => {
   const [interestRateRange, setInterestRateRange] = useState({ min: '', max: '' });
   const [primeRate, setPrimeRate] = useState('');
   const [minAmount, setMinAmount] = useState('');
+  const [debouncedMinAmount, setDebouncedMinAmount] = useState(''); // ✅ 디바운싱 추가
   const [maturityPeriod, setMaturityPeriod] = useState('');
   const [depositType, setDepositType] = useState('');
 
-  // 필터 초기화 함수 추가
+  // 필터 초기화 함수
   const resetFilters = () => {
     setInterestRateRange({ min: '', max: '' });
     setPrimeRate('');
     setMinAmount('');
+    setDebouncedMinAmount(''); // ✅ 디바운싱 변수도 초기화
     setMaturityPeriod('');
     setDepositType('');
   };
 
+  // 초기 데이터 로드
   useEffect(() => {
     const fetchDeposits = async () => {
       try {
@@ -46,35 +49,50 @@ const Deposit = () => {
     fetchDeposits();
   }, []);
 
+  // ✅ 디바운싱 적용 (minAmount 입력 후 500ms 뒤에 적용)
   useEffect(() => {
-    let filtered = deposits;
+    const handler = setTimeout(() => {
+      setDebouncedMinAmount(minAmount);
+    }, 500); // 500ms 뒤에 반영
 
-    if (interestRateRange.min || interestRateRange.max) {
-      filtered = filtered.filter(d =>
-        (!interestRateRange.min || d.depositBaseInterestRate >= parseFloat(interestRateRange.min)) &&
-        (!interestRateRange.max || d.depositBaseInterestRate <= parseFloat(interestRateRange.max))
-      );
-    }
+    return () => clearTimeout(handler); // 이전 타이머 제거
+  }, [minAmount]);
 
-    if (primeRate) {
-      filtered = filtered.filter(d => d.depositPrimeInterestRate >= parseFloat(primeRate));
-    }
+  // 필터링 로직
+  useEffect(() => {
+    const fetchFilteredDeposits = async () => {
+      try {
+        setLoading(true);
 
-    if (minAmount) {
-      filtered = filtered.filter(d => d.depositMinAmount >= parseFloat(minAmount));
-    }
+        // 필터 조건이 하나라도 있는 경우에만 검색 API 사용
+        if (interestRateRange.min || interestRateRange.max || primeRate ||
+          debouncedMinAmount || maturityPeriod || depositType) {
+          const searchParams = {
+            minInterestRate: interestRateRange.min || undefined,
+            maxInterestRate: interestRateRange.max || undefined,
+            primeRate: primeRate || undefined,
+            minAmount: debouncedMinAmount || undefined, // ✅ 디바운싱된 값 사용
+            maturityPeriod: maturityPeriod || undefined,
+            depositType: depositType || undefined
+          };
 
-    if (maturityPeriod) {
-      filtered = filtered.filter(d => d.depositMaturityPeriod === parseInt(maturityPeriod));
-    }
+          const data = await DepositAPI.searchDeposits(searchParams);
+          setFilteredDeposits(data);
+        } else {
+          // 필터가 없는 경우 전체 목록 사용
+          setFilteredDeposits(deposits);
+        }
+        setCurrentPage(0);
+      } catch (err) {
+        console.error('Error filtering deposits:', err);
+        setError('데이터 필터링 중 문제가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (depositType) {
-      filtered = filtered.filter(d => d.depositInterestRateType === depositType || d.depositInterestRateType === (depositType === 'simple' ? '단리' : '복리'));
-    }
-
-    setFilteredDeposits(filtered);
-    setCurrentPage(0);
-  }, [interestRateRange, primeRate, minAmount, maturityPeriod, depositType, deposits]);
+    fetchFilteredDeposits();
+  }, [interestRateRange, primeRate, debouncedMinAmount, maturityPeriod, depositType, deposits]);
 
   if (loading) return <p className="dep-loading-state">로딩 중입니다...</p>;
   if (error) return <p className="dep-error-state">{error}</p>;
@@ -90,6 +108,7 @@ const Deposit = () => {
 
   const startIndex = currentPage * itemsPerPage;
   const currentItems = filteredDeposits.slice(startIndex, startIndex + itemsPerPage);
+
 
   return (
     <div className="dep-container">
