@@ -74,6 +74,14 @@ public class DepositProductServiceImpl implements DepositProductService {
                 .collect(Collectors.toList());
     }
 
+    // 예치 기한별 예금 상품 조회
+    @Override
+    public List<DepositProductDTO> getDepositsByMaturityPeriod(int depositMaturityPeriod) {
+        return depositProductRepository.findByDepositMaturityPeriod(depositMaturityPeriod).stream()
+                .map(product -> modelMapper.map(product, DepositProductDTO.class)) // Entity -> DTO 변환
+                .collect(Collectors.toList());
+    }
+
     // 예금 상품 생성
     @Override
     public DepositProductDTO createDepositProduct(DepositProductDTO depositProductDTO) {
@@ -309,5 +317,64 @@ public class DepositProductServiceImpl implements DepositProductService {
             System.err.println("Error parsing min amount: " + e.getMessage());
         }
         return null;
+    }
+
+    // 전체 통합 필터링
+    @Override
+    public List<DepositProductDTO> searchDepositProducts(
+            String bankName,
+            BigDecimal depositMinAmount,
+            String depositInterestRateType,
+            BigDecimal minDepositBaseInterestRate,
+            BigDecimal maxDepositBaseInterestRate,
+            BigDecimal minDepositPrimeInterestRate,
+            Integer depositMaturityPeriod
+    ) {
+        return depositProductRepository.findAll().stream()
+                .filter(product -> {
+                    // 은행 이름 필터
+                    if (bankName != null && !bankName.isEmpty() &&
+                            !product.getBankName().equals(bankName)) {
+                        return false;
+                    }
+
+                    // 최소 금액 필터
+                    if (depositMinAmount != null &&
+                            product.getDepositMinAmount().compareTo(depositMinAmount) < 0) {
+                        return false;
+                    }
+
+                    // 이자율 유형 필터
+                    if (depositInterestRateType != null && !depositInterestRateType.isEmpty() &&
+                            !product.getDepositInterestRateType().equals(depositInterestRateType)) {
+                        return false;
+                    }
+
+                    // 기본 이자율 범위 필터
+                    if (minDepositBaseInterestRate != null &&
+                            product.getDepositBaseInterestRate().compareTo(minDepositBaseInterestRate) < 0) {
+                        return false;
+                    }
+                    if (maxDepositBaseInterestRate != null &&
+                            product.getDepositBaseInterestRate().compareTo(maxDepositBaseInterestRate) > 0) {
+                        return false;
+                    }
+
+                    // 우대 이자율 필터
+                    if (minDepositPrimeInterestRate != null &&
+                            product.getDepositPrimeInterestRate().compareTo(minDepositPrimeInterestRate) < 0) {
+                        return false;
+                    }
+
+                    // 만기 기간 필터
+                    if (depositMaturityPeriod != null &&
+                            product.getDepositMaturityPeriod() != depositMaturityPeriod) {
+                        return false;
+                    }
+
+                    return true;
+                })
+                .map(product -> modelMapper.map(product, DepositProductDTO.class))
+                .collect(Collectors.toList());
     }
 }

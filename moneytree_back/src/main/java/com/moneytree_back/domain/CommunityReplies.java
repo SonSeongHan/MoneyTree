@@ -32,11 +32,8 @@ public class CommunityReplies {
     @Column(name="created_at")
     private LocalDateTime createdAt;
 
-    @Column(name="update_at")
+    @Column(name="updated_at")
     private LocalDateTime updateAt;
-
-    @Column(name = "is_deleted",nullable = false)
-    private boolean isDeleted = false;
 
     @ManyToOne
     @JoinColumn(name= "post_id",nullable = false)

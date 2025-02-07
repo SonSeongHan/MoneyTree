@@ -1,0 +1,314 @@
+/* Fund.css */
+.fund-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 필터 스타일 추가 */
+.filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    border: 1px solid #eee;
+}
+
+.filter-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.3s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #007aff;
+}
+
+.filter-input::placeholder {
+    color: #999;
+}
+
+.filter-reset-btn {
+    padding: 10px 20px;
+    background: #ff3b30;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.filter-reset-btn:hover {
+    background: #ff1f1f;
+}
+
+.fundstock-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.fundstock-main-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.fundstock-subtitle {
+    font-size: 18px;
+    color: #666;
+}
+
+.fundstock-search-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.fundstock-search-input {
+    flex: 1;
+    max-width: 400px;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.fundstock-search-btn {
+    padding: 12px 24px;
+    background: #007aff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fundstock-tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.fundstock-tab-btn {
+    padding: 12px 24px;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fundstock-tab-btn--active {
+    background: #007aff;
+    color: white;
+}
+
+.fund-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.fund-item-container {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.fund-item-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fund-item {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fund-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fund-item-icon {
+    width: 40px;
+    height: 40px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.fund-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fund-item-title {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.fund-item-subtitle {
+    color: #666;
+    font-size: 14px;
+}
+
+.fund-item-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.fund-item-chart {
+    width: 100px;
+    height: 40px;
+}
+
+.placeholder-chart {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #f0f0f0, #e0e0e0);
+    border-radius: 4px;
+}
+
+.fund-item-numbers {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.fund-item-amount {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.fund-item-yield {
+    color: #ff3b30;
+    font-size: 14px;
+}
+
+.fund-expand-button {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.fund-expand-button.expanded {
+    transform: rotate(45deg);
+    background: #007aff;
+    color: white;
+}
+
+.fund-item-details {
+    padding: 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #eee;
+    animation: slideDown 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.details-section h3 {
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.details-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.details-label {
+    color: #666;
+    font-size: 13px;
+}
+
+.details-value {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.join-button {
+    align-self: flex-end;
+    padding: 10px 20px;
+    background-color: #007aff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.join-button:hover {
+    background-color: #0056b3;
+}
+
+/* Loading and Error States */
+.fund-loading-state,
+.fund-error-state,
+.fund-empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 16px;
+}
+
+.fund-error-state {
+    color: #ff3b30;
+}

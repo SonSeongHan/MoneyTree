@@ -36,9 +36,23 @@ public interface DepositProductService {
     // 이율 유형별 예금 상품 조회
     List<DepositProductDTO> getDepositProductsByInterestRateType(String depositInterestRateType);
 
+    // 예치 기한 별 예금 상품 조회
+    List<DepositProductDTO> getDepositsByMaturityPeriod(int depositMaturityPeriod);
+
     // 기본 이자율 범위 내 예금 상품 조회
     List<DepositProductDTO> getDepositProductsByBaseInterestRateRange(BigDecimal minDepositBaseInterestRate, BigDecimal maxDepositBaseInterestRate);
 
     // 최고 우대 이자율 이상인 예금 상품 조회
     List<DepositProductDTO> getDepositProductsByPrimeInterestRate(BigDecimal minDepositprimeInterestRate);
+
+    // 전체 통합 필터링
+    List<DepositProductDTO> searchDepositProducts(
+            String bankName,
+            BigDecimal depositMinAmount,
+            String depositInterestRateType,
+            BigDecimal minDepositBaseInterestRate,
+            BigDecimal maxDepositBaseInterestRate,
+            BigDecimal minDepositPrimeInterestRate,
+            Integer depositMaturityPeriod
+    );
 }

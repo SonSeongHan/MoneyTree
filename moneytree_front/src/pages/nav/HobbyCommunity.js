@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchFile, fetchHobbyCommunity } from '../../api/CommunityApi';
 import { useNavigate } from "react-router-dom";
-import { getCookie } from '../../util/cookieUtil';
 import jwtAxios from '../../util/jwtUtil';
 
 const HobbyCommunity = () => {
@@ -11,7 +10,6 @@ const HobbyCommunity = () => {
   const [loading, setLoading] = useState(false); // 로딩 상태
   const navigate = useNavigate();
 
-  const memberData = getCookie("member");
 
   // 취미 커뮤니티 글 가져오기
   useEffect(() => {
@@ -26,10 +24,10 @@ const HobbyCommunity = () => {
         // 썸네일 URL 추가
         const communitiesWithThumbnails = await Promise.all(
           data.content.map(async (community) => {
-            if (community.imageUrl) {
+            if (community.imageUrls && community.imageUrls.length > 0) {
               try {
                 // fetchFile을 호출해 URL 생성
-                const thumbnailUrl = await fetchFile(`s_${community.imageUrl}`);
+                const thumbnailUrl = await fetchFile(`s_${community.imageUrls[0]}`);
                 return { ...community, thumbnailUrl };
               } catch (fileError) {
                 console.error("썸네일을 가져오는 중에 오류 발생:", fileError);
@@ -85,7 +83,7 @@ const HobbyCommunity = () => {
                 <h3>{community.memberId} {community.title}</h3>
                 {/* `title` 필드 사용 */}
                 <p>{community.content}</p> {/* `content` 필드 사용 */}
-                {community.imageUrl ? ( /* `imageUrl` 필드 사용 */
+                {community.imageUrls && community.imageUrls.length > 0 && ( /* `imageUrl` 필드 사용 */
                   <img
                     src={community.thumbnailUrl}
                     alt={community.title}
@@ -96,8 +94,6 @@ const HobbyCommunity = () => {
                       borderRadius: "5px",
                     }}
                   />
-                ) : (
-                  <p>썸네일 이미지가 없습니다.</p>
                 )}
               </li>
             ))}

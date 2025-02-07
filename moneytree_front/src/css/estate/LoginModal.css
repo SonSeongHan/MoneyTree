@@ -1,0 +1,36 @@
+/* 모달 오버레이: 전체 화면을 덮되, 모달 콘텐츠는 오른쪽 상단에 고정 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* 모달 오버레이는 필요시 전체 화면을 덮을 수도 있고,
+         혹은 모달창만 보이도록 최소 크기로 설정할 수 있습니다.
+         여기서는 오른쪽 상단에 고정된 말풍선 형태로 보이도록 합니다. */
+    width: auto;
+    height: auto;
+    z-index: 1000;
+}
+
+/* 모달 콘텐츠: 오른쪽 상단에 말풍선처럼 보이도록 */
+.modal-content {
+    position: fixed;
+    top: 20px; /* 화면 상단에서 20px 떨어짐 */
+    right: 20px; /* 화면 우측에서 20px 떨어짐 */
+    background-color: #fff;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px; /* 적당한 최대 너비 */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 모달 닫기 버튼 */
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}

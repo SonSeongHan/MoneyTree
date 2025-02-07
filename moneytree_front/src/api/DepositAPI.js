@@ -76,6 +76,42 @@ const DepositAPI = {
       throw error;
     }
   },
+
+  // 예치 기간 예금 상품 가져오기
+  getDepositsByMaturityPeriod: async (maturityPeriod) => {
+    try {
+      const response = await axios.get(`${DEPOSIT_API_BASE_URL}/maturity-period`, {
+        params: { depositMaturityPeriod: maturityPeriod },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching deposits by maturity period:', error);
+      throw error;
+    }
+  },
+
+  // 전체 필터링
+  searchDeposits: async (searchParams) => {
+    try {
+      const response = await axios.get(`${DEPOSIT_API_BASE_URL}/search`, {
+        params: {
+          bankName: searchParams.bankName,
+          depositMinAmount: searchParams.minAmount,
+          depositInterestRateType: searchParams.depositType === 'simple' ? '단리' :
+            searchParams.depositType === 'compound' ? '복리' : undefined,
+          minDepositBaseInterestRate: searchParams.minInterestRate,
+          maxDepositBaseInterestRate: searchParams.maxInterestRate,
+          minDepositPrimeInterestRate: searchParams.primeRate,
+          depositMaturityPeriod: searchParams.maturityPeriod
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error searching deposits:', error);
+      throw error;
+    }
+  },
+
 };
 
 export default DepositAPI;

@@ -2,6 +2,7 @@ package com.moneytree_back.controller;
 
 import com.moneytree_back.dto.DepositProductDTO;
 import com.moneytree_back.service.DepositProductService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -57,5 +58,35 @@ public class DepositProductController {
     @GetMapping("/prime-interest-rate")
     public List<DepositProductDTO> getDepositProductsByPrimeInterestRate(@RequestParam BigDecimal minDepositPrimeInterestRate) {
         return depositProductService.getDepositProductsByPrimeInterestRate(minDepositPrimeInterestRate);
+    }
+
+    // 예치 기간 예금 상품 조회
+    @GetMapping("/maturity-period")
+    public ResponseEntity<List<DepositProductDTO>> getDepositsByMaturityPeriod(
+            @RequestParam int depositMaturityPeriod) {
+        List<DepositProductDTO> depositProducts = depositProductService.getDepositsByMaturityPeriod(depositMaturityPeriod);
+        return ResponseEntity.ok(depositProducts);
+    }
+
+    // 필터링 기능 통합
+    @GetMapping("/search")
+    public List<DepositProductDTO> searchDepositProducts(
+            @RequestParam(required = false) String bankName,
+            @RequestParam(required = false) BigDecimal depositMinAmount,
+            @RequestParam(required = false) String depositInterestRateType,
+            @RequestParam(required = false) BigDecimal minDepositBaseInterestRate,
+            @RequestParam(required = false) BigDecimal maxDepositBaseInterestRate,
+            @RequestParam(required = false) BigDecimal minDepositPrimeInterestRate,
+            @RequestParam(required = false) Integer depositMaturityPeriod
+    ) {
+        return depositProductService.searchDepositProducts(
+                bankName,
+                depositMinAmount,
+                depositInterestRateType,
+                minDepositBaseInterestRate,
+                maxDepositBaseInterestRate,
+                minDepositPrimeInterestRate,
+                depositMaturityPeriod
+        );
     }
 }

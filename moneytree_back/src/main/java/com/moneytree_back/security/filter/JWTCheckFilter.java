@@ -56,11 +56,18 @@ public class JWTCheckFilter extends OncePerRequestFilter {
            return false;
         }
 
-        if (path.startsWith("/api/community/replies")){
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("GET")) {
             return true;
         }
 
-        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("POST")){
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("POST")) {
+            return false;
+        }
+
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("PUT")) {
+            return false;
+        }
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("DELETE")) {
             return false;
         }
 

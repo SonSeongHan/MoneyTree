@@ -15,7 +15,7 @@ const SavingAPI = {
     }
   },
 
-  // 아이디로 죄회
+  // 아이디로 조회
   getSavingProductById: async (savingProductId) => {
     try {
       const response = await axios.get(`${SAVING_API_BASE_URL}/${savingProductId}`);

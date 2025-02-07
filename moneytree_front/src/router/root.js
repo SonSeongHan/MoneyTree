@@ -327,6 +327,11 @@ const root = createBrowserRouter([
       },
     ],
   },
+
+  {
+    path: 'community/real_estate',
+    element: <Navigate to="/community/real-estate" replace />,
+  },
 ]);
 
 export default root;

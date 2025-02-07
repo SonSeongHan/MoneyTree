@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 @Log4j2
@@ -46,8 +44,8 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
     //업로드한 파일을 uuid값으로 업데이트한 후 저장
     public List<String> saveFiles(List<MultipartFile> files)throws RuntimeException{
 
-        if(files == null || files.size() == 0){
-            return null; //List.of();
+        if(files == null || files.isEmpty()){
+            return Collections.emptyList();
         }
 
         List<String> uploadNames = new ArrayList<>();
@@ -101,13 +99,17 @@ public class CustomFileUtil { // 파일 데이터 입출력을 담당
             return;
         }
         fileNames.forEach(fileName ->{
+            log.info("파일 삭제 시도: {}", fileName);
+
             // 썸네일이 있는지 확인하고 삭제
             String thumbnailFileName = "s_" + fileName;
             Path thumbnailPath = Paths.get(uploadPath, thumbnailFileName);
             Path filePath = Paths.get(uploadPath, fileName);
             try{// 경로(path)에 있는 파일이나 디렉터리를 삭제하는 기능을 제공
-                Files.deleteIfExists(filePath);
-                Files.deleteIfExists(thumbnailPath);
+                boolean fileDeleted = Files.deleteIfExists(filePath);
+                boolean thumbnailDeleted = Files.deleteIfExists(thumbnailPath);
+                log.info("파일 삭제 여부: {} -> {}", fileName, fileDeleted);
+                log.info("썸네일 삭제 여부: {} -> {}", "s_" + fileName, thumbnailDeleted);
             }catch(IOException e){
                 throw new RuntimeException(e.getMessage());
             }

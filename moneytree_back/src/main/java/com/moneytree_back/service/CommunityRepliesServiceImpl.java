@@ -61,7 +61,7 @@ public class CommunityRepliesServiceImpl implements CommunityRepliesService {
                          .replyId((long) reply.getReplyId())
                          .postId(reply.getCommunity().getPostId())
                          .memberId(reply.getMember().getMemberId())
-                         .content(reply.isDeleted() ? "삭제된 답글입니다." : reply.getContent())
+                         .content(reply.getContent())
                          .created_at(reply.getCreatedAt())
                          .updated_at(reply.getUpdateAt())
                          .build());
@@ -95,10 +95,8 @@ public class CommunityRepliesServiceImpl implements CommunityRepliesService {
          CommunityReplies reply =communityRepliesRepository.findById(replyId)
                  .orElseThrow(() -> new RuntimeException("Reply not found"));
 
-         reply.setDeleted(true);  //삭제를 누르면 삭제 상태로 변경
+         log.info("지우려는 replyId: {}", reply.getReplyId());
 
-         reply.setContent("삭제된 답글입니다.");
-
-         communityRepliesRepository.save(reply);
+         communityRepliesRepository.deleteById(replyId);
     }
 }
