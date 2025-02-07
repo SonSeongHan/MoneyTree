@@ -222,8 +222,9 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
+      // 부동산 커뮤니티 관련 경로 (하이픈 사용)
       {
-        path: 'community/real_estate',
+        path: 'community/real-estate',
         children: [
           {
             index: true,
@@ -290,6 +291,11 @@ const root = createBrowserRouter([
         element: <Navigate to="/community/real-estate" replace />,
       },
     ],
+  },
+
+  {
+    path: 'community/real_estate',
+    element: <Navigate to="/community/real-estate" replace />,
   },
 ]);
 
