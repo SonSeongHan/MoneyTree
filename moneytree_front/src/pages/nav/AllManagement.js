@@ -40,7 +40,7 @@ function AllManagement() {
                 <Link to="/change-name" style={styles.linkButton}>
                     이름 변경
                 </Link>
-                <Link to="/change-id" style={styles.linkButton}>
+                <Link to="/make-account" style={styles.linkButton}>
                     계좌생성
                 </Link>
                 <Link to="/reissue-certificate" style={styles.linkButton}>

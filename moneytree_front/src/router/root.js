@@ -13,6 +13,9 @@ import CommuUpdate from '../pages/community/CommuUpdate';
 import CommuReply from '../pages/community/CommuReply';
 import CommuAdd from '../pages/community/CommuAdd';
 import CommuCheck from '../pages/community/CommuCheck';
+import MainHome from "../components/MainHome";
+import AdminLogin from "../pages/admin/AdminLogin";
+import AdminPage from "../pages/admin/AdminPage";
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -48,8 +51,32 @@ const root = createBrowserRouter([
         index: true,
         element: (
           <Suspense fallback={Loading}>
-            <LoginPage />
+            <MainHome />
           </Suspense>
+        ),
+      },
+      {
+        path: "loginpage",
+        element: (
+            <Suspense fallback={Loading}>
+              <LoginPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "admin",
+        element: (
+            <Suspense fallback={Loading}>
+              <AdminLogin />
+            </Suspense>
+        ),
+      },
+      {
+        path: "admin/page",
+        element: (
+            <Suspense fallback={Loading}>
+              <AdminPage />
+            </Suspense>
         ),
       },
       {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { setCookie } from "../util/cookieUtil"; // 토큰 저장 용도 (쿠키 유틸)
+import { setCookie } from "../../util/cookieUtil"; // 토큰 저장 용도 (쿠키 유틸)
 
 const CertificateLogin = () => {
     const navigate = useNavigate();
@@ -16,7 +16,6 @@ const CertificateLogin = () => {
      * 파일 업로드 시 FileReader로 내용을 읽어서
      * - "은행 인증서" 문구 체크
      * - "발급 ID: ???", "발급 이름: ???" 추출
-     * - 이 단계에서는 간단히 클라이언트에서도 1차 파싱/확인
      */
     const handleFileChange = (e) => {
         setMessage("");
@@ -50,10 +49,10 @@ const CertificateLogin = () => {
     };
 
     /**
-     * 실제 "인증서 로그인" 버튼 클릭 시
-     * 1) 백엔드에 파일 내용 + 파싱된 ID/이름을 보낸다.
-     * 2) 백엔드가 검증 후 토큰(또는 사용자 정보) 반환.
-     * 3) 클라이언트에서 쿠키에 토큰 저장 → 홈으로 이동.
+     * "인증서 로그인" 버튼 클릭 시
+     * 1) 백엔드에 파일 내용 + 파싱된 ID/이름 전송
+     * 2) 백엔드가 검증 후 토큰(또는 사용자 정보) 반환
+     * 3) 쿠키에 토큰 저장 후 홈으로 이동
      */
     const handleLogin = async () => {
         setMessage("");
@@ -64,32 +63,29 @@ const CertificateLogin = () => {
         }
 
         try {
-            // 서버로 인증서 파일 내용과 파싱 결과를 전송
-            // (백엔드에서 '은행 인증서' 문구 포함 여부, ID/이름 유효성 등을 다시 한번 확인)
+            // 서버로 인증서 파일 내용과 파싱 결과 전송
             const response = await axios.post("http://localhost:8080/api/members/certificateLogin", {
                 fileContent,
                 parsedId,
                 parsedName,
             });
 
-            // 서버 응답이 정상적으로 오면 (토큰, 사용자 정보 등)
-            if (response.data) {
-                const { accessToken, refreshToken, memberId, memberName } = response.data;
+            // 응답 데이터에서 membershipType, member_name 등 모두 추출 (JSON의 키와 일치)
+            const { accessToken, refreshToken, memberId, member_name, membershipType } = response.data;
 
-                // 쿠키에 토큰 저장
-                setCookie("member", {
-                    memberId,
-                    member_name: memberName,
-                    accessToken,
-                    refreshToken,
-                }, 1);
+            // 쿠키에 토큰 저장 (JSON.stringify를 사용하여 일관되게 저장)
+            setCookie("member", JSON.stringify({
+                memberId,
+                member_name,  // JSON의 키와 동일하게 사용
+                membershipType,
+                accessToken,
+                refreshToken,
+            }), 1);
 
-                setMessage("인증서 로그인 성공! 홈으로 이동합니다.");
-                // 홈 화면으로 이동
-                setTimeout(() => {
-                    navigate("/home");
-                }, 1000);
-            }
+            setMessage("인증서 로그인 성공! 홈으로 이동합니다.");
+            setTimeout(() => {
+                navigate("/home");
+            }, 1000);
         } catch (error) {
             console.error("인증서 로그인 에러:", error);
             const serverMessage = error.response?.data?.message || "인증서 로그인 중 오류가 발생했습니다.";
@@ -98,33 +94,33 @@ const CertificateLogin = () => {
     };
 
     return (
-      <div style={{ margin: "50px" }}>
-          <h2>인증서 로그인 (파일 업로드)</h2>
+        <div style={{ margin: "50px" }}>
+            <h2>인증서 로그인 (파일 업로드)</h2>
 
-          <div style={{ marginBottom: "20px" }}>
-              <label>인증서 파일 업로드: </label>
-              <input type="file" accept=".txt" onChange={handleFileChange} />
-          </div>
-
-          <button onClick={handleLogin}>인증서 로그인</button>
-
-          {message && (
-            <p style={{ marginTop: "20px", color: message.includes("성공") ? "green" : "red" }}>
-                {message}
-            </p>
-          )}
-
-          {/* 디버깅용 정보 */}
-          {fileContent && (
-            <div style={{ marginTop: "20px" }}>
-                <h4>파일 내용</h4>
-                <pre>{fileContent}</pre>
-                <h4>파싱 결과</h4>
-                <p>ID: {parsedId}</p>
-                <p>이름: {parsedName}</p>
+            <div style={{ marginBottom: "20px" }}>
+                <label>인증서 파일 업로드: </label>
+                <input type="file" accept=".txt" onChange={handleFileChange} />
             </div>
-          )}
-      </div>
+
+            <button onClick={handleLogin}>인증서 로그인</button>
+
+            {message && (
+                <p style={{ marginTop: "20px", color: message.includes("성공") ? "green" : "red" }}>
+                    {message}
+                </p>
+            )}
+
+            {/* 디버깅용 정보 */}
+            {fileContent && (
+                <div style={{ marginTop: "20px" }}>
+                    <h4>파일 내용</h4>
+                    <pre>{fileContent}</pre>
+                    <h4>파싱 결과</h4>
+                    <p>ID: {parsedId}</p>
+                    <p>이름: {parsedName}</p>
+                </div>
+            )}
+        </div>
     );
 };
 

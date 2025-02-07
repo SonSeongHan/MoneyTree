@@ -27,8 +27,6 @@ public class DandwacServiceImpl implements DandwacService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원 ID입니다."));
 
         // (2) Dandwac 엔티티 생성
-
-        // 2) Dandwac 엔티티 생성
         Dandwac account = new Dandwac();
         account.setDandwAcId(dto.getDandwAcId());
         account.setMember(member);
@@ -47,7 +45,6 @@ public class DandwacServiceImpl implements DandwacService {
 
         return account;
     }
-
 
     @Override
     public Dandwac getAccount(String dandwAcId) {

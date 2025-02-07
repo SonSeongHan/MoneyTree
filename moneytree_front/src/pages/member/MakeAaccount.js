@@ -1,21 +1,23 @@
 // src/components/MakeAccount.js
 
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // useNavigate 추가
+import { useNavigate } from "react-router-dom"; // useLocation 제거 가능
 import { createAccount } from "../../api/AccountAPI"; // 실제 API 함수 임포트
+// 쿠키에서 memberId를 가져오는 함수 임포트
+import { getMemberIdFromCookie } from "../../util/cookieUtil";
 
 const MakeAccount = () => {
-  const location = useLocation();
   const navigate = useNavigate(); // 페이지 이동을 위한 navigate 훅
 
-  const initialMemberId = location.state?.memberId || "";
+  // 쿠키에서 memberId 가져오기 (회원 고유 id는 쿠키에서만 얻음)
+  const initialMemberId = getMemberIdFromCookie() || "";
 
   // 상태 정의
-  const [memberId, setMemberId] = useState(initialMemberId); // 회원 고유 ID
-  const [dandwAcId, setDandwAcId] = useState("");            // 입출금 계좌번호
-  const [balance, setBalance] = useState("");                // 계좌 잔액
+  const [memberId] = useState(initialMemberId); // 회원 고유 ID는 수정 불가능하므로 setter 생략
+  const [dandwAcId, setDandwAcId] = useState("");           // 입출금 계좌번호
+  const [balance, setBalance] = useState("");               // 계좌 잔액
   const [accountPassword, setAccountPassword] = useState(""); // 계좌 비밀번호
-  const [createdAt, setCreatedAt] = useState("");            // 생성일
+  const [createdAt, setCreatedAt] = useState("");           // 생성일
 
   // 성공/에러 메시지
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,14 +33,14 @@ const MakeAccount = () => {
     return `110-23${random5}-${random3}`;
   };
 
-  // --- 2) 컴포넌트가 처음 마운트될 때, 계좌번호 자동 생성 ---
+  // --- 2) 컴포넌트가 처음 마운트될 때, 계좌번호 자동 생성 및 생성일 설정 ---
   useEffect(() => {
     const newAccountNumber = generateAccountNumber();
     setDandwAcId(newAccountNumber);
     // 생성일을 오늘 날짜로 자동 설정
     const today = new Date().toISOString().split('T')[0];
     setCreatedAt(today);
-  }, []); // 빈 배열이므로 마운트 시 1회만 실행
+  }, []); // 빈 배열이면 마운트 시 1회만 실행
 
   // 폼 제출
   const handleSubmit = async (e) => {
@@ -60,27 +62,24 @@ const MakeAccount = () => {
       await createAccount(accountData);
 
       setSuccessMessage("계좌가 성공적으로 생성되었습니다!");
-      alert("계좌가 성공적으로 생성되었습니다.")
-      navigate("/"); // 성공 페이지로 이동 (필요 시 구현)
+      alert("계좌가 성공적으로 생성되었습니다.");
+      navigate("/"); // 성공 후 원하는 페이지로 이동
     } catch (error) {
       setErrorMessage("계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
-
 
   return (
       <div style={styles.page}>
         <div style={styles.container}>
           <h2>계좌 개설</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
-
-            {/* 회원 고유 ID (readOnly로 수정 불가능하게) */}
+            {/* 회원 고유 ID (쿠키에서 가져온 값을 수정할 수 없도록 readOnly 처리) */}
             <div style={styles.formGroup}>
               <label>회원 고유 ID</label>
               <input
                   type="text"
                   value={memberId}
-                  onChange={(e) => setMemberId(e.target.value)}
                   readOnly
                   required
               />
@@ -92,8 +91,7 @@ const MakeAccount = () => {
               <input
                   type="text"
                   value={dandwAcId}
-                  onChange={(e) => setDandwAcId(e.target.value)}
-                  readOnly  // 필요 시 readOnly 처리 (또는 원하는 경우 editable)
+                  readOnly
                   required
               />
             </div>

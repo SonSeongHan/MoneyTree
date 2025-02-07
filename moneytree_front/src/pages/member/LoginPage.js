@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setCookie } from "../../util/cookieUtil";
 // ---- 추가: 인증서 로그인용 컴포넌트 임포트 ----
-import CertificateLogin from "../../components/CertificateLogin";
+import CertificateLogin from "./CertificateLogin";
 
 const LoginPage = () => {
     // 로그인 컴포넌트 초기 state

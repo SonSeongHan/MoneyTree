@@ -1,37 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { getCookie, removeCookie } from '../util/cookieUtil'; // removeCookie 추가
+import { useCookies } from 'react-cookie';
 import '../css/navbar.css';
 
 function NavBar() {
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [showCommunityDropdown, setShowCommunityDropdown] = useState(false);
-  const [memberName, setMemberName] = useState(""); // 사용자 이름 상태
-  const navigate = useNavigate(); // 로그아웃 후 리다이렉트를 위한 useNavigate
+  const [cookies, setCookie, removeCookie] = useCookies(["member"]);
+  const [showProductDropdown, setShowProductDropdown] = React.useState(false);
+  const [showCommunityDropdown, setShowCommunityDropdown] = React.useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // 쿠키에서 사용자 정보 가져오기
-    const memberData = getCookie('member');
-    // console.log("쿠키 데이터 확인:", memberData);
-    console.log("쿠키 데이터 확인:", memberData);
-
-    if (memberData && typeof memberData === "object") {
-      // 이미 파싱된 객체일 경우
-      setMemberName(memberData.member_name || "사용자");
-    } else if (memberData && typeof memberData === "string") {
-      try {
-        const parsedMember = JSON.parse(memberData); // 문자열이면 파싱
-        console.log("파싱된 데이터:", parsedMember);
-        setMemberName(parsedMember.member_name || "사용자");
-      } catch (error) {
-        console.error("쿠키 파싱 실패:", error);
-        setMemberName("사용자");
-      }
-    } else {
-      console.warn("쿠키에서 사용자 정보를 찾을 수 없습니다.");
-      setMemberName("사용자");
+  // 쿠키의 member 데이터가 변경될 때마다 memberName을 업데이트
+  const memberData = cookies.member;
+  let memberName = "사용자";
+  if (memberData) {
+    try {
+      const parsedMember = typeof memberData === "string" ? JSON.parse(memberData) : memberData;
+      memberName = parsedMember.member_name || "사용자";
+    } catch (error) {
+      console.error("쿠키 파싱 실패:", error);
     }
-  }, []);
+  }
 
   const toggleProductDropdown = () => {
     setShowProductDropdown((prev) => !prev);
@@ -43,22 +31,17 @@ function NavBar() {
     setShowProductDropdown(false);
   };
 
-  // 로그아웃 함수
   const handleLogout = () => {
-    removeCookie("member"); // 쿠키 삭제
+    removeCookie("member", { path: "/" });
     alert("로그아웃되었습니다.");
-    navigate("/"); // 홈 페이지로 리다이렉트
+    navigate("/");
   };
 
   return (
       <nav className="navbar">
-        {/* 로고 */}
         <div className="navbar-logo">
           <NavLink to="/home">로고</NavLink>
-          <NavLink to="/">로고</NavLink>
         </div>
-
-        {/* 메뉴 */}
         <ul className="navbar-menu">
           <li>
             <NavLink to="/mypage">마이페이지</NavLink>
@@ -83,10 +66,7 @@ function NavBar() {
             )}
           </li>
         </ul>
-
-        {/* 우측 */}
         <div className="navbar-right">
-          {/* memberName을 NavLink로 변경하여 클릭 시 마이페이지로 이동 */}
           <NavLink to="/allmanagement" className="navbar-username">{memberName}</NavLink>
           <button className="navbar-logout" onClick={handleLogout}>로그아웃</button>
         </div>

@@ -9,19 +9,12 @@ function Home() {
     const [userName, setUserName] = useState("손님");
 
     useEffect(() => {
-        // react-cookie에서 가져온 값은 이미 'JSON -> 객체' 로 파싱된 상태
         const memberCookie = getCookie("member");
+        console.log("Retrieved member cookie:", memberCookie);
         if (memberCookie) {
-            // memberCookie는 예: {
-            //   "memberId":"user5",
-            //   "member_name":"심정민",
-            //   "membershipType":"FullMember",
-            //   ...
-            // }
             setUserName(memberCookie.member_name || "손님");
             setMembershipType(memberCookie.membershipType || "none");
         } else {
-            // 쿠키가 없으면 비회원
             setUserName("손님");
             setMembershipType("none");
         }
