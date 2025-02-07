@@ -1,5 +1,6 @@
 package com.moneytree_back.config;
 
+import com.moneytree_back.security.filter.CookieAuthenticationFilter;
 import com.moneytree_back.security.handler.APILoginFailHandler;
 import com.moneytree_back.security.handler.APILoginSuccessHandler;
 import com.moneytree_back.security.handler.CustomAccessDeniedHandler;
@@ -89,30 +90,29 @@ public class AdminSecurityConfig {
         log.info(">>>>> Admin Security config init <<<<<");
 
         http
-                // /api/admin/** 패턴에만 SecurityChain 적용
                 .securityMatcher("/api/admin/**")
-                // 세션 사용 안 함, CSRF, HTTP Basic, 폼 로그인 비활성화 및 CORS 설정 적용
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable())
                 .cors(cors -> cors.configurationSource(adminCorsConfigurationSource()));
 
-        // 관리자 로그인 필터를 UsernamePasswordAuthenticationFilter 전에 추가
+        // 관리자 로그인 필터 추가
         http.addFilterBefore(adminLoginFilter(adminAuthenticationManager), UsernamePasswordAuthenticationFilter.class);
 
-        // URL 접근 권한 설정 (필요에 따라 조정)
+        // 새로 추가한 쿠키 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
+        http.addFilterBefore(new CookieAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // 기본적으로 /api/admin/** 경로는 인증된 사용자만 접근하도록 설정
                 .anyRequest().authenticated()
         );
 
-        // 예외 처리 핸들러
         http.exceptionHandling(exception ->
                 exception.accessDeniedHandler(new CustomAccessDeniedHandler())
         );
 
         return http.build();
     }
+
 }

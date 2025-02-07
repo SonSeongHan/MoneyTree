@@ -16,6 +16,7 @@ import CommuCheck from '../pages/community/CommuCheck';
 import MainHome from "../components/MainHome";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminPage from "../pages/admin/AdminPage";
+import MemberDetailPage from "../pages/admin/MemberDetailPage";
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -76,6 +77,14 @@ const root = createBrowserRouter([
         element: (
             <Suspense fallback={Loading}>
               <AdminPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "/admin/members/:memberId",
+        element: (
+            <Suspense fallback={Loading}>
+              <MemberDetailPage />
             </Suspense>
         ),
       },

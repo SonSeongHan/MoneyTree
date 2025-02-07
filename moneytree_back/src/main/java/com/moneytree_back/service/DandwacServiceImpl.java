@@ -3,15 +3,18 @@ package com.moneytree_back.service;
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.Member;
 import com.moneytree_back.domain.MembershipType;
+import com.moneytree_back.domain.TransactionHistory;
 import com.moneytree_back.dto.DandwacDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.MemberRepository;
+import com.moneytree_back.repository.TransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,8 @@ public class DandwacServiceImpl implements DandwacService {
 
     private final DandwacRepository dandwAccountRepository;
     private final MemberRepository memberRepository;
+    // 거래 내역을 저장하기 위한 Repository 추가
+    private final TransactionHistoryRepository transactionHistoryRepository;
 
     @Override
     public Dandwac createAccount(DandwacDTO dto) {
@@ -76,7 +81,7 @@ public class DandwacServiceImpl implements DandwacService {
             throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
         }
 
-        // (3) 수신자 계좌
+        // (3) 수신자 계좌 조회
         Dandwac receiverAccount = dandwAccountRepository.findById(receiverAccountId)
                 .orElseThrow(() -> new IllegalArgumentException("수신자 계좌를 찾을 수 없습니다."));
 
@@ -89,6 +94,18 @@ public class DandwacServiceImpl implements DandwacService {
 
         dandwAccountRepository.save(senderAccount);
         dandwAccountRepository.save(receiverAccount);
-    }
 
+        // (5) 거래 내역 기록
+        TransactionHistory history = TransactionHistory.builder()
+                .fromAccount(senderAccount)
+                .toAccount(receiverAccount)
+                .amount(amount)
+                // 거래 유형은 예를 들어, 송금(출금)과 입금을 구분할 수 있으나,
+                // 현재는 senderAccount의 accountType 또는 고정값을 사용할 수 있습니다.
+                .dandwacType(senderAccount.getAccountType())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        transactionHistoryRepository.save(history);
+    }
 }

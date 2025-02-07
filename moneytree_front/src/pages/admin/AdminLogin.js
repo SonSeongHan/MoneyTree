@@ -22,7 +22,7 @@ const AdminLogin = () => {
             // 로그인 성공 시 처리 (예: 토큰 저장, 관리자 페이지로 리다이렉트 등)
             console.log('로그인 성공:', response.data);
 
-            // setCookie 함수를 사용하여 "member" 이름으로 로그인 응답 데이터를 쿠키에 저장 (1일 동안 유효)
+            // // setCookie 함수를 사용하여 "member" 이름으로 로그인 응답 데이터를 쿠키에 저장 (1일 동안 유효)
             setCookie('member', response.data, 1);
 
             // 예: 관리자 메인 페이지로 이동
