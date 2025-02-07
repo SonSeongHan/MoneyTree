@@ -7,52 +7,63 @@
 }
 
 /* Filter Box */
-.dep-filter-box {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    padding: 20px;
+.filter-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 15px 20px;
     background-color: #f8f9fa;
-    border-radius: 15px;
-    margin-bottom: 30px;
+    border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
-.dep-filter-box input,
-.dep-filter-box select {
-    padding: 12px;
+.filter-input {
+    flex: 1;
+    min-width: 140px;
+    max-width: 180px;
+    padding: 8px 12px;
     border: 1px solid #dee2e6;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
-    width: 100%;
     background-color: white;
     transition: border-color 0.2s ease;
 }
 
-.dep-filter-box input:focus,
-.dep-filter-box select:focus {
+.filter-input:focus {
     outline: none;
     border-color: #007BFF;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
 }
 
-.dep-filter-box input::placeholder {
-    color: #adb5bd;
+.filter-select {
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    transition: border-color 0.2s ease;
 }
 
-.dep-filter-reset-btn {
-    grid-column: 2 / 3;
-    padding: 12px 24px;
+.filter-reset-btn {
+    padding: 8px 16px;
     background-color: #6c757d;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s ease;
+    margin-left: auto;
 }
 
-.dep-filter-reset-btn:hover {
+.filter-reset-btn:hover {
     background-color: #5a6268;
 }
 
@@ -163,21 +174,29 @@
 
 /* Responsive Design */
 @media (max-width: 992px) {
-    .dep-filter-box {
+    .dep-product-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .dep-filter-reset-btn {
-        grid-column: 1 / -1;
     }
 }
 
 @media (max-width: 768px) {
-    .dep-product-grid {
-        grid-template-columns: 1fr;
+    .filter-container {
+        flex-direction: column;
+        padding: 12px;
     }
 
-    .dep-filter-box {
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .filter-reset-btn {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .dep-product-grid {
         grid-template-columns: 1fr;
     }
 

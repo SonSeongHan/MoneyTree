@@ -93,47 +93,58 @@ const Deposit = () => {
 
   return (
     <div className="dep-container">
-      <div className="dep-filter-box">
+      <div className="filter-container">
         <input
           type="number"
-          placeholder="이자율 최소"
+          className="filter-input"
+          placeholder="최소 이자율"
           value={interestRateRange.min}
           onChange={(e) => setInterestRateRange({ ...interestRateRange, min: e.target.value })}
         />
         <input
           type="number"
-          placeholder="이자율 최대"
+          className="filter-input"
+          placeholder="최대 이자율"
           value={interestRateRange.max}
           onChange={(e) => setInterestRateRange({ ...interestRateRange, max: e.target.value })}
         />
         <input
           type="number"
+          className="filter-input"
           placeholder="우대 이자율"
           value={primeRate}
           onChange={(e) => setPrimeRate(e.target.value)}
         />
         <input
           type="number"
-          placeholder="최소 예치 금액"
+          className="filter-input"
+          placeholder="최소 예치금"
           value={minAmount}
           onChange={(e) => setMinAmount(e.target.value)}
         />
-        <select onChange={(e) => setMaturityPeriod(e.target.value)} value={maturityPeriod}>
+        <select
+          className="filter-select"
+          onChange={(e) => setMaturityPeriod(e.target.value)}
+          value={maturityPeriod}
+        >
           <option value="">예치 기간</option>
           <option value="6">6개월</option>
           <option value="12">12개월</option>
           <option value="24">24개월</option>
           <option value="36">36개월</option>
         </select>
-        <select onChange={(e) => setDepositType(e.target.value)} value={depositType}>
+        <select
+          className="filter-select"
+          onChange={(e) => setDepositType(e.target.value)}
+          value={depositType}
+        >
           <option value="">단리/복리</option>
           <option value="simple">단리</option>
           <option value="compound">복리</option>
         </select>
-        {/* 초기화 버튼 추가 */}
         <button
           onClick={resetFilters}
-          className="dep-filter-reset-btn"
+          className="filter-reset-btn"
         >
           필터 초기화
         </button>
