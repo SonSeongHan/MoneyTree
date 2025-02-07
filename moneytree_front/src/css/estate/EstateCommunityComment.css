@@ -1,21 +1,22 @@
 /* 댓글 전체 컨테이너 */
 .comment-container {
-  margin-top: 20px;
+  margin-top: 30px;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: #fff;
   border: 1px solid #e1e1e1;
   border-radius: 8px;
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-  font-family: 'Noto Sans KR', sans-serif;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  font-family: 'Noto Sans KR', Arial, sans-serif;
 }
 
-/* 댓글 헤더 (제목 영역) */
+/* 댓글 헤더 */
 .comment-header {
   font-size: 1.2em;
-  color: #333333;
+  color: #333;
   border-bottom: 2px solid #007aff;
-  padding-bottom: 8px;
-  margin-bottom: 15px;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-weight: 500;
 }
 
 /* 댓글 목록 스타일 */
@@ -38,14 +39,14 @@
 /* 댓글 메타 정보 */
 .comment-meta {
   font-size: 0.85em;
-  color: #777777;
+  color: #777;
   margin-bottom: 5px;
 }
 
-/* 댓글 본문 텍스트 */
+/* 댓글 본문 */
 .comment-text {
   font-size: 1em;
-  color: #444444;
+  color: #444;
   margin-bottom: 10px;
 }
 
@@ -67,7 +68,7 @@
 
 .btn.edit-btn {
   background-color: #ffc107;
-  color: #ffffff;
+  color: #fff;
 }
 
 .btn.edit-btn:hover {
@@ -76,14 +77,14 @@
 
 .btn.delete-btn {
   background-color: #dc3545;
-  color: #ffffff;
+  color: #fff;
 }
 
 .btn.delete-btn:hover {
   background-color: #c82333;
 }
 
-/* 인라인 댓글 수정 폼 */
+/* 댓글 수정 폼 */
 .comment-edit-form {
   display: flex;
   flex-direction: column;
@@ -93,7 +94,7 @@
 .edit-input {
   padding: 10px;
   font-size: 1em;
-  border: 1px solid #cccccc;
+  border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
   box-sizing: border-box;
@@ -107,7 +108,7 @@
 
 .btn.save-btn {
   background-color: #28a745;
-  color: #ffffff;
+  color: #fff;
 }
 
 .btn.save-btn:hover {
@@ -116,39 +117,11 @@
 
 .btn.cancel-btn {
   background-color: #6c757d;
-  color: #ffffff;
+  color: #fff;
 }
 
 .btn.cancel-btn:hover {
   background-color: #5a6268;
-}
-
-/* 페이지 네비게이션 영역 */
-.pagination {
-  text-align: center;
-  margin-top: 15px;
-}
-
-.pagination button {
-  margin: 0 4px;
-  padding: 6px 10px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  background-color: #ffffff;
-  color: #333333;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.pagination button:hover {
-  background-color: #f1f1f1;
-}
-
-.pagination .page-button.active {
-  background-color: #007aff;
-  color: #ffffff;
-  font-weight: bold;
-  border-color: #007aff;
 }
 
 /* 댓글 작성 폼 */
@@ -161,17 +134,17 @@
   min-height: 80px;
   padding: 12px;
   font-size: 1em;
-  border: 1px solid #dddddd;
+  border: 1px solid #ddd;
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
+  margin-bottom: 10px;
 }
 
 .btn.create-btn {
-  margin-top: 10px;
   padding: 10px 20px;
   background-color: #007aff;
-  color: #ffffff;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -180,4 +153,56 @@
 
 .btn.create-btn:hover {
   background-color: #005bb5;
+}
+
+/* Pagination 스타일 (댓글 영역에도 적용 가능) */
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination button:hover {
+  background-color: #f1f1f1;
+}
+
+.pagination .page-button.active {
+  background-color: #007aff;
+  color: #fff;
+  font-weight: bold;
+  border-color: #007aff;
+}
+/* 새 게시글 작성 및 댓글 작성에서 띄우는 로그인 모달 tooltip (화면 오른쪽 상단에 고정) */
+.login-modal-tooltip {
+  position: fixed; /* 스크롤과 관계없이 항상 고정 */
+  top: 80px; /* 화면 상단에서 80px 아래 (필요에 따라 조정) */
+  right: 20px; /* 화면 오른쪽에서 20px 떨어짐 (필요에 따라 조정) */
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px; /* 너비 조정 */
+  z-index: 1000;
+}
+
+/* 모달 닫기 버튼 */
+.login-modal-tooltip .modal-close-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }

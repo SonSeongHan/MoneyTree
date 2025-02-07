@@ -67,4 +67,26 @@ public class DepositProductController {
         List<DepositProductDTO> depositProducts = depositProductService.getDepositsByMaturityPeriod(depositMaturityPeriod);
         return ResponseEntity.ok(depositProducts);
     }
+
+    // 필터링 기능 통합
+    @GetMapping("/search")
+    public List<DepositProductDTO> searchDepositProducts(
+            @RequestParam(required = false) String bankName,
+            @RequestParam(required = false) BigDecimal depositMinAmount,
+            @RequestParam(required = false) String depositInterestRateType,
+            @RequestParam(required = false) BigDecimal minDepositBaseInterestRate,
+            @RequestParam(required = false) BigDecimal maxDepositBaseInterestRate,
+            @RequestParam(required = false) BigDecimal minDepositPrimeInterestRate,
+            @RequestParam(required = false) Integer depositMaturityPeriod
+    ) {
+        return depositProductService.searchDepositProducts(
+                bankName,
+                depositMinAmount,
+                depositInterestRateType,
+                minDepositBaseInterestRate,
+                maxDepositBaseInterestRate,
+                minDepositPrimeInterestRate,
+                depositMaturityPeriod
+        );
+    }
 }

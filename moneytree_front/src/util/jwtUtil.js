@@ -17,8 +17,7 @@ jwtAxios.interceptors.request.use(
 
     if (playerInfo) {
       try {
-        const parsedInfo =
-          typeof playerInfo === 'string' ? JSON.parse(playerInfo) : playerInfo;
+        const parsedInfo = typeof playerInfo === 'string' ? JSON.parse(playerInfo) : playerInfo;
 
         if (parsedInfo.accessToken) {
           config.headers.Authorization = `Bearer ${parsedInfo.accessToken}`;
@@ -36,7 +35,7 @@ jwtAxios.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor: 에러 처리
@@ -48,7 +47,7 @@ jwtAxios.interceptors.response.use(
       window.location.href = '/player/login';
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // JWT 디코딩 및 이메일 추출
@@ -60,8 +59,7 @@ export const decodeJWT = () => {
   }
 
   try {
-    const parsedCookie =
-      typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
@@ -81,70 +79,70 @@ export const decodeJWT = () => {
 };
 
 export const decodeNicknameFromJWT = () => {
-  const playerCookie = getCookie("member");
+  const playerCookie = getCookie('member');
   if (!playerCookie) {
-    console.warn("No player cookie found.");
+    console.warn('No player cookie found.');
     return null;
   }
 
   try {
-    const parsedCookie =
-      typeof playerCookie === "string" ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
-      console.warn("No access token found in player cookie.");
+      console.warn('No access token found in player cookie.');
       return null;
     }
 
     // JWT 디코딩
-    const base64Url = accessToken.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const base64Url = accessToken.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const decodedPayload = atob(base64);
     const payload = JSON.parse(
       decodeURIComponent(
-        decodedPayload.split("").map((c) => {
-          return "%" + c.charCodeAt(0).toString(16).padStart(2, "0");
-        }).join("")
-      )
+        decodedPayload
+          .split('')
+          .map((c) => {
+            return '%' + c.charCodeAt(0).toString(16).padStart(2, '0');
+          })
+          .join(''),
+      ),
     );
 
     return payload.nickname || null; // 닉네임 필드 추출
   } catch (error) {
-    console.error("Failed to decode JWT:", error);
+    console.error('Failed to decode JWT:', error);
     return null;
   }
 };
 
-
 // JWT 디코딩 유틸리티 함수
 export const decodedJWT = () => {
-  const playerCookie = getCookie("member");
+  const playerCookie = getCookie('member');
   if (!playerCookie) {
-    console.warn("No player cookie found.");
+    console.warn('No player cookie found.');
     return null;
   }
 
   try {
-    const parsedCookie =
-      typeof playerCookie === "string" ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
-      console.warn("No access token found in player cookie.");
+      console.warn('No access token found in player cookie.');
       return null;
     }
 
     // JWT 디코딩
-    const base64Url = accessToken.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const base64Url = accessToken.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const payload = JSON.parse(atob(base64));
     return {
       // email: payload.email || null,
       roleNames: payload.roleNames || null, // 역할 추가 반환
     };
   } catch (error) {
-    console.error("Failed to decode JWT:", error);
+    console.error('Failed to decode JWT:', error);
     return null;
   }
 };

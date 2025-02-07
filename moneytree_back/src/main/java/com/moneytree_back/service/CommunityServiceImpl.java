@@ -31,6 +31,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final MemberRepository memberRepository;
     private final CommunityImageRepository communityImageRepository;
     private final CustomFileUtil customFileUtil;
+    private final CommunityRepliesRepository communityRepliesRepository;
 
     @Override
     public Page<CommunityDTO> getPagedAllCommunity(PostType postType,Pageable pageable) {
@@ -183,7 +184,7 @@ public class CommunityServiceImpl implements CommunityService {
             }
         }
 
-        // 새로운 이미지 추가
+        // ✅ 새로운 이미지 추가
         if (files != null && !files.isEmpty()) {
             List<String> savedFileNames = customFileUtil.saveFiles(files);
             List<CommunityImage> images = savedFileNames.stream()
@@ -198,9 +199,9 @@ public class CommunityServiceImpl implements CommunityService {
             currentImages.addAll(savedFileNames);
         }
 
-        log.info(" 업데이트 후 최종 이미지 리스트: {}", currentImages);
+        log.info("🔹 업데이트 후 최종 이미지 리스트: {}", currentImages);
 
-        // 다시 저장
+        // ✅ 다시 저장
         communityRepository.save(community);
     }
 
@@ -212,30 +213,7 @@ public class CommunityServiceImpl implements CommunityService {
         Community community = communityRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Community not found."));
 
-        List<CommunityImage> images = community.getImages();
-        System.out.println("삭제할 이미지 리스트: " + images);
-        List<String> deletedImages = new ArrayList<>();
-
-        if (images != null && !images.isEmpty()) {
-            for (CommunityImage image : images) {
-                if (image.getImageUrl() != null) {
-                    deletedImages.add(image.getImageUrl());
-                }
-            }
-            log.info("삭제할 이미지 파일 리스트: {}", deletedImages);
-        }
-
-        //3. 파일 삭제 (원본 + 썸네일)
-        if (!deletedImages.isEmpty()) {
-            customFileUtil.deleteFiles(deletedImages); // 원본 이미지 삭제
-            List<String> thumbnailImages = deletedImages.stream()
-                    .map(img -> "s_" + img) // 썸네일 파일명 변환
-                    .collect(Collectors.toList());
-            customFileUtil.deleteFiles(thumbnailImages); // 썸네일 삭제
-            log.info("파일 시스템에서 이미지 삭제 완료");
-        }
-
-        // 게시글 삭제
+        //게시글 삭제
         communityRepository.delete(community);
         log.info("게시글 삭제 완료");
     }

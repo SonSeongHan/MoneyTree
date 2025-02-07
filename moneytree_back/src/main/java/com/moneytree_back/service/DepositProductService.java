@@ -44,4 +44,15 @@ public interface DepositProductService {
 
     // 최고 우대 이자율 이상인 예금 상품 조회
     List<DepositProductDTO> getDepositProductsByPrimeInterestRate(BigDecimal minDepositprimeInterestRate);
+
+    // 전체 통합 필터링
+    List<DepositProductDTO> searchDepositProducts(
+            String bankName,
+            BigDecimal depositMinAmount,
+            String depositInterestRateType,
+            BigDecimal minDepositBaseInterestRate,
+            BigDecimal maxDepositBaseInterestRate,
+            BigDecimal minDepositPrimeInterestRate,
+            Integer depositMaturityPeriod
+    );
 }
