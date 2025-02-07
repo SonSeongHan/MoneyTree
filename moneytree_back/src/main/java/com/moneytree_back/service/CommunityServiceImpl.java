@@ -49,18 +49,18 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         return communities.map(community -> new CommunityDTO(
-                community.getPostId(),
-                community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
-                community.getPostType().name(),
-                community.getTitle(),
-                community.getContent(),
-                community.getImages().stream()
-                        .map(CommunityImage::getImageUrl)
-                        .collect(Collectors.toList()),
-                community.getMembershipType() != null ? community.getMembershipType().name() : null,
-                community.getCreatedAt(),
-                community.getUpdatedAt(),
-                null
+          community.getPostId(),
+          community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
+          community.getPostType().name(),
+          community.getTitle(),
+          community.getContent(),
+          community.getImages().stream()
+            .map(CommunityImage::getImageUrl)
+            .collect(Collectors.toList()),
+          community.getMembershipType() != null ? community.getMembershipType().name() : null,
+          community.getCreatedAt(),
+          community.getUpdatedAt(),
+          null
         ));
     }
 
@@ -70,24 +70,24 @@ public class CommunityServiceImpl implements CommunityService {
         Community community = communityRepository.findById(postId).orElseThrow(()-> new RuntimeException("해당 커뮤니티 글을 찾을 수 없습니다."));
 
         List<String> imageUrls = community.getImages().stream()
-                .map(CommunityImage::getImageUrl)
-                .collect(Collectors.toList());
+          .map(CommunityImage::getImageUrl)
+          .collect(Collectors.toList());
 
         log.info("해당 게시글의 기존 이미지 리스트:{}", imageUrls);
 
         return new CommunityDTO(
-                community.getPostId(),
-                community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
-                community.getPostType().name(),
-                community.getTitle(),
-                community.getContent(),
-                community.getImages().stream()
-                        .map(CommunityImage::getImageUrl)
-                        .collect(Collectors.toList()),
-                community.getMembershipType() != null ? community.getMembershipType().name() : null,
-                community.getCreatedAt(),
-                community.getUpdatedAt(),
-                null
+          community.getPostId(),
+          community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
+          community.getPostType().name(),
+          community.getTitle(),
+          community.getContent(),
+          community.getImages().stream()
+            .map(CommunityImage::getImageUrl)
+            .collect(Collectors.toList()),
+          community.getMembershipType() != null ? community.getMembershipType().name() : null,
+          community.getCreatedAt(),
+          community.getUpdatedAt(),
+          null
         );
 
     }
@@ -100,7 +100,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         Member member = memberRepository.findByMemberId(communityDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+          .orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
 
         Community community = new Community();
         community.setPostId(communityDTO.getPostId());
@@ -118,27 +118,27 @@ public class CommunityServiceImpl implements CommunityService {
         if(files != null && !files.isEmpty()){
             List<String> savedFileNames = customFileUtil.saveFiles(files);
             List<CommunityImage> images = savedFileNames.stream()
-                    .map(fileName -> CommunityImage.builder()
-                            .community(savedCommunity)
-                            .imageUrl(fileName)
-                            .build())
-                    .collect(Collectors.toList());
+              .map(fileName -> CommunityImage.builder()
+                .community(savedCommunity)
+                .imageUrl(fileName)
+                .build())
+              .collect(Collectors.toList());
             communityImageRepository.saveAll(images);
 
         }
         log.info("저장하려는 정보들: {}",savedCommunity);
 
         return new CommunityDTO(
-                savedCommunity.getPostId(),
-                savedCommunity.getMember().getMemberId(),
-                savedCommunity.getPostType().name(),
-                savedCommunity.getTitle(),
-                savedCommunity.getContent(),
-                savedCommunity.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
-                savedCommunity.getMembershipType().name(),
-                savedCommunity.getCreatedAt(),
-                savedCommunity.getUpdatedAt(),
-                null
+          savedCommunity.getPostId(),
+          savedCommunity.getMember().getMemberId(),
+          savedCommunity.getPostType().name(),
+          savedCommunity.getTitle(),
+          savedCommunity.getContent(),
+          savedCommunity.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
+          savedCommunity.getMembershipType().name(),
+          savedCommunity.getCreatedAt(),
+          savedCommunity.getUpdatedAt(),
+          null
         );
     }
 
@@ -146,12 +146,12 @@ public class CommunityServiceImpl implements CommunityService {
     public void updateCommunity(CommunityDTO communityDTO, List<MultipartFile> files, List<String> deletedImages) {
         // 데이터베이스에서 ID를 조회해서 기존 데이터를 불러옴
         Community community = communityRepository.findById(communityDTO.getPostId())
-                .orElseThrow(() -> new RuntimeException("커뮤니티 글을 찾을 수 없습니다."));
+          .orElseThrow(() -> new RuntimeException("커뮤니티 글을 찾을 수 없습니다."));
 
         //  기존 이미지 리스트를 가져오되, null이면 빈 리스트로 설정
         List<String> currentImages = community.getImages() != null ?
-                community.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList())
-                : new ArrayList<>();
+          community.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList())
+          : new ArrayList<>();
 
         log.info(" 해당 게시글의 기존 이미지 리스트: {}", currentImages);
 
@@ -187,11 +187,11 @@ public class CommunityServiceImpl implements CommunityService {
         if (files != null && !files.isEmpty()) {
             List<String> savedFileNames = customFileUtil.saveFiles(files);
             List<CommunityImage> images = savedFileNames.stream()
-                    .map(fileName -> CommunityImage.builder()
-                            .community(community)
-                            .imageUrl(fileName)
-                            .build())
-                    .collect(Collectors.toList());
+              .map(fileName -> CommunityImage.builder()
+                .community(community)
+                .imageUrl(fileName)
+                .build())
+              .collect(Collectors.toList());
 
             communityImageRepository.saveAll(images);
 
@@ -210,7 +210,7 @@ public class CommunityServiceImpl implements CommunityService {
     public void deleteCommunity(Long postId) {
         //단순 삭제
         Community community = communityRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Community not found."));
+          .orElseThrow(() -> new RuntimeException("Community not found."));
 
         List<CommunityImage> images = community.getImages();
         System.out.println("삭제할 이미지 리스트: " + images);
@@ -229,8 +229,8 @@ public class CommunityServiceImpl implements CommunityService {
         if (!deletedImages.isEmpty()) {
             customFileUtil.deleteFiles(deletedImages); // 원본 이미지 삭제
             List<String> thumbnailImages = deletedImages.stream()
-                    .map(img -> "s_" + img) // 썸네일 파일명 변환
-                    .collect(Collectors.toList());
+              .map(img -> "s_" + img) // 썸네일 파일명 변환
+              .collect(Collectors.toList());
             customFileUtil.deleteFiles(thumbnailImages); // 썸네일 삭제
             log.info("파일 시스템에서 이미지 삭제 완료");
         }
@@ -241,4 +241,3 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
 }
-
