@@ -2,9 +2,11 @@ package com.moneytree_back.controller;
 
 import com.moneytree_back.dto.FundProductDTO;
 import com.moneytree_back.service.FundProductService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -53,4 +55,17 @@ public class FundProductController {
         return fundProductService.getFundProductsByFundRedemptionFee(maxFundRedemptionFee);
     }
 
+    // 전체 필터링 통합
+    @GetMapping("/filter")
+    public List<FundProductDTO> getFilteredFundProducts(
+            @RequestParam(required = false) BigDecimal minFundTotalAmount,
+            @RequestParam(required = false) BigDecimal maxFundTotalAmount,
+            @RequestParam(required = false) BigDecimal minFundManagementFee,
+            @RequestParam(required = false) BigDecimal maxFundRedemptionFee,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fundProductMaturityDate
+    ) {
+        return fundProductService.getFilteredFundProducts(
+                minFundTotalAmount, maxFundTotalAmount, minFundManagementFee, maxFundRedemptionFee, fundProductMaturityDate
+        );
+    }
 }
