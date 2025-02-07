@@ -1,18 +1,22 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
-import AppLayout from '../router/AppLayout';
-import LoginPage from '../pages/member/LoginPage';
-import MakeMember from '../pages/member/MakeMember';
-import SimpleMakeMember from '../pages/member/SimpleMakeMember';
-import MakeAccount from '../pages/member/MakeAaccount';
-import AccountManagement from '../components/AccountManagement';
-import AllManagement from '../pages/nav/AllManagement';
-import ChangeName from '../components/ChangeName';
-import MakeCertificate from '../components/MakeCertigicate';
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import AppLayout from "../router/AppLayout";
+import LoginPage from "../pages/member/LoginPage";
+import MakeMember from "../pages/member/MakeMember";
+import SimpleMakeMember from "../pages/member/SimpleMakeMember";
+import MakeAccount from "../pages/member/MakeAaccount";
+import AccountManagement from "../components/AccountManagement";
+import AllManagement from "../pages/nav/AllManagement";
+import ChangeName from "../components/ChangeName";
+import MakeCertificate from "../components/MakeCertigicate";
 import CommuUpdate from '../pages/community/CommuUpdate';
 import CommuReply from '../pages/community/CommuReply';
 import CommuAdd from '../pages/community/CommuAdd';
 import CommuCheck from '../pages/community/CommuCheck';
+import MainHome from "../components/MainHome";
+import AdminLogin from "../pages/admin/AdminLogin";
+import AdminPage from "../pages/admin/AdminPage";
+import MemberDetailPage from "../pages/admin/MemberDetailPage";
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -29,7 +33,7 @@ const HobbyCommunity = lazy(() => import('../pages/nav/HobbyCommunity'));
 const DepositDetailPage = lazy(() => import('../pages/recommends/DepositDetailPage'));
 const SavingDetailPage = lazy(() => import('../pages/recommends/SavingDetailPage'));
 
-const RealEstateCommunity = lazy(() => import('../pages/nav/RealEstateCommunity'));
+const RealEstateCommunity = lazy(() => import("../pages/nav/RealEstateCommunity"));
 const EstateCommunityList = lazy(() => import('../pages/estatecommunity/EstateCommunityList'));
 const EstateCommunityDetail = lazy(() => import('../pages/estatecommunity/EstateCommunityDetail'));
 const EstateCommunityForm = lazy(() => import('../pages/estatecommunity/EstateCommunityForm'));
@@ -41,19 +45,51 @@ const ApartmentDetails = lazy(() => import('../pages/estate/ApartmentDetails'));
 
 const root = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <AppLayout />,
     children: [
       {
         index: true,
         element: (
           <Suspense fallback={Loading}>
-            <LoginPage />
+            <MainHome />
           </Suspense>
         ),
       },
       {
-        path: 'home',
+        path: "loginpage",
+        element: (
+            <Suspense fallback={Loading}>
+              <LoginPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "admin",
+        element: (
+            <Suspense fallback={Loading}>
+              <AdminLogin />
+            </Suspense>
+        ),
+      },
+      {
+        path: "admin/page",
+        element: (
+            <Suspense fallback={Loading}>
+              <AdminPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "/admin/members/:memberId",
+        element: (
+            <Suspense fallback={Loading}>
+              <MemberDetailPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "home",
         element: (
           <Suspense fallback={Loading}>
             <Home />
@@ -61,7 +97,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'make-account',
+        path: "make-account",
         element: (
           <Suspense fallback={Loading}>
             <MakeAccount />
@@ -69,7 +105,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'member/full/make',
+        path: "member/full/make",
         element: (
           <Suspense fallback={Loading}>
             <MakeMember />
@@ -77,7 +113,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'member/simple/make',
+        path: "member/simple/make",
         element: (
           <Suspense fallback={Loading}>
             <SimpleMakeMember />
@@ -85,7 +121,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'change-password',
+        path: "change-password",
         element: (
           <Suspense fallback={Loading}>
             <AccountManagement />
@@ -93,7 +129,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'reissue-certificate',
+        path: "reissue-certificate",
         element: (
           <Suspense fallback={Loading}>
             <MakeCertificate />
@@ -101,7 +137,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'change-name',
+        path: "change-name",
         element: (
           <Suspense fallback={Loading}>
             <ChangeName />
@@ -109,7 +145,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'allmanagement',
+        path: "allmanagement",
         element: (
           <Suspense fallback={Loading}>
             <AllManagement />
@@ -117,7 +153,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'mypage',
+        path: "mypage",
         element: (
           <Suspense fallback={Loading}>
             <MyPage />
@@ -125,7 +161,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/deposit-saving',
+        path: "products/deposit-saving",
         element: (
           <Suspense fallback={Loading}>
             <DepositSaving />
@@ -133,7 +169,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'deposit/:depositProductId',
+        path: "deposit/:depositProductId",
         element: (
           <Suspense fallback={Loading}>
             <DepositDetailPage />
@@ -141,7 +177,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'saving/:savingProductId',
+        path: "saving/:savingProductId",
         element: (
           <Suspense fallback={Loading}>
             <SavingDetailPage />
@@ -149,7 +185,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/fund-stock',
+        path: "products/fund-stock",
         element: (
           <Suspense fallback={Loading}>
             <FundStock />
@@ -157,7 +193,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/fund',
+        path: "products/fund",
         element: (
           <Suspense fallback={Loading}>
             <Fund />
@@ -165,7 +201,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/stock',
+        path: "products/stock",
         element: (
           <Suspense fallback={Loading}>
             <Stock />
@@ -173,7 +209,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'realestate',
+        path: "realestate",
         element: (
           <Suspense fallback={Loading}>
             <RealEstate />
@@ -181,7 +217,7 @@ const root = createBrowserRouter([
         ),
         children: [
           {
-            path: 'search',
+            path: "search",
             element: (
               <Suspense fallback={Loading}>
                 <EstateSearchResult />
@@ -189,7 +225,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'map',
+            path: "map",
             element: (
               <Suspense fallback={Loading}>
                 <KakaoMap />
@@ -197,7 +233,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:name',
+            path: "details/:name",
             element: (
               <Suspense fallback={Loading}>
                 <SearchDetails />
@@ -205,7 +241,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:id',
+            path: "details/:id",
             element: (
               <Suspense fallback={Loading}>
                 <ApartmentDetails />
@@ -215,16 +251,15 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'community/hobby',
+        path: "community/hobby",
         element: (
           <Suspense fallback={Loading}>
             <HobbyCommunity />
           </Suspense>
         ),
       },
-      // 부동산 커뮤니티 관련 경로 (하이픈 사용)
       {
-        path: 'community/real-estate',
+        path: "community/real-estate",
         children: [
           {
             index: true,
@@ -235,7 +270,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'new',
+            path: "new",
             element: (
               <Suspense fallback={Loading}>
                 <EstateCommunityForm />
@@ -243,7 +278,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: ':id',
+            path: ":id",
             element: (
               <Suspense fallback={Loading}>
                 <EstateCommunityDetail />
@@ -253,7 +288,7 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'community/check/:postId',
+        path: "community/check/:postId",
         element: (
           <Suspense fallback={Loading}>
             <CommuCheck />
@@ -261,7 +296,7 @@ const root = createBrowserRouter([
         ),
         children: [
           {
-            path: 'replies',
+            path: "replies",
             element: (
               <Suspense fallback={Loading}>
                 <CommuReply />
@@ -271,7 +306,7 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'community/update/:postId',
+        path: "community/update/:postId",
         element: (
           <Suspense fallback={Loading}>
             <CommuUpdate />
@@ -279,7 +314,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'community/:type/add',
+        path: "community/:type/add",
         element: (
           <Suspense fallback={Loading}>
             <CommuAdd />
@@ -287,7 +322,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'community/estate',
+        path: "community/estate",
         element: <Navigate to="/community/real-estate" replace />,
       },
     ],

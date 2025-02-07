@@ -3,6 +3,7 @@ package com.moneytree_back.service;
 import com.moneytree_back.domain.Member;
 import com.moneytree_back.domain.MembershipType;
 import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.dto.TransferHistoryDTO;
 import com.moneytree_back.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,69 +83,40 @@ public class MemberServiceImpl implements MemberService {
     public Member modifyMember(String id, MemberDTO memberDTO) {
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
-
         member.setMember_name(memberDTO.getMember_name());
         member.setMember_address(memberDTO.getMember_address());
         member.setMemberPhoneNumber(memberDTO.getMember_phoneNumber());
         member.setMember_job(memberDTO.getMember_job());
         member.setMember_creditScore(memberDTO.getMember_creditScore());
-
         return memberRepository.save(member);
     }
 
-    // 비밀번호 변경 로직
     @Override
     public boolean changePassword(String memberId, String currentPassword, String newPassword) {
-        // 1. 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
-
-        // 2. 현재 비밀번호 확인
         if (!member.getMemberpassword().equals(currentPassword)) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다."); // 예외 발생
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
         }
-
-        // 3. 새 비밀번호 유효성 체크
         if (newPassword == null || newPassword.trim().isEmpty()) {
             throw new IllegalArgumentException("새 비밀번호가 유효하지 않습니다.");
         }
-
-        // 4. 비밀번호 변경
         member.setMemberpassword(newPassword);
         memberRepository.save(member);
-
         return true;
     }
 
-//    @Override
-//    public Member login(MemberDTO loginDTO) {
-//        // 1) DB에서 member_id로 조회 (없으면 예외)
-//        Member member = memberRepository.findById(loginDTO.getMemberId())
-//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
-//
-//        // 2) membershipType에 따라 분기
-//        if (member.getMembershipType() == MembershipType.SimpleMember) {
-//            // 간편회원: 아이디 + 비밀번호만 확인
-//            if (!member.getMemberpassword().equals(loginDTO.getMemberpassword())) {
-//                throw new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다.");
-//            }
-//            return member; // 로그인 성공
-//        }
-//        else if (member.getMembershipType() == MembershipType.FullMember) {
-//            // 정회원: 아이디 + 비밀번호 + 주민등록번호 모두 확인
-//            if (!member.getMemberpassword().equals(loginDTO.getMemberpassword())
-//                    || !member.getResidentRegistrationNumber().equals(loginDTO.getResidentRegistrationNumber())) {
-//                throw new IllegalArgumentException("아이디, 주민등록번호 또는 비밀번호가 잘못되었습니다.");
-//            }
-//            return member; // 로그인 성공
-//        }
-//        else {
-//            // 그 밖의 MembershipType 처리 (필요 시)
-//            throw new IllegalArgumentException("지원하지 않는 회원 유형입니다.");
-//        }
-//    }
-
-
+    @Override
+    public boolean changeMemberName(String memberId, String newName, String password) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
+        if (!member.getMemberpassword().equals(password)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+        member.setMember_name(newName);
+        memberRepository.save(member);
+        return true;
+    }
 
     // 주민등록번호를 바탕으로 나이 계산
     private Integer calculateAgeFromRRN(String rrn) {
@@ -150,12 +124,9 @@ public class MemberServiceImpl implements MemberService {
         String monthStr = rrn.substring(2, 4);
         String dayStr = rrn.substring(4, 6);
         char genderCode = rrn.charAt(6);
-
         int year = Integer.parseInt(yearStr);
         int month = Integer.parseInt(monthStr);
         int day = Integer.parseInt(dayStr);
-
-        // 성별에 따라 1900 혹은 2000년대 결정
         if (genderCode == '1' || genderCode == '2') {
             year += 1900;
         } else if (genderCode == '3' || genderCode == '4') {
@@ -163,29 +134,45 @@ public class MemberServiceImpl implements MemberService {
         } else {
             year += 1900;
         }
-
         LocalDate birthDate = LocalDate.of(year, month, day);
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
+    // 모든 회원 조회 (간편회원, 정회원만 조회)
     @Override
-    public boolean changeMemberName(String memberId, String newName, String password) {
-        // 1. 기존 회원 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원 ID를 찾을 수 없습니다."));
-
-        // 2. 현재 비밀번호 검증
-        if (!member.getMemberpassword().equals(password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        // 3. 이름 변경
-        member.setMember_name(newName);
-        memberRepository.save(member);
-
-        return true;
+    public List<Member> getAllMembers() {
+        return memberRepository.findAll()
+                .stream()
+                .filter(member -> member.getMembershipType() == MembershipType.SimpleMember
+                        || member.getMembershipType() == MembershipType.FullMember)
+                .collect(Collectors.toList());
     }
 
+    @Override
+    public Member getMemberById(String memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+    }
 
-
+    // *** 추가: 단일 회원의 결제(송금) 기록만 조회 ***
+//    @Override
+//    public List<TransferHistoryDTO> getPaymentRecords(String memberId) {
+//        // 회원 존재 여부 확인
+//        Member member = getMemberById(memberId);
+//        // 실제 로직에 따라 해당 회원의 결제 기록을 조회해야 합니다.
+//        // 여기서는 예시로 더미 데이터를 반환합니다.
+//        TransferHistoryDTO record1 = List<TransferHistoryDTO> transferHistoryDTOs = histories.stream()
+//                .map(history -> TransferHistoryDTO.builder()
+//                        .id(history.getId())
+//                        .transactionType(history.getDandwacType().name())
+//                        .amount(history.getAmount().doubleValue())
+//                        .createdAt(history.getCreatedAt())
+//                        .fromMemberName(history.getFromAccount().getMember().getMember_name())
+//                        .toMemberName(history.getToAccount().getMember().getMember_name())
+//                        .build())
+//                .collect(Collectors.toList());
+//        new TransferHistoryDTO(1L, "결제", 5000.0, LocalDateTime.now().minusDays(1));
+//        TransferHistoryDTO record2 = new TransferHistoryDTO(2L, "환불", -2000.0, LocalDateTime.now().minusDays(3));
+//        return List.of(record1, record2);
+//    }
 }

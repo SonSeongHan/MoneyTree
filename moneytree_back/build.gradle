@@ -71,3 +71,6 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+dependencies {
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+}
