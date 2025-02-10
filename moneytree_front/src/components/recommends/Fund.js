@@ -13,21 +13,80 @@ const Fund = () => {
   const itemsPerPage = 10;
   const observer = useRef(null);
 
+  // 필터링 상태
+  const [minTotalAmount, setMinTotalAmount] = useState('');
+  const [maxTotalAmount, setMaxTotalAmount] = useState('');
+  const [minManagementFee, setMinManagementFee] = useState('');
+  const [maxRedemptionFee, setMaxRedemptionFee] = useState('');
+  const [fundYear, setFundYear] = useState('');
+  const [debouncedFilters, setDebouncedFilters] = useState({
+    minTotalAmount: '',
+    maxTotalAmount: '',
+    minManagementFee: '',
+    maxRedemptionFee: '',
+    fundYear: ''
+  });
+
+  // 필터 초기화 함수
+  const resetFilters = () => {
+    setMinTotalAmount('');
+    setMaxTotalAmount('');
+    setMinManagementFee('');
+    setMaxRedemptionFee('');
+    setFundYear('');
+  };
+
+  // 디바운싱 적용
   useEffect(() => {
-    const fetchFunds = async () => {
+    const handler = setTimeout(() => {
+      setDebouncedFilters({
+        minTotalAmount: minTotalAmount,
+        maxTotalAmount: maxTotalAmount,
+        minManagementFee: minManagementFee,
+        maxRedemptionFee: maxRedemptionFee,
+        fundYear: fundYear
+      });
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [minTotalAmount, maxTotalAmount, minManagementFee, maxRedemptionFee, fundYear]);
+
+  // 필터링 로직
+  useEffect(() => {
+    const fetchFilteredFunds = async () => {
       try {
-        const data = await FundAPI.getAllFunds();
-        setAllFunds(data);
-        setFunds(data.slice(0, itemsPerPage));
+        setLoading(true);
+
+        if (debouncedFilters.minTotalAmount || debouncedFilters.maxTotalAmount ||
+          debouncedFilters.minManagementFee || debouncedFilters.maxRedemptionFee ||
+          debouncedFilters.fundYear) {
+          const searchParams = {
+            minFundTotalAmount: debouncedFilters.minTotalAmount || undefined,
+            maxFundTotalAmount: debouncedFilters.maxTotalAmount || undefined,
+            minFundManagementFee: debouncedFilters.minManagementFee || undefined,
+            maxFundRedemptionFee: debouncedFilters.maxRedemptionFee || undefined,
+            fundProductYear: debouncedFilters.fundYear || undefined
+          };
+
+          const data = await FundAPI.getFilteredFunds(searchParams);
+          setAllFunds(data);
+          setFunds(data.slice(0, itemsPerPage));
+        } else {
+          const data = await FundAPI.getAllFunds();
+          setAllFunds(data);
+          setFunds(data.slice(0, itemsPerPage));
+        }
+        setPage(1);
       } catch (err) {
-        console.error('Error fetching funds: ', err);
-        setError('펀드 데이터를 가져오는 중 문제가 발생하였습니다.');
+        console.error('Error filtering funds:', err);
+        setError('데이터 필터링 중 문제가 발생했습니다.');
       } finally {
         setLoading(false);
       }
     };
-    fetchFunds();
-  }, []);
+
+    fetchFilteredFunds();
+  }, [debouncedFilters]);
 
   const formatAmount = (amount) => {
     const correctAmount = Math.floor((amount * 100) / 10000);
@@ -58,14 +117,13 @@ const Fund = () => {
           const startIndex = (nextPage - 1) * itemsPerPage;
           const newFunds = allFunds.slice(startIndex, startIndex + itemsPerPage);
 
-          // Map : 기존 데이터 중복값 자동 덮어쓰기
           if (newFunds.length > 0) {
             setFunds((prevFunds) => {
               const fundMap = new Map();
               [...prevFunds, ...newFunds].forEach(fund => {
                 fundMap.set(fund.fundProductId, fund);
               });
-              return Array.from(fundMap.values()); // 중복 제거 후 업데이트
+              return Array.from(fundMap.values());
             });
           }
           return nextPage;
@@ -102,6 +160,50 @@ const Fund = () => {
 
   return (
     <div className="fund-container">
+      <div className="filter-container">
+        <input
+          type="number"
+          className="filter-input"
+          placeholder="최소 펀드 규모"
+          value={minTotalAmount}
+          onChange={(e) => setMinTotalAmount(e.target.value)}
+        />
+        <input
+          type="number"
+          className="filter-input"
+          placeholder="최대 펀드 규모"
+          value={maxTotalAmount}
+          onChange={(e) => setMaxTotalAmount(e.target.value)}
+        />
+        <input
+          type="number"
+          className="filter-input"
+          placeholder="최소 운용 보수"
+          value={minManagementFee}
+          onChange={(e) => setMinManagementFee(e.target.value)}
+        />
+        <input
+          type="number"
+          className="filter-input"
+          placeholder="최대 환매 수수료"
+          value={maxRedemptionFee}
+          onChange={(e) => setMaxRedemptionFee(e.target.value)}
+        />
+        <input
+          type="number"
+          className="filter-input"
+          placeholder="설정 연도"
+          value={fundYear}
+          onChange={(e) => setFundYear(e.target.value)}
+        />
+        <button
+          onClick={resetFilters}
+          className="filter-reset-btn"
+        >
+          필터 초기화
+        </button>
+      </div>
+
       <div className="fund-list">
         {funds.map((fund, index) => (
           <div key={fund.fundProductId} className="fund-item-container" ref={index === funds.length - 1 ? lastFundElementRef : null}>

@@ -1,9 +1,17 @@
+// src/pages/SimpleMakeMember.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createMember } from "../../api/MemberAPI"; // MemberAPI.js에서 함수 임포트
+import { createMember } from "../../api/MemberAPI"; // 회원가입 API 호출
+import { sendVerificationEmail, verifyCode } from "../../api/MailAPI"; // 인증번호 발송 및 검증 API 호출
 
 const SimpleMakeMember = () => {
-  const [memberId, setMemberId] = useState(""); // 아이디 상태 추가
+  // 이메일 및 인증 관련 상태
+  const [email, setEmail] = useState(""); // 이메일 입력값
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationInput, setVerificationInput] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+
+  // 추가 회원가입 입력 필드 상태 (인증 완료 후 작성)
   const [memberName, setMemberName] = useState("");
   const [residentRegistrationNumber, setResidentRegistrationNumber] = useState("");
   const [memberPassword, setMemberPassword] = useState("");
@@ -11,137 +19,211 @@ const SimpleMakeMember = () => {
   const [memberAddress, setMemberAddress] = useState("");
   const [memberJob, setMemberJob] = useState("");
   const [memberAccountNumber, setMemberAccountNumber] = useState("");
-  const [memberAge, setMemberAge] = useState(""); // 나이 상태 추가
+  const [memberAge, setMemberAge] = useState("");
 
+  // 알림 메시지 상태
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const navigate = useNavigate();
 
+  // "인증번호 발송" 버튼 클릭 핸들러
+  const handleSendVerificationEmail = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+    if (!email) {
+      setErrorMessage("이메일을 먼저 입력해주세요.");
+      return;
+    }
+    try {
+      await sendVerificationEmail(email);
+      setVerificationSent(true);
+      setSuccessMessage("인증번호가 발송되었습니다. 이메일을 확인해주세요.");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("인증번호 발송 중 문제가 발생했습니다.");
+    }
+  };
+
+  // "인증번호 확인" 버튼 클릭 핸들러 (백엔드에서 검증)
+  const handleVerifyCode = async () => {
+    setErrorMessage("");
+    try {
+      const res = await verifyCode(email, verificationInput);
+      if (res.data === "인증 성공") {
+        setIsVerified(true);
+        setSuccessMessage("이메일 인증이 완료되었습니다.");
+      } else {
+        setErrorMessage("인증번호가 올바르지 않습니다.");
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("인증번호 검증 중 문제가 발생했습니다.");
+    }
+  };
+
+  // 회원가입 폼 제출 핸들러 (인증 완료 후)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
 
+    // 회원가입 데이터 객체 생성 (이메일은 memberId로 사용)
+    const memberData = {
+      memberId: email,
+      member_name: memberName,
+      residentRegistrationNumber: residentRegistrationNumber,
+      memberpassword: memberPassword,
+      member_phoneNumber: memberPhone,
+      member_address: memberAddress,
+      member_job: memberJob,
+      accountNumber: memberAccountNumber || null,
+      member_age: memberAge,
+      member_creditScore: null,
+    };
+
     try {
-      const memberData = {
-        memberId: memberId, // 필드명 일치시킴
-        member_name: memberName,
-        residentRegistrationNumber: residentRegistrationNumber,
-        memberpassword: memberPassword,
-        member_phoneNumber: memberPhone,
-        member_address: memberAddress,
-        member_job: memberJob,
-        accountNumber: memberAccountNumber || null,
-        member_age: memberAge,
-        member_creditScore: null,
-      };
-
-      // API 호출
       await createMember(memberData);
-
       setSuccessMessage("회원가입이 완료되었습니다!");
-      alert("회원가입이 완료되었습니다!"); // 얼럿 추가
-
-      navigate("/"); // 회원가입 성공 시 리다이렉트
+      alert("회원가입이 완료되었습니다!");
+      navigate("/"); // 회원가입 성공 후 리다이렉트
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "회원가입 중 오류가 발생했습니다.");
+      console.error(error);
+      setErrorMessage(
+          error.response?.data?.message || "회원가입 중 오류가 발생했습니다."
+      );
     }
   };
 
   return (
       <div style={styles.page}>
         <div style={styles.container}>
-          <h2>심플 회원가입</h2>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.formGroup}>
-              <label>아이디</label>
-              <input
-                  type="text"
-                  value={memberId}
-                  onChange={(e) => setMemberId(e.target.value)}
-                  placeholder="아이디를 입력하세요"
-                  required
-              />
-            </div>
+          <h2>간편 회원가입</h2>
+          {!isVerified ? (
+              // 1단계: 이메일 입력 및 인증번호 발송/검증 영역
+              <div>
+                <div style={styles.formGroup}>
+                  <label>이메일</label>
+                  <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="이메일을 입력하세요"
+                      required
+                  />
+                </div>
+                <button
+                    type="button"
+                    style={styles.verifyButton}
+                    onClick={handleSendVerificationEmail}
+                >
+                  인증번호 발송
+                </button>
+                {verificationSent && (
+                    <div style={styles.formGroup}>
+                      <label>인증번호 입력</label>
+                      <input
+                          type="text"
+                          value={verificationInput}
+                          onChange={(e) => setVerificationInput(e.target.value)}
+                          placeholder="이메일로 받은 인증번호를 입력하세요"
+                          required
+                      />
+                      <button
+                          type="button"
+                          style={styles.verifyButton}
+                          onClick={handleVerifyCode}
+                      >
+                        인증번호 확인
+                      </button>
+                    </div>
+                )}
+              </div>
+          ) : (
+              // 2단계: 이메일 인증 완료 후 나머지 회원가입 입력 폼
+              <form onSubmit={handleSubmit} style={styles.form}>
+                <div style={styles.formGroup}>
+                  <label>이메일 (확인됨)</label>
+                  <input type="email" value={email} readOnly />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>이름</label>
+                  <input
+                      type="text"
+                      value={memberName}
+                      onChange={(e) => setMemberName(e.target.value)}
+                      placeholder="이름을 입력하세요"
+                      required
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>나이</label>
+                  <input
+                      type="number"
+                      value={memberAge}
+                      onChange={(e) => setMemberAge(e.target.value)}
+                      placeholder="나이를 입력하세요"
+                      required
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>주민등록번호</label>
+                  <input
+                      type="text"
+                      value={residentRegistrationNumber}
+                      onChange={(e) => setResidentRegistrationNumber(e.target.value)}
+                      placeholder="주민등록번호를 입력하세요"
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>비밀번호</label>
+                  <input
+                      type="password"
+                      value={memberPassword}
+                      onChange={(e) => setMemberPassword(e.target.value)}
+                      placeholder="비밀번호를 입력하세요"
+                      required
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>핸드폰 번호</label>
+                  <input
+                      type="text"
+                      value={memberPhone}
+                      onChange={(e) => setMemberPhone(e.target.value)}
+                      placeholder="핸드폰 번호를 입력하세요"
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>주소</label>
+                  <input
+                      type="text"
+                      value={memberAddress}
+                      onChange={(e) => setMemberAddress(e.target.value)}
+                      placeholder="주소를 입력하세요"
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label>직업</label>
+                  <input
+                      type="text"
+                      value={memberJob}
+                      onChange={(e) => setMemberJob(e.target.value)}
+                      placeholder="직업을 입력하세요"
+                  />
+                </div>
+                <button type="submit" style={styles.submitButton}>
+                  회원가입
+                </button>
+              </form>
+          )}
 
-            <div style={styles.formGroup}>
-              <label>이름</label>
-              <input
-                  type="text"
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  required
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>나이</label>
-              <input
-                  type="number"
-                  value={memberAge}
-                  onChange={(e) => setMemberAge(e.target.value)}
-                  placeholder="나이를 입력하세요"
-                  required
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>주민등록번호</label>
-              <input
-                  type="text"
-                  value={residentRegistrationNumber}
-                  onChange={(e) => setResidentRegistrationNumber(e.target.value)}
-                  placeholder="7자리 또는 13자리"
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>비밀번호</label>
-              <input
-                  type="password"
-                  value={memberPassword}
-                  onChange={(e) => setMemberPassword(e.target.value)}
-                  required
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>핸드폰 번호</label>
-              <input
-                  type="text"
-                  value={memberPhone}
-                  onChange={(e) => setMemberPhone(e.target.value)}
-                  placeholder="핸드폰 번호를 입력하세요"
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>주소</label>
-              <input
-                  type="text"
-                  value={memberAddress}
-                  onChange={(e) => setMemberAddress(e.target.value)}
-                  placeholder="주소를 입력하세요"
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label>직업</label>
-              <input
-                  type="text"
-                  value={memberJob}
-                  onChange={(e) => setMemberJob(e.target.value)}
-                  placeholder="직업을 입력하세요"
-              />
-            </div>
-
-            <button type="submit" style={styles.submitButton}>
-              회원가입
-            </button>
-          </form>
-          {errorMessage && <p style={{ color: 'red', marginTop: '1rem' }}>{errorMessage}</p>}
-          {successMessage && <p style={{ color: 'green', marginTop: '1rem' }}>{successMessage}</p>}
+          {errorMessage && (
+              <p style={{ color: "red", marginTop: "1rem" }}>{errorMessage}</p>
+          )}
+          {successMessage && (
+              <p style={{ color: "green", marginTop: "1rem" }}>{successMessage}</p>
+          )}
         </div>
       </div>
   );
@@ -149,8 +231,8 @@ const SimpleMakeMember = () => {
 
 const styles = {
   page: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     alignItems: "center",
     height: "100vh",
     background: "#f5f5f5",
@@ -179,6 +261,16 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
+  },
+  verifyButton: {
+    padding: "0.5rem",
+    fontSize: "0.9rem",
+    background: "#28a745",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    marginTop: "0.5rem",
   },
 };
 

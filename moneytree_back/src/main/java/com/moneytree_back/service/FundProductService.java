@@ -2,6 +2,7 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.dto.FundProductDTO;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface FundProductService {
@@ -20,4 +21,11 @@ public interface FundProductService {
 
     // 환매 수수료가 특정 값 이하인 펀드 조회
     List<FundProductDTO> getFundProductsByFundRedemptionFee(BigDecimal maxFundRedemptionFee);
+
+    // 전체 필터링
+    List<FundProductDTO> getFilteredFundProducts(
+            BigDecimal minFundTotalAmount, BigDecimal maxFundTotalAmount,
+            BigDecimal minFundManagementFee, BigDecimal maxFundRedemptionFee,
+            LocalDate fundProductMaturityDate
+    );
 }
