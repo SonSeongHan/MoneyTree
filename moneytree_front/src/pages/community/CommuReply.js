@@ -3,11 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   fetchCommunityReply,
   fetchCreateReply,
-  fetchDeleteReply,
+  fetchDeleteReply, fetchGetReplyById,
   fetchUpdateReply,
 } from '../../api/CommuReplyApi';
 import { getCookie } from '../../util/cookieUtil';
-import { fetchDeleteCommunity } from '../../api/CommunityApi';
 
 
 const CommuReply = () => {
@@ -26,13 +25,20 @@ const CommuReply = () => {
   console.log("memberId:", loggedInUser?.memberId);
   console.log("memberName:", loggedInUser?.member_name);
   console.log("membershipType:", loggedInUser?.membershipType);
+  console.log("replymembershipType:", loggedInUser?.membershipType);
 
   useEffect(() => {
     const loadReplies = async () => {
 
       try {
         const data = await fetchCommunityReply(postId,page,10);
-        setReplies(data.content);
+        const repliesWithMembership = await Promise.all(
+          data.content.map(async (reply)=>{
+            const detailedReply = await fetchGetReplyById(reply.replyId);
+            return {...reply, membershipType: detailedReply.membershipType};
+          }));
+        setReplies(repliesWithMembership);
+        console.log("Membership:",repliesWithMembership);
         setTotalPages(data.totalPages);
       }catch (error){
         console.error("답글을 불러오는 데 실패했습니다:",error);
@@ -50,7 +56,7 @@ const CommuReply = () => {
     try {
       const newReply = {
         postId,
-        membershipType:loggedInUser.membershipType,
+        membershipType: loggedInUser.membershipType,
         memberId: loggedInUser.memberId,
         content: newReplyContent,
       };
@@ -64,6 +70,8 @@ const CommuReply = () => {
       alert("답글 생성 중 오류가 발생했습니다.");
     }
   };
+
+
 
   const  startEditReply = (replyId,content) => {
     seteditReplyId(replyId);
@@ -137,7 +145,7 @@ const CommuReply = () => {
               </div>
             ) : (
               <div>
-                <p>{reply.memberId}({userRole}): {reply.content}</p>
+                <p>{reply.memberId}({reply.membershipType}): {reply.content}</p>
                 {reply.memberId === loggedInUserId && (
                 <button onClick={() => startEditReply(reply.replyId, reply.content)}>
                   수정

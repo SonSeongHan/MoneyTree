@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Chatbot from '../components/Chatbot';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -11,6 +12,7 @@ const AppLayout = () => {
   return (
     <div>
       {!isLoginPage && <Navbar />}
+      <Chatbot />
       <Outlet />
     </div>
   );

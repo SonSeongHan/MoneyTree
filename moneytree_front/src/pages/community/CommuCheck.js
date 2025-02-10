@@ -78,7 +78,7 @@ const CommuCheck = () => {
 
   return (
     <div>
-      <h4>작성자: {loggedInUserId}({userRole})</h4>
+      <h4>작성자: {community.memberId}({community.membershipType})</h4>
       <h3>제목: {community.title}</h3>
       <p>내용: {community.content}</p>
 

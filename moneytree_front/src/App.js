@@ -8,7 +8,7 @@ function App() {
 
         <AuthProvider>
                 <RouterProvider router={root} />
-            </AuthProvider>
+        </AuthProvider>
 
     );
 }
