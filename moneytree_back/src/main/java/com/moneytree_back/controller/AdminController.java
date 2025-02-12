@@ -45,8 +45,8 @@ public class AdminController {
                         .transactionType(history.getDandwacType().name())
                         .amount(history.getAmount().doubleValue())
                         .createdAt(history.getCreatedAt())
-                        .fromMemberName(history.getFromAccount().getMember().getMember_name())
-                        .toMemberName(history.getToAccount().getMember().getMember_name())
+                        .fromMemberName(history.getFromAccount().getMember().getMemberName())
+                        .toMemberName(history.getToAccount().getMember().getMemberName())
                         .build())
                 .collect(Collectors.toList());
 

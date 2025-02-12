@@ -39,4 +39,14 @@ public class TransactionHistory {
     // 거래 발생 시각
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    // ✅ 충전/송금 목적을 저장할 필드
+    private String depositPurpose;
+
+    // 추가: 송금한 회원의 닉네임 (혹은 이름)
+    @Column(name = "from_member_nickname")
+    private String fromMemberName;
+
+    // 추가: 돈받은 회원의 닉네임 (혹은 이름)
+    @Column(name = "to_member_nickname")
+    private String toMemberName;
 }
