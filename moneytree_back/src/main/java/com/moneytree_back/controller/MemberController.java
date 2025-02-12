@@ -1,8 +1,8 @@
 package com.moneytree_back.controller;
 
+<<<<<<< HEAD
         import com.moneytree_back.domain.Member;
         import com.moneytree_back.dto.MemberDTO;
-        import com.moneytree_back.dto.ReactivateRequestDTO;
         import com.moneytree_back.repository.MemberRepository;
         import com.moneytree_back.service.MemberService;
         import lombok.RequiredArgsConstructor;
