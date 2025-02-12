@@ -1,7 +1,6 @@
 // MemberDetailResponseDTO.java
-package com.moneytree_back.dto;
+package com.moneytree_back.dto.member;
 
-import com.moneytree_back.domain.TransactionHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

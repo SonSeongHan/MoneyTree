@@ -1,6 +1,7 @@
 package com.moneytree_back.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.moneytree_back.domain.member.Member;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

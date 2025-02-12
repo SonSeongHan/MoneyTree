@@ -1,7 +1,7 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.custom;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.domain.MembershipType;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.MembershipType;
 import com.moneytree_back.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

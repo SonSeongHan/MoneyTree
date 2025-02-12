@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moneytree_back.security.handler.APILoginFailHandler;

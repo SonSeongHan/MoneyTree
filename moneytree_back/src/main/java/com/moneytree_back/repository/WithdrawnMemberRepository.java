@@ -1,6 +1,6 @@
 package com.moneytree_back.repository;
 
-import com.moneytree_back.domain.WithdrawnMember;
+import com.moneytree_back.domain.member.WithdrawnMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,8 +1,8 @@
-package com.moneytree_back.service;
+package com.moneytree_back.service.dandwac;
 
 import com.moneytree_back.domain.Dandwac;
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.domain.MembershipType;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.MembershipType;
 import com.moneytree_back.domain.TransactionHistory;
 import com.moneytree_back.dto.DandwacDTO;
 import com.moneytree_back.repository.DandwacRepository;

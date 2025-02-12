@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.certificate;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationProvider;

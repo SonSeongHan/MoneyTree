@@ -1,5 +1,7 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.admin;
 
+import com.moneytree_back.config.certificate.CertificateAuthenticationProvider;
+import com.moneytree_back.config.custom.CustomAuthenticationProvider;
 import com.moneytree_back.security.filter.CookieAuthenticationFilter;
 import com.moneytree_back.security.handler.APILoginFailHandler;
 import com.moneytree_back.security.handler.APILoginSuccessHandler;

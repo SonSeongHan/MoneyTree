@@ -1,6 +1,6 @@
-package com.moneytree_back.dto;
+package com.moneytree_back.dto.member;
 
-import com.moneytree_back.domain.MembershipType;
+import com.moneytree_back.domain.member.MembershipType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.certificate;
 
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

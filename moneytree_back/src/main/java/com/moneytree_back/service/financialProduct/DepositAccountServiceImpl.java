@@ -7,7 +7,7 @@ import com.moneytree_back.dto.financialProduct.DepositAccountDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.financialProduct.DepositAccountRepository;
 import com.moneytree_back.repository.financialProduct.DepositProductRepository;
-import com.moneytree_back.service.DandwacService;
+import com.moneytree_back.service.dandwac.DandwacService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

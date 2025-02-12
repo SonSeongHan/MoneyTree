@@ -1,5 +1,6 @@
-package com.moneytree_back.dto;
+package com.moneytree_back.dto.member;
 
+import com.moneytree_back.dto.TransferHistoryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

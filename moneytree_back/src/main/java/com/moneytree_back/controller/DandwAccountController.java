@@ -6,7 +6,7 @@ import com.moneytree_back.dto.DandwacDTO;
 import com.moneytree_back.dto.DepositRequestDTO;
 import com.moneytree_back.dto.TransferHistoryDTO;
 import com.moneytree_back.dto.TransferRequestDTO;
-import com.moneytree_back.service.DandwacService;
+import com.moneytree_back.service.dandwac.DandwacService;
 import com.moneytree_back.service.TransactionHistoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

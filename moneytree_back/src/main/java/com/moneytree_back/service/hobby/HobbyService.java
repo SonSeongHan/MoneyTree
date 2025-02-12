@@ -1,4 +1,4 @@
-package com.moneytree_back.service;
+package com.moneytree_back.service.hobby;
 
 import com.moneytree_back.domain.Hobby;
 

@@ -1,7 +1,8 @@
 package com.moneytree_back.service;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.domain.WithdrawnMember;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.WithdrawnMember;
+import com.moneytree_back.domain.member.WithdrawnMember;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.repository.WithdrawnMemberRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,10 @@
 package com.moneytree_back.controller;
 
-import com.moneytree_back.domain.Member;
+import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.TransactionHistory;
-import com.moneytree_back.dto.MemberDetailDTO;
+import com.moneytree_back.dto.member.MemberDetailDTO;
 import com.moneytree_back.dto.TransferHistoryDTO;
-import com.moneytree_back.service.MemberService;
+import com.moneytree_back.service.member.MemberService;
 import com.moneytree_back.service.TransactionHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

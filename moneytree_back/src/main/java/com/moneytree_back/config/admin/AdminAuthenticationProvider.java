@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.admin;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

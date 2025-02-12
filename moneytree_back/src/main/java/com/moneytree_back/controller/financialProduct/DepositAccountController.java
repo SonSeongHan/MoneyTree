@@ -1,7 +1,7 @@
 package com.moneytree_back.controller.financialProduct;
 
 import com.moneytree_back.domain.Dandwac;
-import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.dto.financialProduct.DepositAccountDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.service.financialProduct.DepositAccountService;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

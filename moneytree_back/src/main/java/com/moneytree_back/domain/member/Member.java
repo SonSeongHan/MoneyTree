@@ -1,11 +1,9 @@
-package com.moneytree_back.domain;
+package com.moneytree_back.domain.member;
 
-import com.moneytree_back.domain.MembershipType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "member")

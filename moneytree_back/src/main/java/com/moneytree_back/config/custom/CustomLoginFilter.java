@@ -1,4 +1,4 @@
-package com.moneytree_back.config;
+package com.moneytree_back.config.custom;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

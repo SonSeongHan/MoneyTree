@@ -2,7 +2,7 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.Community;
 import com.moneytree_back.domain.CommunityReplies;
-import com.moneytree_back.domain.Member;
+import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.dto.CommunityRepliesDTO;
 import com.moneytree_back.repository.CommunityRepliesRepository;
 import com.moneytree_back.repository.CommunityRepository;

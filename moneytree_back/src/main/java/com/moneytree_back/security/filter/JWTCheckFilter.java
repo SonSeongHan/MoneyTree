@@ -1,7 +1,7 @@
 package com.moneytree_back.security.filter;
 
-import com.moneytree_back.domain.MembershipType;
-import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.domain.member.MembershipType;
+import com.moneytree_back.dto.member.MemberDTO;
 
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
@@ -11,14 +11,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -84,6 +82,12 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/deposit-products")) {
             return true;
         }
+
+        if (path.startsWith("/api/hobbies")) {
+            return true;
+        }
+
+
 
         // 기본적으로 모든 요청은 필터링 처리
         return false;

@@ -1,10 +1,8 @@
-package com.moneytree_back.service;
+package com.moneytree_back.service.member;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.domain.MembershipType;
-import com.moneytree_back.domain.WithdrawnMember;
-import com.moneytree_back.dto.MemberDTO;
-import com.moneytree_back.dto.TransferHistoryDTO;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.MembershipType;
+import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.repository.WithdrawnMemberRepository;
 import lombok.RequiredArgsConstructor;

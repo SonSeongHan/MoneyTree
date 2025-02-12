@@ -1,9 +1,9 @@
 package com.moneytree_back.controller;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.dto.ReactivateRequestDTO;
-import com.moneytree_back.service.MemberService;
+import com.moneytree_back.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

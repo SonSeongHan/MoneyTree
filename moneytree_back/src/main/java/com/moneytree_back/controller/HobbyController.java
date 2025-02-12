@@ -1,7 +1,7 @@
 package com.moneytree_back.controller;
 
 import com.moneytree_back.domain.Hobby;
-import com.moneytree_back.service.HobbyService;
+import com.moneytree_back.service.hobby.HobbyService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
