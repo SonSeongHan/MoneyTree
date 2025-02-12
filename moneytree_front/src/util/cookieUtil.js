@@ -23,7 +23,7 @@ export const setCookie = (name, value, days) => {
  */
 export const getCookie = (name) => {
   const cookieValue = cookies.get(name);
-  console.log("쿠키값:{}",cookieValue);
+  // console.log("쿠키값:{}",cookieValue);
   if (!cookieValue) return null;
 
   try {

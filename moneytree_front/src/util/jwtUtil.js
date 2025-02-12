@@ -13,22 +13,24 @@ const jwtAxios = axios.create({
 // Request Interceptor: 요청에 Authorization 헤더 추가
 jwtAxios.interceptors.request.use(
   (config) => {
-    const playerInfo = getCookie('member');
+    const memberInfo = getCookie('member');
+    console.log('Cookie data:', memberInfo); // 디버깅용
 
-    if (playerInfo) {
+    if (memberInfo) {
       try {
-        const parsedInfo = typeof playerInfo === 'string' ? JSON.parse(playerInfo) : playerInfo;
+        const parsedInfo = typeof memberInfo === 'string' ? JSON.parse(memberInfo) : memberInfo;
 
         if (parsedInfo.accessToken) {
           config.headers.Authorization = `Bearer ${parsedInfo.accessToken}`;
+          console.log('Added token:', config.headers.Authorization); // 디버깅용
         } else {
-          console.warn('No access token found in player info');
+          console.warn('No access token found in member info');
         }
       } catch (e) {
-        console.error('Error parsing player info:', e);
+        console.error('Error parsing member info:', e);
       }
     } else {
-      console.warn('No player info found in cookies');
+      console.warn('No member info found in cookies');
     }
 
     return config;
@@ -44,7 +46,7 @@ jwtAxios.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // 로그인 페이지로 리다이렉션
-      window.location.href = '/player/login';
+      window.location.href = '/loginpage';
     }
     return Promise.reject(error);
   },
@@ -52,18 +54,18 @@ jwtAxios.interceptors.response.use(
 
 // JWT 디코딩 및 이메일 추출
 export const decodeJWT = () => {
-  const playerCookie = getCookie('member');
-  if (!playerCookie) {
-    console.warn('No player cookie found.');
+  const memberCookie = getCookie('member');
+  if (!memberCookie) {
+    console.warn('No member cookie found.');
     return null;
   }
 
   try {
-    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof memberCookie === 'string' ? JSON.parse(memberCookie) : memberCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
-      console.warn('No access token found in player cookie.');
+      console.warn('No access token found in member cookie.');
       return null;
     }
 
@@ -79,18 +81,18 @@ export const decodeJWT = () => {
 };
 
 export const decodeNicknameFromJWT = () => {
-  const playerCookie = getCookie('member');
-  if (!playerCookie) {
-    console.warn('No player cookie found.');
+  const memberCookie = getCookie('member');
+  if (!memberCookie) {
+    console.warn('No member cookie found.');
     return null;
   }
 
   try {
-    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof memberCookie === 'string' ? JSON.parse(memberCookie) : memberCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
-      console.warn('No access token found in player cookie.');
+      console.warn('No access token found in member cookie.');
       return null;
     }
 
@@ -118,18 +120,18 @@ export const decodeNicknameFromJWT = () => {
 
 // JWT 디코딩 유틸리티 함수
 export const decodedJWT = () => {
-  const playerCookie = getCookie('member');
-  if (!playerCookie) {
-    console.warn('No player cookie found.');
+  const memberCookie = getCookie('member');
+  if (!memberCookie) {
+    console.warn('No member cookie found.');
     return null;
   }
 
   try {
-    const parsedCookie = typeof playerCookie === 'string' ? JSON.parse(playerCookie) : playerCookie;
+    const parsedCookie = typeof memberCookie === 'string' ? JSON.parse(memberCookie) : memberCookie;
 
     const { accessToken } = parsedCookie;
     if (!accessToken) {
-      console.warn('No access token found in player cookie.');
+      console.warn('No access token found in member cookie.');
       return null;
     }
 
@@ -138,7 +140,6 @@ export const decodedJWT = () => {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const payload = JSON.parse(atob(base64));
     return {
-      // email: payload.email || null,
       roleNames: payload.roleNames || null, // 역할 추가 반환
     };
   } catch (error) {

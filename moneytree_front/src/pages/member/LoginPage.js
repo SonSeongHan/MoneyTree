@@ -56,6 +56,7 @@ const LoginPage = () => {
                     membershipType,
                     accessToken,
                     refreshToken,
+                    accountNumber
                 } = response.data;
 
                 // 쿠키에 토큰 저장
@@ -67,6 +68,7 @@ const LoginPage = () => {
                       membershipType,
                       accessToken,
                       refreshToken,
+                      accountNumber
                   }),
                   1
                 );

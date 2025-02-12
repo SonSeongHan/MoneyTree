@@ -1,109 +1,100 @@
-// TransferForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getOwnerName, transferMoney } from '../../api/AccountAPI';
+import { getCookie } from '../../util/cookieUtil';
+import DepositAPI from '../../api/DepositAPI';
+import MyDepositDetail from '../../components/recommends/MyDepositDetail';
 
-function TransferForm() {
-    const [receiverAccountId, setReceiverAccountId] = useState('');
-    const [amount, setAmount] = useState('');
-    const [ownerName, setOwnerName] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false); // 로딩 상태 추가
-
+const Mypage = () => {
+    const [depositAccounts, setDepositAccounts] = useState([]);
+    const [depositProducts, setDepositProducts] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [selectedAccount, setSelectedAccount] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    // 1) 계좌주 확인
-    const handleCheckOwner = async () => {
-        if (!receiverAccountId) {
-            setMessage('계좌 번호를 입력하세요.');
+    useEffect(() => {
+        const memberInfo = getCookie('member');
+        if (!memberInfo) {
+            navigate('/loginpage');
             return;
         }
 
-        try {
-            setMessage('');
-            setLoading(true);
-            const name = await getOwnerName(receiverAccountId);
-            setOwnerName(name);
-            setMessage('');
-        } catch (error) {
-            console.error(error);
-            setMessage(error?.response?.data || '계좌 정보를 찾을 수 없습니다.');
-            setOwnerName('');
-        } finally {
-            setLoading(false);
-        }
+        const fetchData = async () => {
+            try {
+                const accountsResponse = await DepositAPI.getMyDepositAccounts();
+                setDepositAccounts(accountsResponse.accounts || []);
+
+                const productsResponse = await DepositAPI.getAllDeposits();
+                const productsMap = {};
+                productsResponse.forEach(product => {
+                    productsMap[product.depositProductId] = product;
+                });
+                setDepositProducts(productsMap);
+            } catch (err) {
+                console.error('상세 에러 정보:', err);
+                setError('정보를 불러오는데 실패했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [navigate]);
+
+    const handleAccountClick = (account) => {
+        setSelectedAccount(account);
+        setSelectedProduct(depositProducts[account.depositProductId]);
+        setIsModalOpen(true);
     };
 
-    // 2) 송금
-    const handleTransfer = async () => {
-        if (!ownerName) {
-            alert('계좌 확인을 먼저 해주세요.');
-            return;
-        }
-
-        if (!amount || Number(amount) <= 0) {
-            setMessage('유효한 송금 금액을 입력하세요.');
-            return;
-        }
-
-        const confirmMsg = `${ownerName}님에게 ${Number(amount).toLocaleString()}원 송금하시겠습니까?`;
-        if (!window.confirm(confirmMsg)) return;
-
-        const inputPassword = prompt('비밀번호:');
-        if (!inputPassword) {
-            setMessage('비밀번호를 입력하지 않았습니다.');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            await transferMoney(receiverAccountId, inputPassword, Number(amount));
-            alert('송금이 성공적으로 완료되었습니다.');
-            navigate('/home');
-        } catch (error) {
-            console.error(error);
-            setMessage(error || '송금 중 오류가 발생했습니다.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (loading) return <div className="mypage-loading">로딩중...</div>;
+    if (error) return <div className="mypage-error">{error}</div>;
 
     return (
-        <div>
-            <h2>송금하기</h2>
-            <div>
-                <label>계좌 번호:</label>
-                <input
-                    type="text"
-                    value={receiverAccountId}
-                    onChange={(e) => setReceiverAccountId(e.target.value)}
-                    placeholder="계좌 번호를 입력하세요"
-                />
-                <button type="button" onClick={handleCheckOwner} disabled={loading}>
-                    {loading ? '확인 중...' : '계좌주 확인'}
-                </button>
-            </div>
+      <div className="mypage-container">
+          <h2 className="mypage-title">나의 예금 계좌</h2>
+          <div className="deposit-accounts-grid">
+              {depositAccounts.map((account) => (
+                <div
+                  key={account.depositAccountNumber}
+                  className="deposit-account-card"
+                  onClick={() => handleAccountClick(account)}
+                >
+                    <h3 className="deposit-account-name">
+                        {depositProducts[account.depositProductId]?.depositProductName ||
+                          `예금상품 ${account.depositProductId}`}
+                    </h3>
+                    <div className="deposit-account-details">
+                        <p className="deposit-account-number">
+                            계좌번호: {account.formattedAccountNumber || account.depositAccountNumber}
+                        </p>
+                        <p className="deposit-account-balance">
+                            예금액: {account.depositAmount?.toLocaleString()}원
+                        </p>
+                        <p className="deposit-account-start-date">
+                            계좌 생성일: {new Date(account.depositStartDate).toLocaleDateString()}
+                        </p>
+                        <p className="deposit-account-end-date">
+                            만기일: {new Date(account.depositEndDate).toLocaleDateString()}
+                        </p>
+                    </div>
+                </div>
+              ))}
+              {depositAccounts.length === 0 && (
+                <p className="no-deposit-accounts">가입한 예금 상품이 없습니다.</p>
+              )}
+          </div>
 
-            {ownerName && <p>계좌 주인: {ownerName}</p>}
-
-            <div>
-                <label>송금 금액:</label>
-                <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="송금할 금액을 입력하세요"
-                    min="1"
-                />
-            </div>
-
-            <button type="button" onClick={handleTransfer} disabled={loading}>
-                {loading ? '송금 중...' : '송금'}
-            </button>
-
-            {message && <p style={{ color: 'red' }}>{message}</p>}
-        </div>
+          <MyDepositDetail
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            account={selectedAccount}
+            productDetails={selectedProduct}
+          />
+      </div>
     );
-}
+};
 
-export default TransferForm;
+export default Mypage;
