@@ -24,7 +24,7 @@ const Fund = () => {
     maxTotalAmount: '',
     minManagementFee: '',
     maxRedemptionFee: '',
-    fundYear: ''
+    fundYear: '',
   });
 
   // 필터 초기화 함수
@@ -44,7 +44,7 @@ const Fund = () => {
         maxTotalAmount: maxTotalAmount,
         minManagementFee: minManagementFee,
         maxRedemptionFee: maxRedemptionFee,
-        fundYear: fundYear
+        fundYear: fundYear,
       });
     }, 500);
 
@@ -57,15 +57,19 @@ const Fund = () => {
       try {
         setLoading(true);
 
-        if (debouncedFilters.minTotalAmount || debouncedFilters.maxTotalAmount ||
-          debouncedFilters.minManagementFee || debouncedFilters.maxRedemptionFee ||
-          debouncedFilters.fundYear) {
+        if (
+          debouncedFilters.minTotalAmount ||
+          debouncedFilters.maxTotalAmount ||
+          debouncedFilters.minManagementFee ||
+          debouncedFilters.maxRedemptionFee ||
+          debouncedFilters.fundYear
+        ) {
           const searchParams = {
             minFundTotalAmount: debouncedFilters.minTotalAmount || undefined,
             maxFundTotalAmount: debouncedFilters.maxTotalAmount || undefined,
             minFundManagementFee: debouncedFilters.minManagementFee || undefined,
             maxFundRedemptionFee: debouncedFilters.maxRedemptionFee || undefined,
-            fundProductYear: debouncedFilters.fundYear || undefined
+            fundProductYear: debouncedFilters.fundYear || undefined,
           };
 
           const data = await FundAPI.getFilteredFunds(searchParams);
@@ -99,13 +103,13 @@ const Fund = () => {
     return date.toLocaleDateString('ko-KR', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     });
   };
 
   const formatPercentage = (decimal) => {
     if (!decimal) return '-';
-    return (decimal * 100).toFixed(3) + '%';
+    return decimal.toFixed(3) + '%'; //(승훈) 수정 이유: 프론트에서 각 수수료율이 수치가 상이해짐.
   };
 
   const lastFundElementRef = (node) => {
@@ -120,7 +124,7 @@ const Fund = () => {
           if (newFunds.length > 0) {
             setFunds((prevFunds) => {
               const fundMap = new Map();
-              [...prevFunds, ...newFunds].forEach(fund => {
+              [...prevFunds, ...newFunds].forEach((fund) => {
                 fundMap.set(fund.fundProductId, fund);
               });
               return Array.from(fundMap.values());
@@ -196,17 +200,18 @@ const Fund = () => {
           value={fundYear}
           onChange={(e) => setFundYear(e.target.value)}
         />
-        <button
-          onClick={resetFilters}
-          className="filter-reset-btn"
-        >
+        <button onClick={resetFilters} className="filter-reset-btn">
           필터 초기화
         </button>
       </div>
 
       <div className="fund-list">
         {funds.map((fund, index) => (
-          <div key={fund.fundProductId} className="fund-item-container" ref={index === funds.length - 1 ? lastFundElementRef : null}>
+          <div
+            key={fund.fundProductId}
+            className="fund-item-container"
+            ref={index === funds.length - 1 ? lastFundElementRef : null}
+          >
             <div className="fund-item">
               <div className="fund-item-left">
                 <div className="fund-item-icon">🏢</div>
@@ -220,7 +225,9 @@ const Fund = () => {
                   <div className="placeholder-chart"></div>
                 </div>
                 <div className="fund-item-numbers">
-                  <div className="fund-item-amount">{formatAmount(fund.fundProductTotalAmount)}억</div>
+                  <div className="fund-item-amount">
+                    {formatAmount(fund.fundProductTotalAmount)}억
+                  </div>
                   <div className="fund-item-yield">+2.67%</div>
                 </div>
                 <button
@@ -247,19 +254,27 @@ const Fund = () => {
                     </div>
                     <div className="details-item">
                       <span className="details-label">만기일</span>
-                      <span className="details-value">{formatDate(fundDetail.fundProductExpiration)}</span>
+                      <span className="details-value">
+                        {formatDate(fundDetail.fundProductExpiration)}
+                      </span>
                     </div>
                     <div className="details-item">
                       <span className="details-label">총 펀드 규모</span>
-                      <span className="details-value">{formatAmount(fundDetail.fundProductTotalAmount)}억 원</span>
+                      <span className="details-value">
+                        {formatAmount(fundDetail.fundProductTotalAmount)}억 원
+                      </span>
                     </div>
                     <div className="details-item">
                       <span className="details-label">운용 보수</span>
-                      <span className="details-value">{formatPercentage(fundDetail.fundProductManagementFee)}</span>
+                      <span className="details-value">
+                        {formatPercentage(fundDetail.fundProductManagementFee)}
+                      </span>
                     </div>
                     <div className="details-item">
                       <span className="details-label">환매 수수료</span>
-                      <span className="details-value">{formatPercentage(fundDetail.fundProductRedemptionFee)}</span>
+                      <span className="details-value">
+                        {formatPercentage(fundDetail.fundProductRedemptionFee)}
+                      </span>
                     </div>
                   </div>
                 </div>

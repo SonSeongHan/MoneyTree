@@ -1,10 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Deposit from '../../components/recommends/Deposit';
 import '../../css/recommends/DepositSaving.css';
 import Saving from '../../components/recommends/Saving';
+import { useLocation } from 'react-router-dom';
 
 function DepositSaving() {
-  const [activeTab, setActiveTab] = useState('deposit');
+  // const [activeTab, setActiveTab] = useState('deposit');
+
+  const location = useLocation(); //(승훈) 수정 현재 URL 정보 가져오기
+  const queryParams = new URLSearchParams(location.search); //(승훈) 수정 URL의 쿼리스트링 읽기
+  const initialTab = queryParams.get('tab') || 'deposit'; //(승훈) 수정 URL에 'tab'이 있으면 사용, 없으면 'deposit'
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  //URL이 변경될 때마다 activeTab을 업데이트
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -18,30 +30,20 @@ function DepositSaving() {
       </div>
 
       <div className="depsav-search-wrap">
-        <input
-          type="text"
-          placeholder="적금을 검색하세요"
-          className="depsav-search-input"
-        />
-        <button className="depsav-search-btn">
-          검색
-        </button>
+        <input type="text" placeholder="적금을 검색하세요" className="depsav-search-input" />
+        <button className="depsav-search-btn">검색</button>
       </div>
 
       <div className="depsav-tabs-container">
         <button
           onClick={() => handleTabClick('deposit')}
-          className={`depsav-tab-btn ${
-            activeTab === 'deposit' ? 'depsav-tab-btn--active' : ''
-          }`}
+          className={`depsav-tab-btn ${activeTab === 'deposit' ? 'depsav-tab-btn--active' : ''}`}
         >
           예금
         </button>
         <button
           onClick={() => handleTabClick('saving')}
-          className={`depsav-tab-btn ${
-            activeTab === 'saving' ? 'depsav-tab-btn--active' : ''
-          }`}
+          className={`depsav-tab-btn ${activeTab === 'saving' ? 'depsav-tab-btn--active' : ''}`}
         >
           적금
         </button>
