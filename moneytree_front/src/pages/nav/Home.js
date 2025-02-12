@@ -1,5 +1,6 @@
 // Home.js
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Link 컴포넌트 추가
 import "../../css/home.css";
 import { getCookie } from "../../util/cookieUtil"; // 수정된 cookieUtil.js 경로
 
@@ -47,7 +48,7 @@ function Home() {
 
     return (
         <div className="home-container">
-                      <main>
+            <main>
                 {/* 정회원 화면 */}
                 {membershipType === "FullMember" && (
                     <>
@@ -76,8 +77,7 @@ function Home() {
                             <ul>
                                 {spendingDetails.map((item, idx) => (
                                     <li key={idx}>
-                                        {item.category}: {item.amount.toLocaleString()}원 (
-                                        {item.ratio}%)
+                                        {item.category}: {item.amount.toLocaleString()}원 ({item.ratio}%)
                                     </li>
                                 ))}
                             </ul>
@@ -158,6 +158,21 @@ function Home() {
                         </section>
                     </>
                 )}
+
+                {/* 취미 관련 페이지 미리보기 섹션 추가 */}
+                <section className="hobbies-preview-section">
+                    <h3>취미로 삶의 활력을 더해보세요!</h3>
+                    <div className="hobbies-preview-box">
+                        <p>
+                            다양한 취미 활동을 통해 스트레스를 해소하고, 새로운
+                            인연을 만들어 보세요. 아래 버튼을 클릭하여 취미 페이지에서
+                            자세한 정보를 확인해 보실 수 있습니다.
+                        </p>
+                        <Link to="/hobbies" className="hobbies-link">
+                            취미 페이지로 이동
+                        </Link>
+                    </div>
+                </section>
             </main>
 
             <footer className="home-footer">

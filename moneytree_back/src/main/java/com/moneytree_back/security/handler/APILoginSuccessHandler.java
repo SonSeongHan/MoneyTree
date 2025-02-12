@@ -1,3 +1,4 @@
+// src/main/java/com/moneytree_back/security/handler/APILoginSuccessHandler.java
 package com.moneytree_back.security.handler;
 
 import com.google.gson.Gson;
@@ -47,7 +48,8 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다."));
         String membershipType = member.getMembershipType().name();
-        String memberName = member.getMember_name();
+        String memberName = member.getMemberName();
+        Boolean active = member.getActive(); // active 값 가져오기
 
         // JWT claims 준비
         Map<String, Object> claims = new HashMap<>();
@@ -63,11 +65,12 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("RefreshToken: {}", refreshToken);
         log.info("member_name: {}", memberName);
 
-        // 응답 JSON 생성
+        // 응답 JSON 생성 (active 값 포함)
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("memberId", memberId);
         responseData.put("member_name", memberName);
         responseData.put("membershipType", membershipType);
+        responseData.put("active", active);
         responseData.put("accessToken", accessToken);
         responseData.put("refreshToken", refreshToken);
 

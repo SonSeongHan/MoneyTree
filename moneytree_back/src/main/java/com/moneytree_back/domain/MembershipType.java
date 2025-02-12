@@ -9,6 +9,7 @@ public enum MembershipType {
     FundManager,
     LoanManager,
     RealEstateManager,
+
     InquiryManager,
     CommunityManager,
 }

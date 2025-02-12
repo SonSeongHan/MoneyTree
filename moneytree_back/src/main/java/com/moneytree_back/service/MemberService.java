@@ -24,5 +24,8 @@ public interface MemberService {
     List<Member> getAllMembers();
     Member getMemberById(String memberId);
 //    List<TransferHistoryDTO> getPaymentRecords(String memberId);
+void withdrawMember(String memberId, String withdrawalReason);
+    boolean reactivateMember(String memberId, String password);
+
 }
 

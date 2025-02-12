@@ -2,7 +2,6 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.dto.DandwacDTO;
-
 import java.math.BigDecimal;
 
 public interface DandwacService {
@@ -17,8 +16,21 @@ public interface DandwacService {
     Dandwac findAccountByMemberId(String memberId);
 
     /**
-     * 로그인된 사용자 계좌에서
-     * 수신자 계좌(receiverAccountId)로 송금
+     * 송금 (로그인 사용자 → receiverAccountId)
      */
-    void transferMoney(String memberId, String receiverAccountId, BigDecimal amount, String password);
+    void transferMoney(String memberId,
+                       String receiverAccountId,
+                       BigDecimal amount,
+                       String password,
+                       String depositPurpose,
+                       String fromMemberName,
+                       String toMemberName);
+
+    /**
+     * 입금(충전)
+     */
+    void depositMoney(String memberId,
+                      String password,
+                      BigDecimal amount,
+                      String depositPurpose);
 }

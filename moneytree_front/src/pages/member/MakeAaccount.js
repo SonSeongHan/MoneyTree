@@ -1,23 +1,23 @@
 // src/components/MakeAccount.js
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // useLocation 제거 가능
-import { createAccount } from "../../api/AccountAPI"; // 실제 API 함수 임포트
-// 쿠키에서 memberId를 가져오는 함수 임포트
+import { useNavigate, useLocation } from "react-router-dom"; // useLocation 추가
+import { createAccount } from "../../api/AccountAPI";
 import { getMemberIdFromCookie } from "../../util/cookieUtil";
 
 const MakeAccount = () => {
-  const navigate = useNavigate(); // 페이지 이동을 위한 navigate 훅
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // 쿠키에서 memberId 가져오기 (회원 고유 id는 쿠키에서만 얻음)
-  const initialMemberId = getMemberIdFromCookie() || "";
+  // 1차적으로 회원가입에서 전달된 memberId를 사용하고, 없으면 쿠키값에서 가져옵니다.
+  const initialMemberId = location.state?.memberId || getMemberIdFromCookie() || "";
 
-  // 상태 정의
-  const [memberId] = useState(initialMemberId); // 회원 고유 ID는 수정 불가능하므로 setter 생략
+  // 회원 고유 ID는 수정이 불가능하므로 setter는 생략합니다.
+  const [memberId] = useState(initialMemberId);
   const [dandwAcId, setDandwAcId] = useState("");           // 입출금 계좌번호
-  const [balance, setBalance] = useState("");               // 계좌 잔액
+  const [balance, setBalance] = useState("");                 // 계좌 잔액
   const [accountPassword, setAccountPassword] = useState(""); // 계좌 비밀번호
-  const [createdAt, setCreatedAt] = useState("");           // 생성일
+  const [createdAt, setCreatedAt] = useState("");             // 생성일
 
   // 성공/에러 메시지
   const [errorMessage, setErrorMessage] = useState("");
@@ -38,11 +38,11 @@ const MakeAccount = () => {
     const newAccountNumber = generateAccountNumber();
     setDandwAcId(newAccountNumber);
     // 생성일을 오늘 날짜로 자동 설정
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     setCreatedAt(today);
-  }, []); // 빈 배열이면 마운트 시 1회만 실행
+  }, []);
 
-  // 폼 제출
+  // 폼 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -65,6 +65,7 @@ const MakeAccount = () => {
       alert("계좌가 성공적으로 생성되었습니다.");
       navigate("/"); // 성공 후 원하는 페이지로 이동
     } catch (error) {
+      console.error(error);
       setErrorMessage("계좌 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
@@ -74,26 +75,16 @@ const MakeAccount = () => {
         <div style={styles.container}>
           <h2>계좌 개설</h2>
           <form onSubmit={handleSubmit} style={styles.form}>
-            {/* 회원 고유 ID (쿠키에서 가져온 값을 수정할 수 없도록 readOnly 처리) */}
+            {/* 회원 고유 ID (수정 불가능하도록 readOnly 처리) */}
             <div style={styles.formGroup}>
               <label>회원 고유 ID</label>
-              <input
-                  type="text"
-                  value={memberId}
-                  readOnly
-                  required
-              />
+              <input type="text" value={memberId} readOnly required />
             </div>
 
             {/* 자동 생성된 계좌번호 */}
             <div style={styles.formGroup}>
               <label>입출금 계좌번호</label>
-              <input
-                  type="text"
-                  value={dandwAcId}
-                  readOnly
-                  required
-              />
+              <input type="text" value={dandwAcId} readOnly required />
             </div>
 
             {/* 계좌 잔액 */}
@@ -151,8 +142,8 @@ const MakeAccount = () => {
 // 스타일 설정
 const styles = {
   page: {
-    display: 'flex',
-    justifyContent: 'center',
+    display: "flex",
+    justifyContent: "center",
     alignItems: "center",
     height: "100vh",
     background: "#f5f5f5",
