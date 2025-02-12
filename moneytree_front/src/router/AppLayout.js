@@ -11,6 +11,7 @@ const AppLayout = () => {
   return (
     <div>
       {!isLoginPage && <Navbar />}
+      
       <Outlet />
     </div>
   );

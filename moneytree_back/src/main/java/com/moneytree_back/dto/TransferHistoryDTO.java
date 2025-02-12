@@ -16,6 +16,6 @@ public class TransferHistoryDTO {
     private String transactionType;
     private double amount;
     private LocalDateTime createdAt;
-    private String fromMemberName;  // 송금한 회원 이름
-    private String toMemberName;    // 입금받은 회원 이름
+    private String fromMemberName;  // 여기로 변경
+    private String toMemberName;    // 여기로 변경
 }
