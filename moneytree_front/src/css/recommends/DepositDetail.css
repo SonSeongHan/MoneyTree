@@ -1,0 +1,70 @@
+.deposit-detail {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.deposit-detail h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.deposit-detail p {
+    margin: 1rem 0;
+    font-size: 1.1rem;
+    color: #555;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.deposit-detail p:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.deposit-join-btn {
+    display: block;
+    width: 200px;
+    margin: 2rem auto 0;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.deposit-join-btn:hover {
+    background-color: #0056b3;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .deposit-detail {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .deposit-detail h2 {
+        font-size: 1.5rem;
+    }
+
+    .deposit-detail p {
+        font-size: 1rem;
+        flex-direction: column;
+    }
+
+    .deposit-join-btn {
+        width: 100%;
+    }
+}

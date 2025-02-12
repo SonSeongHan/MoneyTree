@@ -1,7 +1,7 @@
 package com.moneytree_back.security.filter;
 
-import com.moneytree_back.domain.MembershipType;
-import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.domain.member.MembershipType;
+import com.moneytree_back.dto.member.MemberDTO;
 
 import com.moneytree_back.util.JWTUtil;
 import com.google.gson.Gson;
@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -56,6 +55,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
            return false;
         }
 
+        if (path.startsWith("/api/mail/")){
+            return true;
+        }
+
         if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("GET")) {
             return true;
         }
@@ -75,14 +78,19 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/accounts")) {
             return true;
         }
-        //
-        if (path.startsWith("/api/deposit-products/**")) {
+
+        if (path.startsWith("/api/deposit-products")) {
+            return true;
+        }
+
+        if (path.startsWith("/api/hobbies")) {
             return true;
         }
 
 
+
         // 기본적으로 모든 요청은 필터링 처리
-        return true; //
+        return false;
     }
 
     @Override
@@ -119,8 +127,14 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             MembershipType membershipType = MembershipType.valueOf(membershipTypeStr);
 
             // MemberDTO 생성
-            MemberDTO memberDTO = new MemberDTO(memberName, residentRegistrationNumber, membershipType);
+            MemberDTO memberDTO = new MemberDTO(
+                    memberId,              // memberId (이메일)
+                    "",                    // password (빈 문자열)
+                    membershipType         // membershipType (FullMember 등)
+            );
 
+            // 추가 정보 설정
+            memberDTO.setMember_name(memberName);
             log.info("-----------------------------------");
             log.info(memberDTO);
             log.info(memberDTO.getAuthorities());
@@ -129,6 +143,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(memberDTO, null, memberDTO.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            // 🔍 SecurityContextHolder 설정 확인
+//            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+//            log.info("✅ SecurityContext에 설정된 Authentication: {}", currentAuth);
 
             // 필터 체인 진행
             filterChain.doFilter(request, response);

@@ -1,6 +1,7 @@
 package com.moneytree_back.service;
 
-import com.moneytree_back.repository.DepositProductRepository;
+import com.moneytree_back.repository.financialProduct.DepositProductRepository;
+import com.moneytree_back.service.financialProduct.DepositProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

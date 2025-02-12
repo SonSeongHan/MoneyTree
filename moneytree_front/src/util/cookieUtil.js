@@ -23,7 +23,7 @@ export const setCookie = (name, value, days) => {
  */
 export const getCookie = (name) => {
   const cookieValue = cookies.get(name);
-  console.log("쿠키값:{}",cookieValue);
+  // console.log("쿠키값:{}",cookieValue);
   if (!cookieValue) return null;
 
   try {
@@ -46,7 +46,16 @@ export const removeCookie = (name, path = "/") => {
  * ✅ "member" 쿠키에서 memberId 가져오는 함수 (JSON.parse() 적용됨)
  */
 export const getMemberIdFromCookie = () => {
-  const raw = getCookie("member"); // 이미 JSON 객체로 변환됨
-  return raw?.memberId || null;
+  const memberData = getCookie('member'); // { memberId: "xxx", ... } 또는 null
+  return memberData?.memberId || null;
 };
 
+
+/**
+ * "member" 쿠키에서 memberName(혹은 닉네임)만 따로 꺼내는 함수
+ * - 쿠키에 저장된 객체에서 memberName 프로퍼티를 반환합니다.
+ */
+export const getMemberNicknameFromCookie = () => {
+  const memberData = getCookie('member'); // { memberId: "xxx", memberName: "xxx", ... } 또는 null
+  return memberData?.memberName || null;
+};

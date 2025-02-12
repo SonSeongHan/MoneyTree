@@ -32,13 +32,13 @@ const loginSlice = createSlice({
 
       // 소셜 로그인 회원이 사용
       const payload = action.payload;
-      setCookie("player", JSON.stringify(payload), 1); // 1일
+      setCookie("member", JSON.stringify(payload), 1); // 1일
 
       return payload;
     },
     logout: (state, action) => {
       console.log("logout....");
-      removeCookie("player");
+      removeCookie("member");
       return { ...initState };
 
     },
@@ -51,7 +51,7 @@ const loginSlice = createSlice({
 
         // 정상적인 로그인시에만 저장
         if (!payload.error) {
-          setCookie("player", JSON.stringify(payload), 1); //1일
+          setCookie("member", JSON.stringify(payload), 1); //1일
           // setCookie("member", JSON.stringify(payload),1/24)  //시간
         }
         return payload;

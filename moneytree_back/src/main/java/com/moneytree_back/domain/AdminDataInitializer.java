@@ -1,5 +1,7 @@
 package com.moneytree_back.domain;
 
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.MembershipType;
 import com.moneytree_back.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

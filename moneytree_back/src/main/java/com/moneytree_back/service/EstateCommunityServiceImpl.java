@@ -2,7 +2,7 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.Comment;
 import com.moneytree_back.domain.EstateCommunityPost;
-import com.moneytree_back.domain.Member;
+import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.dto.CommentDTO;
 import com.moneytree_back.dto.EstateCommunityPostDTO;
 import com.moneytree_back.repository.CommentRepository;

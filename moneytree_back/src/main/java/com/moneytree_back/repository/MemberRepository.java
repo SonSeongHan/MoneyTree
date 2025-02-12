@@ -1,10 +1,12 @@
 package com.moneytree_back.repository;
 
-import com.moneytree_back.domain.Member;
+import com.moneytree_back.domain.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, String> {
@@ -22,6 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, String> {
 
     //MemberId로 Member 조회(사용처:커뮤니티)
     Optional<Member> findByMemberId(String memberId);
+    List<Member> findByActiveFalseAndWithdrawalDateBefore(LocalDateTime time);
 
     @Query("SELECT m FROM Member m WHERE m.memberId = :memberId")
     Member getWithRoles(@Param("memberId") String memberId);

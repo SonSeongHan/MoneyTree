@@ -1,5 +1,9 @@
 package com.moneytree_back.config;
 
+import com.moneytree_back.config.certificate.CertificateAuthenticationProvider;
+import com.moneytree_back.config.certificate.CertificateLoginFilter;
+import com.moneytree_back.config.custom.CustomAuthenticationProvider;
+import com.moneytree_back.config.custom.CustomLoginFilter;
 import com.moneytree_back.security.handler.APILoginFailHandler;
 import com.moneytree_back.security.handler.APILoginSuccessHandler;
 import com.moneytree_back.security.handler.CustomAccessDeniedHandler;
@@ -90,6 +94,11 @@ public class MemberSecurityConfig {
         return source;
     }
 
+//    @Bean
+//    public JWTCheckFilter jwtCheckFilter() {
+//        return new JWTCheckFilter();
+//    }
+
     /**
      * SecurityFilterChain 구성
      */
@@ -112,6 +121,12 @@ public class MemberSecurityConfig {
             ProviderManager pm = (ProviderManager) authenticationManager;
             log.info("Registered AuthenticationProviders: {}", pm.getProviders());
         }
+
+//        // 🔥 JWTCheckFilter 추가!
+//        http.addFilterBefore(
+//                jwtCheckFilter(),  // ✅ JWT 토큰 검증 필터 추가
+//                UsernamePasswordAuthenticationFilter.class
+//        );
 
         // 필터 등록
         http.addFilterBefore(
