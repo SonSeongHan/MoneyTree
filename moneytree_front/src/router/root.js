@@ -17,6 +17,8 @@ import MainHome from "../components/MainHome";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminPage from "../pages/admin/AdminPage";
 import MemberDetailPage from "../pages/admin/MemberDetailPage";
+import ReactivateAccount from "../pages/member/ReactivateAccount";
+import HobbyPage from "../pages/hobby/HobbyPage";
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -153,11 +155,27 @@ const root = createBrowserRouter([
         ),
       },
       {
+        path: "reactivate-account",
+        element: (
+            <Suspense fallback={Loading}>
+              <ReactivateAccount />
+            </Suspense>
+        ),
+      },
+      {
         path: "mypage",
         element: (
           <Suspense fallback={Loading}>
             <MyPage />
           </Suspense>
+        ),
+      },
+      {
+        path: "hobbies",
+        element: (
+            <Suspense fallback={Loading}>
+              <HobbyPage />
+            </Suspense>
         ),
       },
       {

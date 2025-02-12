@@ -3,8 +3,10 @@ package com.moneytree_back.controller;
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.TransactionHistory;
 import com.moneytree_back.dto.DandwacDTO;
+import com.moneytree_back.dto.DepositRequestDTO;
+import com.moneytree_back.dto.TransferHistoryDTO;
 import com.moneytree_back.dto.TransferRequestDTO;
-import com.moneytree_back.service.DandwacService;
+import com.moneytree_back.service.dandwac.DandwacService;
 import com.moneytree_back.service.TransactionHistoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -46,12 +49,12 @@ public class DandwAccountController {
         }
     }
 
-    // (3) 계좌 주인 이름 확인 (receiverAccountId 입력받아서 이름 반환)
+    // (3) 계좌 주인 이름 확인
     @GetMapping("/ownerName")
     public ResponseEntity<?> getOwnerName(@RequestParam String accountId) {
         try {
             Dandwac dandwac = dandwacService.getAccount(accountId);
-            String ownerName = dandwac.getMember().getMember_name();
+            String ownerName = dandwac.getMember().getMemberName();
             return ResponseEntity.ok(ownerName);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -59,17 +62,19 @@ public class DandwAccountController {
         }
     }
 
-    // (4) 송금 (내 계좌 → receiverAccountId)
+    // (4) 송금
     @PostMapping("/transfer")
     public ResponseEntity<?> transferMoney(@Valid @RequestBody TransferRequestDTO dto) {
         try {
-            // dto 안에 senderMemberId(로그인 사용자)가 포함되어 있다고 가정합니다.
-            // (프론트에서 쿠키 등으로 memberId를 꺼내 request body에 포함)
+            // dto.getFromMemberName()를 굳이 안 써도 되지만, 시그니처상 넣음
             dandwacService.transferMoney(
                     dto.getSenderMemberId(),
                     dto.getReceiverAccountId(),
                     dto.getAmount(),
-                    dto.getPassword()
+                    dto.getPassword(),
+                    dto.getDepositPurpose(),
+                    dto.getFromMemberName(), // 프론트에서 온 값 (무시할 수도 있음)
+                    dto.getToMemberName()
             );
             return ResponseEntity.ok("송금 완료");
         } catch (Exception e) {
@@ -78,15 +83,52 @@ public class DandwAccountController {
         }
     }
 
-    // (5) 거래 내역 조회
-    // member_id에 해당하는 입출금 계좌의 송금/출금 내역을, 현재 시각 기준 지난 'months' 개월 이내의 내역으로 필터링하여 조회
+
+
+
     @GetMapping("/transactions")
     public ResponseEntity<?> getTransactionHistory(@RequestParam String memberId,
                                                    @RequestParam(defaultValue = "1") int months) {
         try {
             List<TransactionHistory> transactions =
                     transactionHistoryService.getTransactionsForMember(memberId, months);
-            return ResponseEntity.ok(transactions);
+
+            List<TransferHistoryDTO> dtos = transactions.stream().map(tx -> {
+                // DB에 저장된 닉네임 필드를 그대로 사용
+                String fromName = tx.getFromMemberName();
+                String toName = tx.getToMemberName();
+
+                return TransferHistoryDTO.builder()
+                        .id(tx.getId())
+                        .transactionType(tx.getDandwacType() != null
+                                ? tx.getDandwacType().toString()
+                                : null)
+                        .amount(tx.getAmount().doubleValue())
+                        .createdAt(tx.getCreatedAt())
+                        .fromMemberName(fromName)
+                        .toMemberName(toName)
+                        .build();
+            }).collect(Collectors.toList());
+
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+
+    // (6) 충전(입금)
+    @PostMapping("/deposit")
+    public ResponseEntity<?> depositMoney(@Valid @RequestBody DepositRequestDTO dto) {
+        try {
+            dandwacService.depositMoney(
+                    dto.getMemberId(),
+                    dto.getPassword(),
+                    dto.getAmount(),
+                    dto.getDepositPurpose()
+            );
+            return ResponseEntity.ok("충전 완료");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

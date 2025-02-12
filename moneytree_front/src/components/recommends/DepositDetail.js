@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import DepositAPI from '../../api/DepositAPI';
+import DepositJoinModal from './DepositJoinModal';
+import '../../css/recommends/DepositDetail.css';
 
 const DepositDetail = () => {
-  const { depositProductId } = useParams(); // URL에서 ID 가져오기
+  const { depositProductId } = useParams();
   const [deposit, setDeposit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
     const fetchDepositDetail = async () => {
@@ -39,8 +42,24 @@ const DepositDetail = () => {
       <p>이율 유형: {deposit.depositInterestRateType}</p>
       <p>생성 일자: {new Date(deposit.depositProductCreatedAt).toLocaleDateString()}</p>
       <p>수정 일자: {new Date(deposit.depositProductUpdatedAt).toLocaleDateString()}</p>
+
+      {/* 가입하기 버튼 추가 */}
+      <button
+        className="deposit-join-btn"
+        onClick={() => setShowJoinModal(true)}
+      >
+        가입하기
+      </button>
+
+      {/* 가입 모달 */}
+      {showJoinModal && (
+        <DepositJoinModal
+          deposit={deposit}
+          onClose={() => setShowJoinModal(false)}
+        />
+      )}
     </div>
   );
-}
+};
 
 export default DepositDetail;

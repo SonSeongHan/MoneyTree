@@ -1,32 +1,20 @@
 package com.moneytree_back.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
 import java.math.BigDecimal;
 
-/**
- *  로그인된 사용자(memberId) → 이 DTO를 이용해
- *   - receiverAccountId: 수신자 계좌
- *   - password: 송금자 비밀번호
- *   - amount: 송금 금액
- */
-@Getter @Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TransferRequestDTO {
-
-    @NotBlank
-    private String senderMemberId;    // ★ 여기에 로그인 사용자 ID를 직접 담아 전송
-
-    @NotBlank
-    private String receiverAccountId; // 수신자 계좌번호
-
-    @NotBlank
-    private String password;          // 송금자 비밀번호
-
-    @NotNull
-    @DecimalMin(value = "1.0")
+    private String senderMemberId;     // 송금자(내) 회원ID
+    private String receiverAccountId;  // 받는 계좌번호
     private BigDecimal amount;
+    private String password;
+    private String depositPurpose;
+
+    // 닉네임/이름을 from/toMemberName로 통일
+    private String fromMemberName;     // 보내는 사람 닉네임(이름)
+    private String toMemberName;       // 받는 사람 닉네임(이름)
 }

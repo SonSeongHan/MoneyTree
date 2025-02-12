@@ -1,7 +1,7 @@
 package com.moneytree_back.security;
 
-import com.moneytree_back.domain.Member;
-import com.moneytree_back.dto.MemberDTO;
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
