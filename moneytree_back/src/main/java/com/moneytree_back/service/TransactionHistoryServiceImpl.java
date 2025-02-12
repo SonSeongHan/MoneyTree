@@ -33,13 +33,23 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
         // 기준 날짜 계산: 현재 시각에서 'months' 개월 전
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(months);
 
-        // 모든 거래 내역을 로드한 후, 해당 계좌 관련 및 기준 날짜 이후의 내역만 필터링
+        // 모든 거래 내역을 로드한 후, 해당 계좌 관련 및 기준 날짜 이후의 내역만 필터링하고,
+        // 각 거래 내역에 대해 송금한 회원과 돈받은 회원의 닉네임을 채워준다.
         List<TransactionHistory> allTransactions = transactionHistoryRepository.findAll();
         return allTransactions.stream()
-                .filter(tx ->
-                        (tx.getFromAccount().equals(account) || tx.getToAccount().equals(account))
-                                && tx.getCreatedAt().isAfter(cutoffDate)
-                )
+                .filter(tx -> (tx.getFromAccount().equals(account) || tx.getToAccount().equals(account))
+                        && tx.getCreatedAt().isAfter(cutoffDate))
+                .peek(tx -> {
+                    // 송금한 계좌가 존재하면, 해당 계좌의 소유자(Member)의 이름을 fromMemberNickname에 설정
+                    if (tx.getFromAccount() != null && tx.getFromAccount().getMember() != null) {
+                        tx.setFromMemberName(tx.getFromAccount().getMember().getMemberName());
+                    }
+                    // 돈받은 계좌가 존재하면, 해당 계좌의 소유자(Member)의 이름을 toMemberNickname에 설정
+                    if (tx.getToAccount() != null && tx.getToAccount().getMember() != null) {
+                        tx.setToMemberName(tx.getToAccount().getMember().getMemberName());
+                    }
+                })
                 .collect(Collectors.toList());
     }
+
 }

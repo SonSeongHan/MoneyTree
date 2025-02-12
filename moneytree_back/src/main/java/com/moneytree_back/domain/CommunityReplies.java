@@ -1,6 +1,8 @@
 package com.moneytree_back.domain;
 
 
+import com.moneytree_back.domain.member.Member;
+import com.moneytree_back.domain.member.MembershipType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

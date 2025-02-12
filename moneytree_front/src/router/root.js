@@ -14,12 +14,21 @@ import CommuUpdate from '../pages/community/CommuUpdate';
 import CommuReply from '../pages/community/CommuReply';
 import CommuAdd from '../pages/community/CommuAdd';
 import CommuCheck from '../pages/community/CommuCheck';
+<<<<<<< HEAD
 import MainHome from '../components/MainHome';
 import AdminLogin from '../pages/admin/AdminLogin';
 import AdminPage from '../pages/admin/AdminPage';
 import MemberDetailPage from '../pages/admin/MemberDetailPage';
 import FavoriteApartmentList from '../pages/estate/FavoriteApartmentList';
 import MortgageLoanProductDetail from '../pages/estate/fss/MortgageLoanProductDetail';
+=======
+import MainHome from "../components/MainHome";
+import AdminLogin from "../pages/admin/AdminLogin";
+import AdminPage from "../pages/admin/AdminPage";
+import MemberDetailPage from "../pages/admin/MemberDetailPage";
+import ReactivateAccount from "../pages/member/ReactivateAccount";
+import HobbyPage from "../pages/hobby/HobbyPage";
+>>>>>>> f1cb552ccd8e0d7f2996cddb041c4b2efc6a372b
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
@@ -165,7 +174,19 @@ const root = createBrowserRouter([
         ),
       },
       {
+<<<<<<< HEAD
         path: 'mypage',
+=======
+        path: "reactivate-account",
+        element: (
+            <Suspense fallback={Loading}>
+              <ReactivateAccount />
+            </Suspense>
+        ),
+      },
+      {
+        path: "mypage",
+>>>>>>> f1cb552ccd8e0d7f2996cddb041c4b2efc6a372b
         element: (
           <Suspense fallback={Loading}>
             <MyPage />
@@ -174,7 +195,19 @@ const root = createBrowserRouter([
       },
       // 부동산 관련 페이지들
       {
+<<<<<<< HEAD
         path: 'products/deposit-saving',
+=======
+        path: "hobbies",
+        element: (
+            <Suspense fallback={Loading}>
+              <HobbyPage />
+            </Suspense>
+        ),
+      },
+      {
+        path: "products/deposit-saving",
+>>>>>>> f1cb552ccd8e0d7f2996cddb041c4b2efc6a372b
         element: (
           <Suspense fallback={Loading}>
             <DepositSaving />

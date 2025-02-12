@@ -55,3 +55,14 @@ export const login = async (loginData) => {
   const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
   return memberAxios.post(`/login`, form, header);
 };
+
+// 회원 탈퇴 API
+export const withdrawMember = async (memberId, withdrawalReason = "사용자탈퇴") => {
+  return memberAxios.delete(`/${memberId}/withdraw`, { params: { withdrawalReason } });
+};
+
+// 재활성화 API 추가
+export const reactivateMember = async (memberId, password) => {
+  // 예: 재활성화 API 엔드포인트는 POST /api/members/{memberId}/reactivate 라고 가정
+  return memberAxios.post(`/${memberId}/reactivate`, { password });
+};
