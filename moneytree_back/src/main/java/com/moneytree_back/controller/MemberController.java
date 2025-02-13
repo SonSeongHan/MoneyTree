@@ -1,5 +1,34 @@
 package com.moneytree_back.controller;
 
+<<<<<<< HEAD
+        import com.moneytree_back.domain.Member;
+        import com.moneytree_back.dto.MemberDTO;
+        import com.moneytree_back.repository.MemberRepository;
+        import com.moneytree_back.service.MemberService;
+        import lombok.RequiredArgsConstructor;
+        import org.springframework.http.ResponseEntity;
+        import org.springframework.web.bind.annotation.*;
+
+        import java.util.Collections;
+        import java.util.Map;
+
+        @RestController
+        @RequestMapping("/api/members")
+        @RequiredArgsConstructor
+        public class MemberController {
+
+            private final MemberService memberService;
+            private final MemberRepository memberRepository;
+
+            // MemberController.java
+
+            @GetMapping("/{sellerId}") // 매물 거래시 memberid조회용. memberid가 실제로 존재하는지 안하는지 확인
+            public ResponseEntity<Map<String, Boolean>> checkSellerExists(@PathVariable String sellerId) {
+                boolean exists = memberRepository.existsById(sellerId); // memberRepository.existsById 사용
+                return ResponseEntity.ok(Collections.singletonMap("exists", exists));
+            }
+
+=======
 import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.dto.ReactivateRequestDTO;
@@ -14,6 +43,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+>>>>>>> f1cb552ccd8e0d7f2996cddb041c4b2efc6a372b
 
     // 기본 경로에서 회원가입 처리
     @PostMapping
