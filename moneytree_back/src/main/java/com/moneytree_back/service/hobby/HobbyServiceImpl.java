@@ -2,6 +2,8 @@ package com.moneytree_back.service.hobby;
 
 import com.moneytree_back.domain.Hobby;
 import com.moneytree_back.repository.HobbyRepository;
+import com.moneytree_back.repository.HobbyRepository;
+import com.moneytree_back.service.hobby.HobbyService;
 import org.springframework.stereotype.Service;
 import java.util.List;
 

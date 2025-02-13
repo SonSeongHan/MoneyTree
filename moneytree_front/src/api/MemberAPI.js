@@ -34,8 +34,12 @@ export const changeName = async (nameData) => {
 };
 
 // 로그인 API (첫 번째 방식: FormData 사용, email/pw 방식)
+// withCredentials 옵션을 추가하여 쿠키를 전송하도록 수정함
 export const loginPost = async (loginParam) => {
-  const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
+  const header = {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    withCredentials: true, // 쿠키 전송 활성화
+  };
 
   const form = new FormData();
   form.append("username", loginParam.email); // username에 이메일 추가

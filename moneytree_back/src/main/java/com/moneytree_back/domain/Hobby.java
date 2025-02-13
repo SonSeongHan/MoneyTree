@@ -1,6 +1,8 @@
 package com.moneytree_back.domain;
 
 import jakarta.persistence.*;
+
+
 import java.math.BigDecimal;
 
 @Entity
@@ -40,16 +42,36 @@ public class Hobby {
 
     // Getters 및 Setters
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getHobbyName() {
+        return hobbyName;
+    }
+
     public void setHobbyName(String hobbyName) {
         this.hobbyName = hobbyName;
+    }
+
+    public BigDecimal getHobbyPrice() {
+        return hobbyPrice;
     }
 
     public void setHobbyPrice(BigDecimal hobbyPrice) {
         this.hobbyPrice = hobbyPrice;
     }
 
+    public String getHobbyDescription() {
+        return hobbyDescription;
+    }
+
     public void setHobbyDescription(String hobbyDescription) {
         this.hobbyDescription = hobbyDescription;
+    }
+
+    public String getHobbyCategory() {
+        return hobbyCategory;
     }
 
     public void setHobbyCategory(String hobbyCategory) {

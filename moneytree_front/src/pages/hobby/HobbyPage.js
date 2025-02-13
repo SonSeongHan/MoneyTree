@@ -1,19 +1,25 @@
+// src/pages/HobbyRecommendationPage.js
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import '../../css/hobbypage.css'; // CSS 예시는 별도 파일 참고
+import { getAllHobbies } from '../../api/HobbyApi'; // HobbyAPI.js에 정의한 함수 import
+import '../../css/hobbypage.css';
 
 const HobbyRecommendationPage = () => {
-    // 전체 취미 데이터 (백엔드에서 불러온 값)
+    // 전체 취미 데이터와 필터링된 데이터 상태
     const [hobbies, setHobbies] = useState([]);
-    // 가격 필터 입력값
-    const [inputMin, setInputMin] = useState(0);
-    const [inputMax, setInputMax] = useState(100000000);
-    // 선택된 카테고리 (초기값 "전체"는 모든 카테고리)
-    const [selectedCategory, setSelectedCategory] = useState("전체");
-    // 최종 필터링된 취미 데이터
     const [filteredHobbies, setFilteredHobbies] = useState([]);
 
-    // 미리 정해진 카테고리 목록 (총 10개 옵션)
+    // 가격 필터 입력값 (문자열 상태로 관리)
+    const [inputMin, setInputMin] = useState("");
+    const [inputMax, setInputMax] = useState("");
+
+    // 선택된 카테고리 (초기값 "전체"는 모든 카테고리)
+    const [selectedCategory, setSelectedCategory] = useState("전체");
+
+    // 로딩 및 에러 상태
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // 미리 정해진 카테고리 목록
     const categories = [
         "전체",
         "프리미엄",
@@ -27,37 +33,48 @@ const HobbyRecommendationPage = () => {
         "취미 기타"
     ];
 
-    // 컴포넌트 마운트 시 백엔드 API에서 취미 데이터 불러오기
+    // 컴포넌트 마운트 시 취미 데이터 불러오기
     useEffect(() => {
-        axios.get('http://localhost:8080/api/hobbies')
-            .then(response => {
-                setHobbies(response.data);
-                // 초기에는 전체 데이터가 표시됨
-                setFilteredHobbies(response.data);
-            })
-            .catch(error => {
-                console.error('취미 데이터를 불러오는 데 실패:', error);
-            });
+        const fetchHobbies = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllHobbies(); // HobbyAPI.js를 통해 데이터 호출
+                console.log('받은 데이터:', data);
+                setHobbies(data);
+                setFilteredHobbies(data);
+            } catch (err) {
+                console.error('취미 데이터를 불러오는 데 실패:', err);
+                setError('취미 데이터를 불러오는 데 실패했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchHobbies();
     }, []);
 
-    // 가격 및 카테고리 조건을 모두 적용하여 필터링하는 함수
+    // 가격 및 카테고리 조건을 적용하여 필터링하는 함수
     const applyFilters = (category, min, max) => {
+        const minPrice = min === "" ? 0 : parseFloat(min);
+        const maxPrice = max === "" ? 100000000 : parseFloat(max);
+
         let filtered = hobbies.filter(hobby => {
             const price = parseFloat(hobby.hobbyPrice);
-            return price >= min && price <= max;
+            return price >= minPrice && price <= maxPrice;
         });
+
         if (category !== "전체") {
             filtered = filtered.filter(hobby => hobby.hobbyCategory === category);
         }
         setFilteredHobbies(filtered);
     };
 
-    // 검색 버튼 클릭 시 가격 조건(현재 선택된 카테고리 포함)으로 필터링 적용
+    // 검색 버튼 클릭 시 필터 적용
     const handleSearch = () => {
         applyFilters(selectedCategory, inputMin, inputMax);
     };
 
-    // 카테고리 버튼 클릭 시 바로 해당 카테고리의 취미로 필터링
+    // 카테고리 버튼 클릭 시 필터 적용
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);
         applyFilters(category, inputMin, inputMax);
@@ -74,7 +91,8 @@ const HobbyRecommendationPage = () => {
                     <input
                         type="number"
                         value={inputMin}
-                        onChange={e => setInputMin(parseFloat(e.target.value))}
+                        onChange={e => setInputMin(e.target.value)}
+                        placeholder="0"
                     />
                 </label>
                 <label>
@@ -82,7 +100,8 @@ const HobbyRecommendationPage = () => {
                     <input
                         type="number"
                         value={inputMax}
-                        onChange={e => setInputMax(parseFloat(e.target.value))}
+                        onChange={e => setInputMax(e.target.value)}
+                        placeholder="최대 금액"
                     />
                 </label>
                 <button onClick={handleSearch}>검색</button>
@@ -101,9 +120,13 @@ const HobbyRecommendationPage = () => {
                 ))}
             </div>
 
+            {/* 로딩 및 에러 표시 */}
+            {loading && <p>로딩 중...</p>}
+            {error && <p className="error">{error}</p>}
+
             {/* 필터링된 취미 목록 */}
             <div className="hobby-list">
-                {filteredHobbies.length === 0 ? (
+                {(!loading && filteredHobbies.length === 0) ? (
                     <p>조건에 맞는 취미가 없습니다.</p>
                 ) : (
                     filteredHobbies.map(hobby => (

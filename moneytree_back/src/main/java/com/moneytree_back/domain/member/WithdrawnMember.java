@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "withdrawn_member")
+@Table(name = "deleted_member_id")
 @Getter
 @Setter
 @NoArgsConstructor
