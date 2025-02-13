@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom'; // useNavigate 사용
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getCookie } from '../../util/cookieUtil';
 import '../../css/estate/EstateCommunityList.css';
@@ -35,9 +35,17 @@ const EstateCommunityList = () => {
   const loggedInUser = getCookie('member');
   const navigate = useNavigate();
 
-  // 새 게시글 작성 버튼용 로그인 모달 tooltip 상태
+  // 게시글 작성 버튼 클릭 시 로그인 모달 표시 상태
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // 페이지네이션 관련 함수들
+  const handlePageClick = (pageNum) => setPage(pageNum);
+  const handlePrevBlock = () => setPage(Math.max(currentBlock * blockSize - blockSize, 0));
+  const handleNextBlock = () => setPage(Math.min((currentBlock + 1) * blockSize, totalPages - 1));
+  const goFirst = () => setPage(0);
+  const goLast = () => setPage(totalPages - 1);
+
+  // Query parameter 업데이트 (URL에 반영)
   const updateQueryParams = () => {
     const params = new URLSearchParams();
     params.set('page', page);
@@ -86,12 +94,8 @@ const EstateCommunityList = () => {
   const currentBlock = Math.floor(page / blockSize);
   const startPage = currentBlock * blockSize;
   const endPage = Math.min(startPage + blockSize - 1, totalPages - 1);
-  const handlePageClick = (pageNum) => setPage(pageNum);
-  const handlePrevBlock = () => setPage(Math.max(startPage - blockSize, 0));
-  const handleNextBlock = () => setPage(Math.min(startPage + blockSize, totalPages - 1));
-  const goFirst = () => setPage(0);
-  const goLast = () => setPage(totalPages - 1);
 
+  // 필터 처리 함수들
   const handleCategoryFilter = (category) => {
     setFilterCategory(category);
     setPage(0);
@@ -107,25 +111,25 @@ const EstateCommunityList = () => {
     fetchPosts();
   };
 
-  // 게시글 작성 버튼 클릭 시 처리
+  // 게시글 작성 버튼 클릭 시 로그인 여부 확인 및 모달 띄우기
   const handleWrite = () => {
     if (!loggedInUser) {
       alert('게시글 작성시 로그인이 필요합니다.');
-      // 로그인 모달 tooltip을 오른쪽 상단(화면 고정 위치)에 표시
       setShowLoginModal(true);
       return;
     }
     navigate('/community/real-estate/new');
   };
 
-  // 로그인 성공 시 모달 tooltip 닫기 (화면 유지)
+  // 로그인 성공 시 모달 닫기
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
   };
 
   return (
     <div className="community-list-container">
-      <h2>🏡 부동산 커뮤니티</h2>
+      <h2 className="comment-header">🏡 부동산 커뮤니티</h2>
+
       <div className="category-filter">
         {['전체보기', '부동산 매입', '공동명의 의뢰', '최근 동향', '기타'].map((cat) => (
           <button
@@ -137,6 +141,7 @@ const EstateCommunityList = () => {
           </button>
         ))}
       </div>
+
       <div className="comment-filter">
         <button
           className={commentFilter === '' ? 'active' : ''}
@@ -157,6 +162,7 @@ const EstateCommunityList = () => {
           댓글 많은 순
         </button>
       </div>
+
       <div className="search-area">
         <select
           value={searchField}
@@ -180,12 +186,15 @@ const EstateCommunityList = () => {
           검색
         </button>
       </div>
+
       <div className="result-count">검색 결과: {totalResults}건</div>
+
       <div className="new-post-button-container">
         <button className="new-post-button" onClick={handleWrite}>
           ✏️ 새 게시글 작성
         </button>
       </div>
+
       <ul className="community-list">
         {posts.length > 0 ? (
           posts.map((post) => (
@@ -221,6 +230,7 @@ const EstateCommunityList = () => {
           <p>게시글이 없습니다.</p>
         )}
       </ul>
+
       <div className="pagination">
         <button onClick={goFirst} disabled={page === 0}>
           처음
@@ -247,13 +257,13 @@ const EstateCommunityList = () => {
           끝
         </button>
       </div>
-      {/* 로그인 모달 tooltip은 위 CSS의 fixed 스타일에 따라 오른쪽 상단에 고정됩니다 */}
+
+      {/* 로그인 모달 (로그인이 필요한 작업 시 표시) */}
       {showLoginModal && (
         <div className="login-modal-tooltip">
           <button className="modal-close-button" onClick={() => setShowLoginModal(false)}>
             &times;
           </button>
-          {/* LoginPage 컴포넌트에 onLoginSuccess prop 전달 */}
           <LoginPage onLoginSuccess={handleLoginSuccess} />
         </div>
       )}
