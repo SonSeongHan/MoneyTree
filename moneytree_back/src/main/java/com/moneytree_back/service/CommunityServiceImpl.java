@@ -6,6 +6,7 @@ import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.PostType;
 import com.moneytree_back.dto.CommunityDTO;
 import com.moneytree_back.repository.CommunityImageRepository;
+import com.moneytree_back.repository.CommunityRepliesRepository;
 import com.moneytree_back.repository.CommunityRepository;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.util.CustomFileUtil;
@@ -217,5 +218,8 @@ public class CommunityServiceImpl implements CommunityService {
         log.info("게시글 삭제 완료");
     }
 
+    public CommunityRepliesRepository getCommunityRepliesRepository() {
+        return communityRepliesRepository;
+    }
 }
 

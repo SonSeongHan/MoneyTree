@@ -32,10 +32,16 @@ function SavingDetail() {
       <h1 className="saving-title">{savingProduct.savingProductName}</h1>
       <p className="saving-bank">은행: {savingProduct.savingBankName}</p>
       <p className="saving-join-way">가입 방법: {savingProduct.savingJoinWay}</p>
-      <p className="saving-min-amount">최소 가입 금액: {savingProduct.savingMinAmount.toLocaleString()} 원</p>
-      <p className="saving-max-amount">최대 가입 금액: {savingProduct.savingMaxAmount.toLocaleString()} 원</p>
+      <p className="saving-min-amount">
+        최소 가입 금액: {savingProduct.savingMinAmount.toLocaleString()} 원
+      </p>
+      <p className="saving-max-amount">
+        최대 가입 금액: {savingProduct.savingMaxAmount.toLocaleString()} 원
+      </p>
       <p className="saving-interest-rate">기본 이자율: {savingProduct.savingBaseInterestRate}%</p>
-      <p className="saving-prime-interest-rate">최고 우대 이자율: {savingProduct.savingPrimeInterestRate}%</p>
+      <p className="saving-prime-interest-rate">
+        최고 우대 이자율: {savingProduct.savingPrimeInterestRate}%
+      </p>
       <p className="saving-maturity-period">만기 기간: {savingProduct.savingMaturityPeriod}개월</p>
     </div>
   );

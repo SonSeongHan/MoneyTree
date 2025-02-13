@@ -90,7 +90,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
 
         // 기본적으로 모든 요청은 필터링 처리
-        return false;
+        return true;
     }
 
     @Override
