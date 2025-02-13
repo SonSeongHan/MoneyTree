@@ -1,29 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import DepositAPI from '../../api/DepositAPI';
 import DepositJoinModal from './DepositJoinModal';
 import '../../css/recommends/DepositDetail.css';
 
 const DepositDetail = () => {
   const { depositProductId } = useParams();
+  const navigate = useNavigate();
   const [deposit, setDeposit] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
+  const [joinedProducts, setJoinedProducts] = useState([]);
 
   useEffect(() => {
-    const fetchDepositDetail = async () => {
+    const fetchData = async () => {
       try {
-        const data = await DepositAPI.getDepositById(depositProductId);
-        setDeposit(data);
+        // 상품 상세 정보와 가입한 상품 목록을 동시에 조회
+        const [depositData, myAccountsResponse] = await Promise.all([
+          DepositAPI.getDepositById(depositProductId),
+          DepositAPI.getMyDepositAccounts()
+        ]);
+
+        setDeposit(depositData);
+
+        // 가입 여부 확인
+        const joinedProductIds = myAccountsResponse.accounts.map(account => account.depositProductId);
+        setJoinedProducts(joinedProductIds);
+        setIsJoined(joinedProductIds.includes(Number(depositProductId)));
+
       } catch (err) {
-        console.error('Error fetching deposit details: ', err);
-        setError('상품 데이터를 가져오지 못하였습니다.');
+        console.error('Error fetching data: ', err);
+        setError('데이터를 가져오지 못하였습니다.');
       } finally {
         setLoading(false);
       }
     };
-    fetchDepositDetail();
+
+    fetchData();
   }, [depositProductId]);
 
   if (loading) return <p>로딩 중....</p>;
@@ -32,6 +47,12 @@ const DepositDetail = () => {
 
   return (
     <div className="deposit-detail">
+      {isJoined && (
+        <div className="deposit-detail-joined-badge">
+          가입완료
+        </div>
+      )}
+
       <h2>{deposit.depositProductName}</h2>
       <p>은행 이름: {deposit.bankName}</p>
       <p>최소 금액: {deposit.depositMinAmount.toLocaleString()}원</p>
@@ -43,19 +64,22 @@ const DepositDetail = () => {
       <p>생성 일자: {new Date(deposit.depositProductCreatedAt).toLocaleDateString()}</p>
       <p>수정 일자: {new Date(deposit.depositProductUpdatedAt).toLocaleDateString()}</p>
 
-      {/* 가입하기 버튼 추가 */}
+      {/* 가입하기 버튼 - 이미 가입한 경우 비활성화 */}
       <button
-        className="deposit-join-btn"
+        className={`deposit-join-btn ${isJoined ? 'joined' : ''}`}
         onClick={() => setShowJoinModal(true)}
+        disabled={isJoined}
       >
-        가입하기
+        {isJoined ? '가입완료' : '가입하기'}
       </button>
 
       {/* 가입 모달 */}
-      {showJoinModal && (
+      {showJoinModal && !isJoined && (
         <DepositJoinModal
           deposit={deposit}
           onClose={() => setShowJoinModal(false)}
+          joinedProducts={joinedProducts}
+          setJoinedProducts={setJoinedProducts}
         />
       )}
     </div>

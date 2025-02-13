@@ -61,6 +61,7 @@ public class CommunityRepliesServiceImpl implements CommunityRepliesService {
                          .replyId((long) reply.getReplyId())
                          .postId(reply.getCommunity().getPostId())
                          .memberId(reply.getMember().getMemberId())
+                         .membershipType(reply.getMember().getMembershipType().name()) // 추가: 실제 회원 등급 설정
                          .content(reply.getContent())
                          .created_at(reply.getCreatedAt())
                          .updated_at(reply.getUpdateAt())

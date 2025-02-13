@@ -8,16 +8,18 @@ const Saving = () => {
   const [filteredSavings, setFilteredSavings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(
-    parseInt(sessionStorage.getItem('savingPage'), 10) || 0
-  );
+  const [joinedProducts, setJoinedProducts] = useState([]);
   const itemsPerPage = 8;
   const navigate = useNavigate();
 
-  // 필터 상태 추가
+  const [currentPage, setCurrentPage] = useState(() => {
+    return Number(sessionStorage.getItem('savingPage')) || 0;
+  });
+
   const [interestRateRange, setInterestRateRange] = useState({ min: '', max: '' });
   const [primeRate, setPrimeRate] = useState('');
   const [minAmount, setMinAmount] = useState('');
+  const [debouncedMinAmount, setDebouncedMinAmount] = useState('');
   const [maturityPeriod, setMaturityPeriod] = useState('');
   const [savingType, setSavingType] = useState('');
 
@@ -26,16 +28,23 @@ const Saving = () => {
     setInterestRateRange({ min: '', max: '' });
     setPrimeRate('');
     setMinAmount('');
+    setDebouncedMinAmount('');
     setMaturityPeriod('');
     setSavingType('');
   };
 
+  // 초기 데이터 로드 시 가입한 상품 목록도 함께 조회
   useEffect(() => {
-    const fetchSavings = async () => {
+    const fetchData = async () => {
       try {
-        const data = await SavingAPI.getAllSavingProducts();
-        setSavings(data);
-        setFilteredSavings(data);
+        const savingData = await SavingAPI.getAllSavingProducts();
+        setSavings(savingData);
+        setFilteredSavings(savingData);
+
+        // 가입한 상품 목록 조회
+        const myAccounts = await SavingAPI.getMySavingAccounts();
+        const joinedProductIds = myAccounts.accounts.map(account => account.savingProductId);
+        setJoinedProducts(joinedProductIds);
       } catch (err) {
         console.error('Error fetching savings: ', err);
         setError('적금 데이터를 가져오는 중 문제가 발생하였습니다.');
@@ -43,44 +52,51 @@ const Saving = () => {
         setLoading(false);
       }
     };
-    fetchSavings();
+    fetchData();
   }, []);
 
-  // 필터링 로직 추가
+  // 최소 금액 디바운싱
   useEffect(() => {
-    let filtered = savings;
+    const handler = setTimeout(() => {
+      setDebouncedMinAmount(minAmount);
+    }, 500);
 
-    if (interestRateRange.min || interestRateRange.max) {
-      filtered = filtered.filter(s =>
-        (!interestRateRange.min || s.savingBaseInterestRate >= parseFloat(interestRateRange.min)) &&
-        (!interestRateRange.max || s.savingBaseInterestRate <= parseFloat(interestRateRange.max))
-      );
-    }
+    return () => clearTimeout(handler);
+  }, [minAmount]);
 
-    if (primeRate) {
-      filtered = filtered.filter(s => s.savingPrimeInterestRate >= parseFloat(primeRate));
-    }
-
-    if (minAmount) {
-      filtered = filtered.filter(s => s.savingMinAmount >= parseFloat(minAmount));
-    }
-
-    if (maturityPeriod) {
-      filtered = filtered.filter(s => s.savingMaturityPeriod === parseInt(maturityPeriod));
-    }
-
-    if (savingType) {
-      filtered = filtered.filter(s => s.savingInterestRateType === savingType ||
-        s.savingInterestRateType === (savingType === 'simple' ? '단리' : '복리'));
-    }
-
-    setFilteredSavings(filtered);
-    setCurrentPage(0);
-  }, [interestRateRange, primeRate, minAmount, maturityPeriod, savingType, savings]);
-
+  // 필터링 효과
   useEffect(() => {
-    sessionStorage.setItem('savingPage', currentPage);
-  }, [currentPage]);
+    const fetchFilteredSavings = async () => {
+      try {
+        setLoading(true);
+
+        if (interestRateRange.min || interestRateRange.max || primeRate ||
+          debouncedMinAmount || maturityPeriod || savingType) {
+          const searchParams = {
+            minInterestRate: interestRateRange.min || undefined,
+            maxInterestRate: interestRateRange.max || undefined,
+            primeRate: primeRate || undefined,
+            minAmount: debouncedMinAmount || undefined,
+            maturityPeriod: maturityPeriod || undefined,
+            savingType: savingType || undefined
+          };
+
+          const data = await SavingAPI.searchSavings(searchParams);
+          setFilteredSavings(data);
+        } else {
+          setFilteredSavings(savings);
+        }
+        setCurrentPage(0);
+      } catch (err) {
+        console.error('Error filtering savings:', err);
+        setError('데이터 필터링 중 문제가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFilteredSavings();
+  }, [interestRateRange, primeRate, debouncedMinAmount, maturityPeriod, savingType, savings]);
 
   if (loading) return <p className="saving-loading-state">로딩 중입니다...</p>;
   if (error) return <p className="saving-error-state">{error}</p>;
@@ -91,6 +107,7 @@ const Saving = () => {
   const totalPages = Math.ceil(filteredSavings.length / itemsPerPage);
   const handlePageClick = (pageIndex) => {
     setCurrentPage(pageIndex);
+    sessionStorage.setItem('savingPage', pageIndex);
   };
 
   const startIndex = currentPage * itemsPerPage;
@@ -156,23 +173,28 @@ const Saving = () => {
       </div>
 
       <div className="saving-product-grid">
-        {currentItems.map((saving) => (
-          <div
-            key={saving.savingProductId}
-            className="saving-product-card"
-            onClick={() => navigate(`/saving/${saving.savingProductId}`)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') navigate(`/saving/${saving.savingProductId}`);
-            }}
-          >
-            <h3 className="saving-product-title">{saving.savingProductName}</h3>
-            <p className="saving-product-period">{saving.savingMaturityPeriod}개월</p>
-            <p className="saving-product-rate">이율: {saving.savingBaseInterestRate}%</p>
-          </div>
-        ))}
+        {currentItems.map((saving) => {
+          const isJoined = joinedProducts.includes(saving.savingProductId);
+
+          return (
+            <div
+              key={saving.savingProductId}
+              className={`saving-product-card ${isJoined ? 'joined' : ''}`}
+              onClick={() => navigate(`/saving/${saving.savingProductId}`)}
+            >
+              {isJoined && (
+                <div className="saving-joined-badge">
+                  가입완료
+                </div>
+              )}
+              <h3 className="saving-product-title">{saving.savingProductName}</h3>
+              <p className="saving-product-period">{saving.savingMaturityPeriod}개월</p>
+              <p className="saving-product-rate">이율: {saving.savingBaseInterestRate}%</p>
+            </div>
+          );
+        })}
       </div>
+
       <div className="saving-pagination-wrap">
         {Array.from({ length: totalPages }).map((_, index) => (
           <button
