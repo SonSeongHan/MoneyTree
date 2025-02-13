@@ -8,10 +8,10 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
   const navigate = useNavigate();
 
   // 입력 필드 상태 관리
-  const [initialAmount, setInitialAmount] = useState('');
+  const [savingDepositAmount, setSavingDepositAmount] = useState('');  // 변경: initialAmount -> savingDepositAmount
   const [accountPassword, setAccountPassword] = useState('');
-  const [monthlyAmount, setMonthlyAmount] = useState('');
-  const [paymentDay, setPaymentDay] = useState('');
+  const [savingRegularPaymentAmount, setSavingRegularPaymentAmount] = useState('');  // 변경: monthlyAmount -> savingRegularPaymentAmount
+  const [savingRegularPaymentDay, setSavingRegularPaymentDay] = useState('');  // 변경: paymentDay -> savingRegularPaymentDay
 
   // 약관 동의 상태 관리
   const [agreements, setAgreements] = useState({
@@ -30,9 +30,14 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
 
   // 이미 가입한 상품인지 체크
   useEffect(() => {
+    let isSubscribed = true;
+
     const checkExistingAccount = async () => {
       try {
         const response = await SavingAPI.getMySavingAccounts();
+
+        if (!isSubscribed) return;
+
         const existingAccount = response.accounts.find(
           account => account.savingProductId === saving.savingProductId
         );
@@ -41,12 +46,17 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
           setIsAlreadyJoined(true);
           alert('이미 가입한 상품입니다.');
           onClose();
+          return;
         }
 
         const joinedProductIds = response.accounts.map(account => account.savingProductId);
-        setJoinedProducts(joinedProductIds);
+        if (isSubscribed) {
+          setJoinedProducts(joinedProductIds);
+        }
       } catch (error) {
-        console.error('계좌 조회 중 오류 발생:', error);
+        if (isSubscribed) {
+          console.error('계좌 조회 중 오류 발생:', error);
+        }
       }
     };
 
@@ -58,7 +68,11 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
     } else {
       checkExistingAccount();
     }
-  }, [saving.savingProductId, onClose, navigate, setJoinedProducts]);
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []); // 의존성 배열 비움
 
   // 적금 만기일 계산
   const calculateMaturityDate = () => {
@@ -95,28 +109,33 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
       return;
     }
 
-    if (!monthlyAmount || !paymentDay) {
-      setError('월 납입금액과 납입일을 입력해주세요.');
+    if (!savingDepositAmount) {
+      setError('초기 납입금액을 입력해주세요.');
       return;
     }
 
-    if (Number(initialAmount) < saving.savingMinAmount) {
+    if (Number(savingDepositAmount) < saving.savingMinAmount) {
       setError(`최소 가입금액은 ${saving.savingMinAmount.toLocaleString()}원 입니다.`);
       return;
     }
 
-    if (Number(initialAmount) > saving.savingMaxAmount) {
+    if (Number(savingDepositAmount) > saving.savingMaxAmount) {
       setError(`최대 가입금액은 ${saving.savingMaxAmount.toLocaleString()}원 입니다.`);
+      return;
+    }
+
+    if (!savingRegularPaymentAmount || !savingRegularPaymentDay) {
+      setError('월 납입금액과 납입일을 입력해주세요.');
       return;
     }
 
     try {
       const accountData = {
-        initialAmount: Number(initialAmount),
+        savingDepositAmount: Number(savingDepositAmount),  // 변경: 필드명 매칭
         savingProductId: saving.savingProductId,
         accountPassword,
-        monthlyAmount: Number(monthlyAmount),
-        paymentDay: Number(paymentDay)
+        savingRegularPaymentAmount: Number(savingRegularPaymentAmount),  // 변경: 필드명 매칭
+        savingRegularPaymentDay: Number(savingRegularPaymentDay)  // 변경: 필드명 매칭
       };
 
       await SavingAPI.createSavingAccount(accountData);
@@ -138,13 +157,11 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
     <div className="saving-modal-overlay">
       <div className="saving-modal-container">
         <div className="saving-modal-content">
-          {/* 헤더 */}
           <div className="saving-modal-header">
             <h2 className="saving-modal-title">{saving.savingProductName} 가입</h2>
             <button onClick={onClose} className="saving-modal-close">×</button>
           </div>
 
-          {/* 상품 정보 요약 */}
           <div className="saving-product-summary">
             <div className="saving-summary-grid">
               <div className="saving-summary-item">
@@ -167,14 +184,13 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
           </div>
 
           <form onSubmit={handleSubmit} className="saving-join-form">
-            {/* 입력 필드 섹션 */}
             <div className="saving-form-fields">
               <div className="saving-input-group">
                 <label className="saving-input-label">초기 납입금액</label>
                 <input
                   type="number"
-                  value={initialAmount}
-                  onChange={(e) => setInitialAmount(e.target.value)}
+                  value={savingDepositAmount}
+                  onChange={(e) => setSavingDepositAmount(e.target.value)}
                   min={saving.savingMinAmount}
                   max={saving.savingMaxAmount}
                   className="saving-input"
@@ -200,8 +216,8 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
                 <label className="saving-input-label">월 납입금액</label>
                 <input
                   type="number"
-                  value={monthlyAmount}
-                  onChange={(e) => setMonthlyAmount(e.target.value)}
+                  value={savingRegularPaymentAmount}
+                  onChange={(e) => setSavingRegularPaymentAmount(e.target.value)}
                   className="saving-input"
                   placeholder="월 납입금액을 입력하세요"
                   required
@@ -211,8 +227,8 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
               <div className="saving-input-group">
                 <label className="saving-input-label">월 납입일</label>
                 <select
-                  value={paymentDay}
-                  onChange={(e) => setPaymentDay(e.target.value)}
+                  value={savingRegularPaymentDay}
+                  onChange={(e) => setSavingRegularPaymentDay(e.target.value)}
                   className="saving-select"
                   required
                 >
@@ -224,7 +240,6 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
               </div>
             </div>
 
-            {/* 약관 동의 섹션 */}
             <div className="saving-agreements">
               <label className="saving-checkbox-label">
                 <input
@@ -276,10 +291,8 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
               </div>
             </div>
 
-            {/* 에러 메시지 */}
             {error && <div className="saving-error">{error}</div>}
 
-            {/* 제출 버튼 */}
             <div className="saving-button-group">
               <button type="button" onClick={onClose} className="saving-cancel-btn">
                 취소

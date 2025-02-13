@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import DepositAPI from '../../api/DepositAPI';
+import SavingAPI from '../../api/SavingAPI';
 import '../../css/recommends/MyDepositDetail.css';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
+const MySavingDetail = ({ isOpen, onClose, account, productDetails }) => {
   const [activeTab, setActiveTab] = useState('summary');
   const [isTerminating, setIsTerminating] = useState(false);
 
@@ -24,15 +24,16 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
 
   // 시뮬레이션 계산 함수 추가
   const calculateSimulation = () => {
-    const principal = account.depositAmount;
-    const baseRate = Number(productDetails.depositBaseInterestRate);
-    const primeRate = Number(productDetails.depositPrimeInterestRate);
+    const principal = account.savingDepositAmount;
+    const regularPayment = account.savingRegularPaymentAmount;
+    const baseRate = Number(productDetails.savingBaseInterestRate);
+    const primeRate = Number(productDetails.savingPrimeInterestRate);
     const totalRate = (baseRate + primeRate) / 100;
-    const isSimple = productDetails.depositInterestRateType === '단리';
+    const isSimple = productDetails.savingInterestRateType === '단리';
 
     // 총 만기 개월 수 계산
-    const startDate = new Date(account.depositStartDate);
-    const endDate = new Date(account.depositEndDate);
+    const startDate = new Date(account.savingStartDate);
+    const endDate = new Date(account.savingEndDate);
     const totalMonths = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24 * 30.44));
 
     // 시뮬레이션 기간 생성
@@ -59,26 +60,36 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
     };
 
     return periods.map(period => {
-      let interest = 0;
-      if (isSimple) {
-        interest = principal * totalRate * (period.months / 12);
-      } else {
-        interest = principal * (Math.pow(1 + totalRate, period.months/12) - 1);
+      let totalDeposit = principal;
+      let totalInterest = 0;
+
+      // 정기 납입 고려
+      for (let i = 0; i < period.months; i++) {
+        // 매월 정기 납입 추가
+        totalDeposit += regularPayment;
+
+        // 이자 계산
+        if (isSimple) {
+          // 단리의 경우
+          totalInterest += totalDeposit * totalRate / 12;
+        } else {
+          // 복리의 경우
+          totalInterest += (totalDeposit * Math.pow(1 + totalRate/12, i+1)) - totalDeposit;
+        }
       }
 
       // 동적 위약금 적용
       const penaltyRate = period.months === totalMonths ? 0 : calculatePenaltyRate(period.months);
-      const penalty = period.months === totalMonths ? 0 : principal * penaltyRate;
-      const serviceFee = principal * 0.007;
+      const penalty = period.months === totalMonths ? 0 : totalDeposit * penaltyRate;
+      const serviceFee = totalDeposit * 0.007;
 
-      const totalReturn = principal + interest - penalty - serviceFee;
-      const profit = totalReturn - principal;
+      const totalReturn = totalDeposit + totalInterest - penalty - serviceFee;
+      const profit = totalReturn - totalDeposit;
 
       return {
         period: period.label,
         months: period.months,
-        interest: Math.round(interest),
-        penalty: Math.round(penalty),
+        interest: Math.round(totalInterest),
         serviceFee: Math.round(serviceFee),
         totalReturn: Math.round(totalReturn),
         profit: Math.round(profit)
@@ -86,13 +97,12 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
     });
   };
 
-  // 해지 관련
   const handleTerminate = async () => {
-    if (window.confirm('정말로 이 예금 계좌를 해지하시겠습니까? 중도해지 시 위약금이 발생할 수 있습니다.')) {
+    if (window.confirm('정말로 이 적금 계좌를 해지하시겠습니까? 중도해지 시 위약금이 발생할 수 있습니다.')) {
       try {
         setIsTerminating(true);
-        const response = await DepositAPI.terminateDepositAccount(
-          account.depositAccountNumber,
+        const response = await SavingAPI.terminateSavingAccount(
+          account.savingAccountNumber,
           '중도해지'
         );
         alert(`계좌가 성공적으로 해지되었습니다. 환급액: ${response.totalRefundAmount.toLocaleString()}원`);
@@ -113,43 +123,18 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
       <div className="deposit-detail-modal">
         <div className="deposit-detail-header">
           <h2 className="deposit-detail-title">
-            {productDetails.depositProductName} 상세정보
+            {productDetails.savingProductName} 상세정보
           </h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
         <div className="deposit-detail-tabs">
           <div className="deposit-detail-tabs-list">
-            <button
-              className={`deposit-detail-tab ${activeTab === 'summary' ? 'active' : ''}`}
-              onClick={() => setActiveTab('summary')}
-            >
-              핵심정보
-            </button>
-            <button
-              className={`deposit-detail-tab ${activeTab === 'interest' ? 'active' : ''}`}
-              onClick={() => setActiveTab('interest')}
-            >
-              이자정보
-            </button>
-            <button
-              className={`deposit-detail-tab ${activeTab === 'regular' ? 'active' : ''}`}
-              onClick={() => setActiveTab('regular')}
-            >
-              정기납입
-            </button>
-            <button
-              className={`deposit-detail-tab ${activeTab === 'maturity' ? 'active' : ''}`}
-              onClick={() => setActiveTab('maturity')}
-            >
-              만기정보
-            </button>
-            <button
-              className={`deposit-detail-tab ${activeTab === 'simulation' ? 'active' : ''}`}
-              onClick={() => setActiveTab('simulation')}
-            >
-              예상 수익
-            </button>
+            <button className={`deposit-detail-tab ${activeTab === 'summary' ? 'active' : ''}`} onClick={() => setActiveTab('summary')}>핵심정보</button>
+            <button className={`deposit-detail-tab ${activeTab === 'interest' ? 'active' : ''}`} onClick={() => setActiveTab('interest')}>이자정보</button>
+            <button className={`deposit-detail-tab ${activeTab === 'regular' ? 'active' : ''}`} onClick={() => setActiveTab('regular')}>정기납입</button>
+            <button className={`deposit-detail-tab ${activeTab === 'maturity' ? 'active' : ''}`} onClick={() => setActiveTab('maturity')}>만기정보</button>
+            <button className={`deposit-detail-tab ${activeTab === 'simulation' ? 'active' : ''}`} onClick={() => setActiveTab('simulation')}>예상 수익</button>
           </div>
 
           {activeTab === 'summary' && (
@@ -162,16 +147,16 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
                       <p className="deposit-info-value">{account.formattedAccountNumber}</p>
                     </div>
                     <div className="deposit-info-item">
-                      <p className="deposit-info-label">현재 예금액</p>
-                      <p className="deposit-info-value deposit-amount">{account.depositAmount?.toLocaleString()}원</p>
+                      <p className="deposit-info-label">현재 적금액</p>
+                      <p className="deposit-info-value deposit-amount">{account.savingDepositAmount?.toLocaleString()}원</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">은행명</p>
-                      <p className="deposit-info-value">{productDetails.bankName}</p>
+                      <p className="deposit-info-value">{productDetails.savingBankName}</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">만기까지 남은 기간</p>
-                      <p className="deposit-info-value remaining-days">{calculateRemainingDays(account.depositEndDate)}일</p>
+                      <p className="deposit-info-value remaining-days">{calculateRemainingDays(account.savingEndDate)}일</p>
                     </div>
                   </div>
                 </div>
@@ -186,21 +171,21 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
                   <div className="deposit-interest-grid">
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">이율 유형</p>
-                      <p className="deposit-info-value interest-type">{productDetails.depositInterestRateType}</p>
+                      <p className="deposit-info-value interest-type">{productDetails.savingInterestRateType}</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">기본 이자율</p>
-                      <p className="deposit-info-value interest-rate">{productDetails.depositBaseInterestRate}%</p>
+                      <p className="deposit-info-value interest-rate">{productDetails.savingBaseInterestRate}%</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">우대 이자율</p>
-                      <p className="deposit-info-value prime-rate">{productDetails.depositPrimeInterestRate}%</p>
+                      <p className="deposit-info-value prime-rate">{productDetails.savingPrimeInterestRate}%</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">총 이자율</p>
                       <p className="deposit-info-value total-rate">
-                        {(Number(productDetails.depositBaseInterestRate) +
-                          Number(productDetails.depositPrimeInterestRate)).toFixed(2)}%
+                        {(Number(productDetails.savingBaseInterestRate) +
+                          Number(productDetails.savingPrimeInterestRate)).toFixed(2)}%
                       </p>
                     </div>
                   </div>
@@ -213,28 +198,18 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
             <div className="deposit-regular-content">
               <div className="deposit-regular-card">
                 <div className="deposit-regular-details">
-                  {account.isRegularPayment ? (
-                    <div className="deposit-regular-grid">
-                      <div className="deposit-info-item">
-                        <p className="deposit-info-label">정기 납입액</p>
-                        <p className="deposit-info-value regular-amount">
-                          {account.regularPaymentAmount?.toLocaleString()}원
-                        </p>
-                      </div>
-                      <div className="deposit-info-item">
-                        <p className="deposit-info-label">정기 납입일</p>
-                        <p className="deposit-info-value payment-day">매월 {account.regularPaymentDay}일</p>
-                      </div>
-                      <div className="deposit-info-item">
-                        <p className="deposit-info-label">마지막 납입일</p>
-                        <p className="deposit-info-value last-payment">
-                          {account.lastPaymentDate ? formatDate(account.lastPaymentDate) : '납입 이력 없음'}
-                        </p>
-                      </div>
+                  <div className="deposit-regular-grid">
+                    <div className="deposit-info-item">
+                      <p className="deposit-info-label">정기 납입액</p>
+                      <p className="deposit-info-value regular-amount">
+                        {account.savingRegularPaymentAmount?.toLocaleString()}원
+                      </p>
                     </div>
-                  ) : (
-                    <p className="deposit-no-regular-payment">정기 납입이 설정되지 않은 계좌입니다.</p>
-                  )}
+                    <div className="deposit-info-item">
+                      <p className="deposit-info-label">정기 납입일</p>
+                      <p className="deposit-info-value payment-day">매월 {account.savingRegularPaymentDay}일</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -247,20 +222,20 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
                   <div className="deposit-maturity-grid">
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">가입일</p>
-                      <p className="deposit-info-value start-date">{formatDate(account.depositStartDate)}</p>
+                      <p className="deposit-info-value start-date">{formatDate(account.savingStartDate)}</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">만기일</p>
-                      <p className="deposit-info-value end-date">{formatDate(account.depositEndDate)}</p>
+                      <p className="deposit-info-value end-date">{formatDate(account.savingEndDate)}</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">만기 기간</p>
-                      <p className="deposit-info-value maturity-period">{productDetails.depositMaturityPeriod}개월</p>
+                      <p className="deposit-info-value maturity-period">{productDetails.savingMaturityPeriod}개월</p>
                     </div>
                     <div className="deposit-info-item">
                       <p className="deposit-info-label">최소 가입금액</p>
                       <p className="deposit-info-value min-amount">
-                        {productDetails.depositMinAmount?.toLocaleString()}원
+                        {productDetails.savingMinAmount?.toLocaleString()}원
                       </p>
                     </div>
                   </div>
@@ -268,7 +243,6 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
               </div>
             </div>
           )}
-
           {activeTab === 'simulation' && (
             <div className="deposit-simulation-content">
               <div className="deposit-simulation-card">
@@ -317,12 +291,6 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
                     </ResponsiveContainer>
                   </div>
 
-                  <div className="mt-8">
-                    <table className="simulation-table">
-                      {/* 기존 테이블 내용 유지 */}
-                    </table>
-                  </div>
-
                   <div className="simulation-footnote">
                     <p>* 위 시뮬레이션은 예상 수치이며, 실제 금액과는 차이가 있을 수 있습니다.</p>
                     <p>* 중도해지 시 기간에 따라 차등 적용되는 해지 수수료가 발생할 수 있습니다.</p>
@@ -333,14 +301,9 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
           )}
         </div>
 
-        {/* 해지 */}
         <div className="deposit-detail-actions">
-          <button
-            className="terminate-button"
-            onClick={handleTerminate}
-            disabled={isTerminating}
-          >
-            {isTerminating ? '해지 처리 중...' : '예금 해지하기'}
+          <button className="terminate-button" onClick={handleTerminate} disabled={isTerminating}>
+            {isTerminating ? '해지 처리 중...' : '적금 해지하기'}
           </button>
         </div>
       </div>
@@ -348,4 +311,4 @@ const MyDepositDetail = ({ isOpen, onClose, account, productDetails }) => {
   );
 };
 
-export default MyDepositDetail;
+export default MySavingDetail;

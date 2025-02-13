@@ -167,8 +167,6 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'mypage',
-
         path: 'reactivate-account',
         element: (
           <Suspense fallback={Loading}>
@@ -187,8 +185,6 @@ const root = createBrowserRouter([
       },
       // 부동산 관련 페이지들
       {
-        path: 'products/deposit-saving',
-
         path: 'hobbies',
         element: (
           <Suspense fallback={Loading}>

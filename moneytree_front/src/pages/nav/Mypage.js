@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../../util/cookieUtil';
 import DepositAPI from '../../api/DepositAPI';
+import SavingAPI from '../../api/SavingAPI';  // SavingAPI 추가
 import MyDepositDetail from '../../components/recommends/MyDepositDetail';
+import MySavingDetail from '../../components/recommends/MySavingDetail';
 import '../../css/MyPage.css';
 
 const Mypage = () => {
     const [activeTab, setActiveTab] = useState('deposit');
     const [depositAccounts, setDepositAccounts] = useState([]);
+    const [savingAccounts, setSavingAccounts] = useState([]); // 적금 계좌 상태 추가
     const [depositProducts, setDepositProducts] = useState({});
+    const [savingProducts, setSavingProducts] = useState({}); // 적금 상품 상태 추가
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedAccount, setSelectedAccount] = useState(null);
@@ -26,15 +30,35 @@ const Mypage = () => {
 
         const fetchData = async () => {
             try {
-                const accountsResponse = await DepositAPI.getMyDepositAccounts();
-                setDepositAccounts(accountsResponse.accounts || []);
+                // 예금과 적금 데이터를 병렬로 가져오기
+                const [
+                    depositAccountsResponse,
+                    depositProductsResponse,
+                    savingAccountsResponse,
+                    savingProductsResponse
+                ] = await Promise.all([
+                    DepositAPI.getMyDepositAccounts(),
+                    DepositAPI.getAllDeposits(),
+                    SavingAPI.getMySavingAccounts(),
+                    SavingAPI.getAllSavingProducts()
+                ]);
 
-                const productsResponse = await DepositAPI.getAllDeposits();
-                const productsMap = {};
-                productsResponse.forEach(product => {
-                    productsMap[product.depositProductId] = product;
+                // 예금 데이터 설정
+                setDepositAccounts(depositAccountsResponse.accounts || []);
+                const depositProductsMap = {};
+                depositProductsResponse.forEach(product => {
+                    depositProductsMap[product.depositProductId] = product;
                 });
-                setDepositProducts(productsMap);
+                setDepositProducts(depositProductsMap);
+
+                // 적금 데이터 설정
+                setSavingAccounts(savingAccountsResponse.accounts || []);
+                const savingProductsMap = {};
+                savingProductsResponse.forEach(product => {
+                    savingProductsMap[product.savingProductId] = product;
+                });
+                setSavingProducts(savingProductsMap);
+
             } catch (err) {
                 console.error('상세 에러 정보:', err);
                 setError('정보를 불러오는데 실패했습니다.');
@@ -46,24 +70,22 @@ const Mypage = () => {
         fetchData();
     }, [navigate]);
 
-    const handleAccountClick = (account) => {
-        setSelectedAccount(account);
-        setSelectedProduct(depositProducts[account.depositProductId]);
-        setIsModalOpen(true);
-    };
-
     const handlePrevSlide = () => {
         setCurrentSlide(prev => Math.max(prev - 1, 0));
     };
 
     const handleNextSlide = () => {
-        const maxSlide = Math.ceil(depositAccounts.length / 3) - 1;
+        const currentAccounts = activeTab === 'deposit' ? depositAccounts : savingAccounts;
+        const maxSlide = Math.ceil(currentAccounts.length / 3) - 1;
         setCurrentSlide(prev => Math.min(prev + 1, maxSlide));
     };
 
     const renderProducts = () => {
-        if (depositAccounts.length === 0) {
-            return <p className="no-products">가입한 상품이 없습니다.</p>;
+        const currentAccounts = activeTab === 'deposit' ? depositAccounts : savingAccounts;
+        const currentProducts = activeTab === 'deposit' ? depositProducts : savingProducts;
+
+        if (currentAccounts.length === 0) {
+            return <p className="no-products">가입한 {activeTab === 'deposit' ? '예금' : '적금'} 상품이 없습니다.</p>;
         }
 
         const slideStyle = {
@@ -81,38 +103,74 @@ const Mypage = () => {
               </button>
               <div className="products-wrapper">
                   <div className="products-slider" style={slideStyle}>
-                      {depositAccounts.map((account) => (
-                        <div
-                          key={account.depositAccountNumber}
-                          className="deposit-account-card"
-                          onClick={() => handleAccountClick(account)}
-                        >
-                            <h3 className="deposit-account-name">
-                                {depositProducts[account.depositProductId]?.depositProductName ||
-                                  `예금상품 ${account.depositProductId}`}
-                            </h3>
-                            <div className="deposit-account-details">
-                                <p className="deposit-account-number">
-                                    계좌번호: {account.formattedAccountNumber || account.depositAccountNumber}
-                                </p>
-                                <p className="deposit-account-balance">
-                                    예금액: {account.depositAmount?.toLocaleString()}원
-                                </p>
-                                <p className="deposit-account-start-date">
-                                    계좌 생성일: {new Date(account.depositStartDate).toLocaleDateString()}
-                                </p>
-                                <p className="deposit-account-end-date">
-                                    만기일: {new Date(account.depositEndDate).toLocaleDateString()}
-                                </p>
+                      {currentAccounts.map((account) => {
+                          const product = currentProducts[activeTab === 'deposit'
+                            ? account.depositProductId
+                            : account.savingProductId];
+
+                          return (
+                            <div
+                              key={activeTab === 'deposit'
+                                ? account.depositAccountNumber
+                                : account.savingAccountNumber}
+                              className="deposit-account-card"
+                              onClick={() => {
+                                  if (activeTab === 'deposit') {
+                                      setSelectedAccount(account);
+                                      setSelectedProduct(product);
+                                      setIsModalOpen(true);
+                                  } else if (activeTab === 'savings') {  // 적금 클릭 시 동작 추가
+                                      setSelectedAccount(account);
+                                      setSelectedProduct(product);
+                                      setIsModalOpen(true);
+                                  }
+                              }}
+                            >
+                                <h3 className="deposit-account-name">
+                                    {product
+                                      ? (activeTab === 'deposit'
+                                        ? product.depositProductName
+                                        : product.savingProductName)
+                                      : `${activeTab === 'deposit' ? '예금' : '적금'}상품`}
+                                </h3>
+                                <div className="deposit-account-details">
+                                    <p className="deposit-account-number">
+                                        계좌번호: {account.formattedAccountNumber ||
+                                      (activeTab === 'deposit'
+                                        ? account.depositAccountNumber
+                                        : account.savingAccountNumber)}
+                                    </p>
+                                    <p className="deposit-account-balance">
+                                        {activeTab === 'deposit' ? '예금액' : '적립액'}:
+                                        {(activeTab === 'deposit'
+                                          ? account.depositAmount
+                                          : account.savingDepositAmount)?.toLocaleString()}원
+                                    </p>
+                                    <p className="deposit-account-start-date">
+                                        계좌 생성일: {new Date(activeTab === 'deposit'
+                                      ? account.depositStartDate
+                                      : account.savingStartDate).toLocaleDateString()}
+                                    </p>
+                                    <p className="deposit-account-end-date">
+                                        만기일: {new Date(activeTab === 'deposit'
+                                      ? account.depositEndDate
+                                      : account.savingEndDate).toLocaleDateString()}
+                                    </p>
+                                    {activeTab === 'savings' && account.savingRegularPaymentAmount && (
+                                      <p className="deposit-account-payment">
+                                          월 납입액: {account.savingRegularPaymentAmount.toLocaleString()}원
+                                      </p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                      ))}
+                          );
+                      })}
                   </div>
               </div>
               <button
                 className="slider-button next"
                 onClick={handleNextSlide}
-                disabled={currentSlide >= Math.ceil(depositAccounts.length / 3) - 1}
+                disabled={currentSlide >= Math.ceil(currentAccounts.length / 3) - 1}
               >
                   →
               </button>
@@ -130,13 +188,19 @@ const Mypage = () => {
           <div className="product-tabs">
               <button
                 className={`product-tab ${activeTab === 'deposit' ? 'active' : ''}`}
-                onClick={() => setActiveTab('deposit')}
+                onClick={() => {
+                    setActiveTab('deposit');
+                    setCurrentSlide(0);
+                }}
               >
                   예금
               </button>
               <button
                 className={`product-tab ${activeTab === 'savings' ? 'active' : ''}`}
-                onClick={() => setActiveTab('savings')}
+                onClick={() => {
+                    setActiveTab('savings');
+                    setCurrentSlide(0);
+                }}
               >
                   적금
               </button>
@@ -155,18 +219,30 @@ const Mypage = () => {
           </div>
 
           <div className="products-container">
-              {activeTab === 'deposit' && renderProducts()}
-              {activeTab === 'savings' && <p className="no-products">가입한 적금 상품이 없습니다.</p>}
+              {(activeTab === 'deposit' || activeTab === 'savings') && renderProducts()}
               {activeTab === 'fund' && <p className="no-products">가입한 펀드 상품이 없습니다.</p>}
               {activeTab === 'stock' && <p className="no-products">가입한 주식 상품이 없습니다.</p>}
           </div>
 
-          <MyDepositDetail
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            account={selectedAccount}
-            productDetails={selectedProduct}
-          />
+          {activeTab === 'deposit' && (
+            <MyDepositDetail
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              account={selectedAccount}
+              productDetails={selectedProduct}
+            />
+          )}
+
+          {/* ✅ 적금 모달 */}
+          {activeTab === 'savings' && (
+            <MySavingDetail
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              account={selectedAccount}
+              productDetails={selectedProduct}
+            />
+          )}
+
       </div>
     );
 };
