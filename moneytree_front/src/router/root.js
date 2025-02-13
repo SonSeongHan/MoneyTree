@@ -1,4 +1,3 @@
-// src/router/RootRouter.js
 import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from '../router/AppLayout';
@@ -21,11 +20,6 @@ import AdminPage from '../pages/admin/AdminPage';
 import MemberDetailPage from '../pages/admin/MemberDetailPage';
 import FavoriteApartmentList from '../pages/estate/FavoriteApartmentList';
 import MortgageLoanProductDetail from '../pages/estate/fss/MortgageLoanProductDetail';
-
-import MainHome from '../components/MainHome';
-import AdminLogin from '../pages/admin/AdminLogin';
-import AdminPage from '../pages/admin/AdminPage';
-import MemberDetailPage from '../pages/admin/MemberDetailPage';
 import ReactivateAccount from '../pages/member/ReactivateAccount';
 import HobbyPage from '../pages/hobby/HobbyPage';
 

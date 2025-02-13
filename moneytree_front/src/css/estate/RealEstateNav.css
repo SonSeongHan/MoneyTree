@@ -1,0 +1,44 @@
+.real-estate-nav {
+    display: flex;
+    justify-content: space-between; /* 좌측 링크와 우측 pending 표시 영역을 양 끝에 배치 */
+    align-items: center;
+    background-color: #ffffff; /* 깔끔한 흰색 배경 */
+    padding: 12px 24px;
+    border-bottom: 2px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold; /* 텍스트 굵게 */
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-icon {
+    margin-right: 6px;
+    font-size: 18px; /* 아이콘 크기 조정 */
+}
+
+.nav-pending-indicator {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.nav-pending-indicator .pending-count {
+    color: red;
+    margin: 0 4px;
+}

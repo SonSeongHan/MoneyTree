@@ -9,13 +9,9 @@ public class EmailSender {
     public static void sendVerificationEmail(String recipientEmail, String verificationCode) throws MessagingException {
         // SMTP 서버 설정 (예: 네이버 SMTP)
         String host = "smtp.naver.com";
-<<<<<<< HEAD
+
         final String username = ""; // 실제 네이버 이메일 주소
         final String password = "";    // 앱 비밀번호 또는 올바른 비밀번호
-=======
-        final String username = "tkrhf123@naver.com"; // 실제 네이버 이메일 주소
-        final String password = "Wjdals.123";    // 앱 비밀번호 또는 올바른 비밀번호
->>>>>>> f1cb552ccd8e0d7f2996cddb041c4b2efc6a372b
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.naver.com");

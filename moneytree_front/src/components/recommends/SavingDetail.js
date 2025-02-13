@@ -1,44 +1,90 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import SavingAPI from '../../api/SavingAPI';
+import SavingJoinModal from './SavingJoinModal';
+import '../../css/recommends/SavingDetail.css';
 
-function SavingDetail() {
+const SavingDetail = () => {
   const { savingProductId } = useParams();
-  const [savingProduct, setSavingProduct] = useState(null);
+  const navigate = useNavigate();
+  const [saving, setSaving] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
+  const [joinedProducts, setJoinedProducts] = useState([]);
 
   useEffect(() => {
-    const fetchSavingProduct = async () => {
+    const fetchData = async () => {
       try {
-        const response = await SavingAPI.getSavingProductById(savingProductId);
-        setSavingProduct(response);
-      } catch (error) {
-        setError('적금 상품 정보를 불러오는데 실패했습니다.');
+        // 상품 상세 정보와 가입한 상품 목록을 동시에 조회
+        const [savingData, myAccountsResponse] = await Promise.all([
+          SavingAPI.getSavingProductById(savingProductId),
+          SavingAPI.getMySavingAccounts()
+        ]);
+
+        setSaving(savingData);
+
+        // 가입 여부 확인
+        const joinedProductIds = myAccountsResponse.accounts.map(account => account.savingProductId);
+        setJoinedProducts(joinedProductIds);
+        setIsJoined(joinedProductIds.includes(Number(savingProductId)));
+
+      } catch (err) {
+        console.error('Error fetching data: ', err);
+        setError('데이터를 가져오지 못하였습니다.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSavingProduct();
+    fetchData();
   }, [savingProductId]);
 
-  if (loading) return <p>로딩 중...</p>;
+  if (loading) return <p>로딩 중....</p>;
   if (error) return <p>{error}</p>;
-  if (!savingProduct) return <p>적금 상품 정보를 찾을 수 없습니다.</p>;
+  if (!saving) return <p>해당 상품 정보를 찾을 수 없습니다.</p>;
 
   return (
-    <div className="saving-detail-container">
-      <h1 className="saving-title">{savingProduct.savingProductName}</h1>
-      <p className="saving-bank">은행: {savingProduct.savingBankName}</p>
-      <p className="saving-join-way">가입 방법: {savingProduct.savingJoinWay}</p>
-      <p className="saving-min-amount">최소 가입 금액: {savingProduct.savingMinAmount.toLocaleString()} 원</p>
-      <p className="saving-max-amount">최대 가입 금액: {savingProduct.savingMaxAmount.toLocaleString()} 원</p>
-      <p className="saving-interest-rate">기본 이자율: {savingProduct.savingBaseInterestRate}%</p>
-      <p className="saving-prime-interest-rate">최고 우대 이자율: {savingProduct.savingPrimeInterestRate}%</p>
-      <p className="saving-maturity-period">만기 기간: {savingProduct.savingMaturityPeriod}개월</p>
+    <div className="saving-detail">
+      {isJoined && (
+        <div className="saving-detail-joined-badge">
+          가입완료
+        </div>
+      )}
+
+      <h2>{saving.savingProductName}</h2>
+      <p>은행 이름: {saving.savingBankName}</p>
+      <p>최소 금액: {saving.savingMinAmount.toLocaleString()}원</p>
+      <p>최대 금액: {saving.savingMaxAmount.toLocaleString()}원</p>
+      <p>만기 기간: {saving.savingMaturityPeriod}개월</p>
+      <p>기본 이율: {saving.savingBaseInterestRate}%</p>
+      <p>최고 우대 이율: {saving.savingPrimeInterestRate}%</p>
+      <p>가입 방법: {saving.savingJoinWay}</p>
+      <p>이율 유형: {saving.savingInterestRateType}</p>
+      <p>생성 일자: {new Date(saving.savingProductCreatedAt).toLocaleDateString()}</p>
+      <p>수정 일자: {new Date(saving.savingProductUpdatedAt).toLocaleDateString()}</p>
+
+      {/* 가입하기 버튼 - 이미 가입한 경우 비활성화 */}
+      <button
+        className={`saving-join-btn ${isJoined ? 'joined' : ''}`}
+        onClick={() => setShowJoinModal(true)}
+        disabled={isJoined}
+      >
+        {isJoined ? '가입완료' : '가입하기'}
+      </button>
+
+      {/* 가입 모달 */}
+      {showJoinModal && !isJoined && (
+        <SavingJoinModal
+          saving={saving}
+          onClose={() => setShowJoinModal(false)}
+          joinedProducts={joinedProducts}
+          setJoinedProducts={setJoinedProducts}
+        />
+      )}
     </div>
   );
-}
+};
 
 export default SavingDetail;
