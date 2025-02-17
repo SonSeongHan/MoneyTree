@@ -5,7 +5,6 @@ import com.moneytree_back.dto.financialProduct.DepositAccountDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 public interface DepositAccountService {
 
@@ -20,7 +19,7 @@ public interface DepositAccountService {
     List<DepositAccountDTO> getDepositAccountsByDandwAcId(Dandwac dandwAcId); // 특정 입출금 계좌에 속한 예금 계좌 조회
 
     // 예금 계좌 해지 (중도 해지 포함)
-    void terminateDepositAccount(Long depositAccountNumber, String depositTerminationReason); // 예금 계좌 해지 후 삭제 // 예금 계좌 해지
+    void terminateDepositAccount(Long depositAccountNumber, String depositTerminationReason, BigDecimal DepositPenaltyFee); // 예금 계좌 해지 후 삭제 // 예금 계좌 해지
 
     // 현재까지 쌓인 이자 계산
     BigDecimal calculateDepositInterest(Long depositAccountNumber);
@@ -30,15 +29,5 @@ public interface DepositAccountService {
 
     // 정기 납입 스케줄 실행
     void scheduleDepositPayments();
-
-    DepositAccountDTO createDepositAccount(Map<String, Object> request, String memberId);
-
-    List<DepositAccountDTO> getMyDepositAccounts(String memberId);
-
-    Map<String, Object> terminateDepositAccount(Long accountNumber, String reason, String memberId);
-
-    String setRegularPayment(Long accountNumber, Map<String, Object> request, String memberId);
-
-    String cancelRegularPayment(Long accountNumber, String memberId);
 }
 

@@ -28,16 +28,6 @@ public class JWTUtil {
                 .compact();
     }
 
-    // 새로운 access token 생성 메서드 추가
-    public static String generateAccessToken(String memberId, String memberName, String membershipType) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("memberId", memberId);
-        claims.put("member_name", memberName);
-        claims.put("membershipType", membershipType);
-        // 예를 들어 access token 유효기간을 15분으로 설정 (필요에 따라 조정)
-        return generateToken(claims, 15);
-    }
-
     // JWT 검증 메서드
     public static Map<String, Object> validateToken(String token) {
         if (isTokenBlacklisted(token)) {

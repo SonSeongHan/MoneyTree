@@ -1,17 +1,12 @@
 package com.moneytree_back.controller;
 
-
 import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.dto.member.MemberDTO;
 import com.moneytree_back.dto.ReactivateRequestDTO;
-import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/members")
@@ -19,15 +14,6 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
-
-    // MemberController.java
-
-    @GetMapping("/{sellerId}") // 매물 거래시 memberid조회용. memberid가 실제로 존재하는지 안하는지 확인
-    public ResponseEntity<Map<String, Boolean>> checkSellerExists(@PathVariable String sellerId) {
-        boolean exists = memberRepository.existsById(sellerId); // memberRepository.existsById 사용
-        return ResponseEntity.ok(Collections.singletonMap("exists", exists));
-    }
 
     // 기본 경로에서 회원가입 처리
     @PostMapping
@@ -74,44 +60,44 @@ public class MemberController {
     }
 
 
-    @PostMapping("/changeName")
-    public ResponseEntity<String> changeMemberName(@RequestBody MemberDTO memberDTO) {
-        if (memberDTO.getMemberId() == null || memberDTO.getMemberpassword() == null || memberDTO.getMember_name() == null) {
-            return ResponseEntity.badRequest().body("모든 필드를 입력해야 합니다.");
+            @PostMapping("/changeName")
+            public ResponseEntity<String> changeMemberName(@RequestBody MemberDTO memberDTO) {
+                if (memberDTO.getMemberId() == null || memberDTO.getMemberpassword() == null || memberDTO.getMember_name() == null) {
+                    return ResponseEntity.badRequest().body("모든 필드를 입력해야 합니다.");
+                }
+
+                boolean success = memberService.changeMemberName(
+                        memberDTO.getMemberId(),   // 기존 아이디
+                        memberDTO.getMember_name(), // 변경할 이름
+                        memberDTO.getMemberpassword() // 비밀번호
+                );
+
+                if (success) {
+                    return ResponseEntity.ok("이름 변경 성공");
+                } else {
+                    return ResponseEntity.badRequest().body("이름 변경 실패");
+                }
+            }
+            @DeleteMapping("/{memberId}/withdraw")
+            public ResponseEntity<String> withdrawMember(
+                    @PathVariable String memberId,
+                    @RequestParam(value = "withdrawalReason", defaultValue = "사용자탈퇴") String withdrawalReason) {
+
+                memberService.withdrawMember(memberId, withdrawalReason);
+                return ResponseEntity.ok("회원 탈퇴 처리가 완료되었습니다.");
+            }
+
+            // 재활성화 API
+            @PostMapping("/{memberId}/reactivate")
+            public ResponseEntity<String> reactivateMember(
+                    @PathVariable String memberId,
+                    @RequestBody ReactivateRequestDTO request) {
+                try {
+                    memberService.reactivateMember(memberId, request.getPassword());
+                    return ResponseEntity.ok("계정이 재활성화되었습니다.");
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(e.getMessage());
+                }
+            }
+
         }
-
-        boolean success = memberService.changeMemberName(
-                memberDTO.getMemberId(),   // 기존 아이디
-                memberDTO.getMember_name(), // 변경할 이름
-                memberDTO.getMemberpassword() // 비밀번호
-        );
-
-        if (success) {
-            return ResponseEntity.ok("이름 변경 성공");
-        } else {
-            return ResponseEntity.badRequest().body("이름 변경 실패");
-        }
-    }
-    @DeleteMapping("/{memberId}/withdraw")
-    public ResponseEntity<String> withdrawMember(
-            @PathVariable String memberId,
-            @RequestParam(value = "withdrawalReason", defaultValue = "사용자탈퇴") String withdrawalReason) {
-
-        memberService.withdrawMember(memberId, withdrawalReason);
-        return ResponseEntity.ok("회원 탈퇴 처리가 완료되었습니다.");
-    }
-
-    // 재활성화 API
-    @PostMapping("/{memberId}/reactivate")
-    public ResponseEntity<String> reactivateMember(
-            @PathVariable String memberId,
-            @RequestBody ReactivateRequestDTO request) {
-        try {
-            memberService.reactivateMember(memberId, request.getPassword());
-            return ResponseEntity.ok("계정이 재활성화되었습니다.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-}

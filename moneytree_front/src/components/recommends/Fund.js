@@ -1,8 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import FundAPI from '../../api/FundAPI';
 import '../../css/recommends/Fund.css';
+import { useFund } from '../../FundContext';
 
 const Fund = () => {
+  const { selectedFundId, isChatbotRequest, setSelectedFundId, setIsChatbotRequest } = useFund();
+
+  //(승훈 추가) 챗봇
   const [allFunds, setAllFunds] = useState([]);
   const [funds, setFunds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +16,8 @@ const Fund = () => {
   const [fundDetail, setFundDetail] = useState(null);
   const itemsPerPage = 10;
   const observer = useRef(null);
+  const [isChatbotLoading, setIsChatbotLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true); // 🔥 마지막 페이지 여부 확인
 
   // 필터링 상태
   const [minTotalAmount, setMinTotalAmount] = useState('');
@@ -35,6 +41,63 @@ const Fund = () => {
     setMaxRedemptionFee('');
     setFundYear('');
   };
+
+  console.log('챗봇의 요청으로 인해 넘어온 데이터:', selectedFundId);
+
+  // (승훈) 추가 : 챗봇이 요청한 특정 상품을 찾고 화면 가운데로 스크롤하는 로직
+  useEffect(() => {
+    if (selectedFundId && isChatbotRequest) {
+      // setIsChatbotLoading(true);
+
+      const findAndScrollToFund = () => {
+        const selectedElement = document.getElementById(`fund-${selectedFundId}`);
+        console.log('selectedElement값:', selectedElement);
+
+        if (selectedElement) {
+          console.log('선택된 상품이 렌더링됨,스크롤 이동 실행');
+
+          setTimeout(() => {
+            selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 1000);
+
+          setTimeout(() => {
+            const matchedFund = funds.find(
+              (fund) => String(fund.fundProductId) === String(selectedFundId),
+            );
+
+            if (matchedFund) {
+              console.log('✅ handleExpand 실행');
+              handleExpand(matchedFund.fundProductId, true);
+            }
+
+            console.log('✅ 챗봇 요청 완료, 무한 스크롤 재개');
+            setIsChatbotLoading(false); // 무한 스크롤 재개
+            setIsChatbotRequest(false); //챗봇 요청 컷
+          }, 1500);
+        } else {
+          console.log('선택된 상품이 아직 렌더링되지 않음, 추가 로딩 필요');
+
+          setTimeout(() => {
+            window.scrollBy(0, window.innerHeight);
+          }, 1200);
+        }
+      };
+
+      let attempts = 0;
+      const interval = setInterval(() => {
+        if (attempts >= 10) {
+          clearInterval(interval);
+          console.log('해당 상품을 찾을 수 없음');
+          setIsChatbotRequest(false);
+          setIsChatbotLoading(false);
+        }
+        findAndScrollToFund();
+        attempts++;
+      }, 700);
+
+      return () => clearInterval(interval);
+    }
+  }, [selectedFundId, isChatbotRequest, funds]);
 
   // 디바운싱 적용
   useEffect(() => {
@@ -114,14 +177,19 @@ const Fund = () => {
 
   const lastFundElementRef = (node) => {
     if (observer.current) observer.current.disconnect();
+
     observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
+      if (entries[0].isIntersecting && !isChatbotLoading) {
+        console.log('🛑 유저가 스크롤을 내려서 추가 페이지 로딩');
+
         setPage((prevPage) => {
           const nextPage = prevPage + 1;
           const startIndex = (nextPage - 1) * itemsPerPage;
           const newFunds = allFunds.slice(startIndex, startIndex + itemsPerPage);
 
           if (newFunds.length > 0) {
+            console.log('추가 펀드 로딩중');
+
             setFunds((prevFunds) => {
               const fundMap = new Map();
               [...prevFunds, ...newFunds].forEach((fund) => {
@@ -129,26 +197,37 @@ const Fund = () => {
               });
               return Array.from(fundMap.values());
             });
+
+            return nextPage;
+          } else {
+            console.log('🚫 마지막 페이지 도달, 추가 로딩 중단');
+            setHasMore(false); // 🔥 더 이상 로드할 페이지가 없음
+            return prevPage;
           }
-          return nextPage;
         });
       }
     });
     if (node) observer.current.observe(node);
   };
 
-  const handleExpand = async (fundId) => {
-    if (expandedFund === fundId) {
+  const handleExpand = async (fundId, forceExpand = false) => {
+    console.log(`🔍 handleExpand 실행됨: fundId=${fundId}, forceExpand=${forceExpand}`);
+    //승훈 수정 챗봇이 해당 상품을 요청했을 때 무조건 상세 정보 열기
+    if (!forceExpand && expandedFund === fundId) {
       setExpandedFund(null);
       setFundDetail(null);
-    } else {
-      try {
-        const detail = await FundAPI.getFundById(fundId);
-        setFundDetail(detail);
-        setExpandedFund(fundId);
-      } catch (err) {
-        console.error('Error fetching fund details:', err);
-      }
+      return;
+    }
+
+    console.log('넘어온 fundId:', fundId);
+    console.log('넘어온 forceExpand값:', forceExpand);
+
+    try {
+      const detail = await FundAPI.getFundById(fundId);
+      setFundDetail(detail);
+      setExpandedFund(fundId);
+    } catch (err) {
+      console.error('Error fetching fund details:', err);
     }
   };
 
@@ -210,6 +289,7 @@ const Fund = () => {
           <div
             key={fund.fundProductId}
             className="fund-item-container"
+            id={`fund-${fund.fundProductId}`} //(승훈 추가) 챗봇에서 추천 상품 번호를 입력해서 페이지 이동 후 스크롤 이동을 위한 추가 로직
             ref={index === funds.length - 1 ? lastFundElementRef : null}
           >
             <div className="fund-item">
@@ -232,7 +312,7 @@ const Fund = () => {
                 </div>
                 <button
                   className={`fund-expand-button ${expandedFund === fund.fundProductId ? 'expanded' : ''}`}
-                  onClick={() => handleExpand(fund.fundProductId)}
+                  onClick={() => handleExpand(fund.fundProductId, true)}
                 >
                   +
                 </button>

@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import AppLayout from '../router/AppLayout';
 import LoginPage from '../pages/member/LoginPage';
 import MakeMember from '../pages/member/MakeMember';
@@ -13,20 +13,17 @@ import CommuUpdate from '../pages/community/CommuUpdate';
 import CommuReply from '../pages/community/CommuReply';
 import CommuAdd from '../pages/community/CommuAdd';
 import CommuCheck from '../pages/community/CommuCheck';
-
-import MainHome from '../components/MainHome';
-import AdminLogin from '../pages/admin/AdminLogin';
-import AdminPage from '../pages/admin/AdminPage';
-import MemberDetailPage from '../pages/admin/MemberDetailPage';
-import FavoriteApartmentList from '../pages/estate/FavoriteApartmentList';
-import MortgageLoanProductDetail from '../pages/estate/fss/MortgageLoanProductDetail';
-import ReactivateAccount from '../pages/member/ReactivateAccount';
-import HobbyPage from '../pages/hobby/HobbyPage';
+import MainHome from "../components/MainHome";
+import AdminLogin from "../pages/admin/AdminLogin";
+import AdminPage from "../pages/admin/AdminPage";
+import MemberDetailPage from "../pages/admin/MemberDetailPage";
+import ReactivateAccount from "../pages/member/ReactivateAccount";
+import HobbyPage from "../pages/hobby/HobbyPage";
 
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
 
-// Lazy 로딩 페이지들
+// lazy 로딩 페이지들
 const Home = lazy(() => import('../pages/nav/Home'));
 const MyPage = lazy(() => import('../pages/nav/Mypage'));
 const RealEstate = lazy(() => import('../pages/nav/RealEstate'));
@@ -38,7 +35,7 @@ const HobbyCommunity = lazy(() => import('../pages/nav/HobbyCommunity'));
 const DepositDetailPage = lazy(() => import('../pages/recommends/DepositDetailPage'));
 const SavingDetailPage = lazy(() => import('../pages/recommends/SavingDetailPage'));
 
-const RealEstateCommunity = lazy(() => import('../pages/nav/RealEstateCommunity'));
+const RealEstateCommunity = lazy(() => import("../pages/nav/RealEstateCommunity"));
 const EstateCommunityList = lazy(() => import('../pages/estatecommunity/EstateCommunityList'));
 const EstateCommunityDetail = lazy(() => import('../pages/estatecommunity/EstateCommunityDetail'));
 const EstateCommunityForm = lazy(() => import('../pages/estatecommunity/EstateCommunityForm'));
@@ -48,18 +45,11 @@ const KakaoMap = lazy(() => import('../pages/estate/KakaoMap'));
 const SearchDetails = lazy(() => import('../pages/estate/SearchDetails'));
 const ApartmentDetails = lazy(() => import('../pages/estate/ApartmentDetails'));
 
-// 거래 내역 페이지
-const ApartmentTransactionPage = lazy(() => import('../pages/estate/ApartmentTransactionPage'));
-
-// 추천 상품 목록 페이지 (DB에 저장된 모기지론 상품 데이터를 활용)
-const MortgageLoanProducts = lazy(() => import('../pages/estate/fss/MortgageLoanProducts'));
-
 const root = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <AppLayout />,
     children: [
-      // 메인 홈 페이지
       {
         index: true,
         element: (
@@ -68,42 +58,40 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
-      // 회원/관리자 관련 페이지들
       {
-        path: 'loginpage',
+        path: "loginpage",
         element: (
-          <Suspense fallback={Loading}>
-            <LoginPage />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <LoginPage />
+            </Suspense>
         ),
       },
       {
-        path: 'admin',
+        path: "admin",
         element: (
-          <Suspense fallback={Loading}>
-            <AdminLogin />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <AdminLogin />
+            </Suspense>
         ),
       },
       {
-        path: 'admin/page',
+        path: "admin/page",
         element: (
-          <Suspense fallback={Loading}>
-            <AdminPage />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <AdminPage />
+            </Suspense>
         ),
       },
       {
-        path: '/admin/members/:memberId',
+        path: "/admin/members/:memberId",
         element: (
-          <Suspense fallback={Loading}>
-            <MemberDetailPage />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <MemberDetailPage />
+            </Suspense>
         ),
       },
-      // 일반 페이지
       {
-        path: 'home',
+        path: "home",
         element: (
           <Suspense fallback={Loading}>
             <Home />
@@ -111,7 +99,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'make-account',
+        path: "make-account",
         element: (
           <Suspense fallback={Loading}>
             <MakeAccount />
@@ -119,7 +107,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'member/full/make',
+        path: "member/full/make",
         element: (
           <Suspense fallback={Loading}>
             <MakeMember />
@@ -127,7 +115,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'member/simple/make',
+        path: "member/simple/make",
         element: (
           <Suspense fallback={Loading}>
             <SimpleMakeMember />
@@ -135,7 +123,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'change-password',
+        path: "change-password",
         element: (
           <Suspense fallback={Loading}>
             <AccountManagement />
@@ -143,7 +131,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'reissue-certificate',
+        path: "reissue-certificate",
         element: (
           <Suspense fallback={Loading}>
             <MakeCertificate />
@@ -151,7 +139,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'change-name',
+        path: "change-name",
         element: (
           <Suspense fallback={Loading}>
             <ChangeName />
@@ -159,7 +147,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'allmanagement',
+        path: "allmanagement",
         element: (
           <Suspense fallback={Loading}>
             <AllManagement />
@@ -167,34 +155,31 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'reactivate-account',
+        path: "reactivate-account",
         element: (
-          <Suspense fallback={Loading}>
-            <ReactivateAccount />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <ReactivateAccount />
+            </Suspense>
         ),
       },
       {
-        path: 'mypage',
-
+        path: "mypage",
         element: (
           <Suspense fallback={Loading}>
             <MyPage />
           </Suspense>
         ),
       },
-      // 부동산 관련 페이지들
       {
-        path: 'hobbies',
+        path: "hobbies",
         element: (
-          <Suspense fallback={Loading}>
-            <HobbyPage />
-          </Suspense>
+            <Suspense fallback={Loading}>
+              <HobbyPage />
+            </Suspense>
         ),
       },
       {
-        path: 'products/deposit-saving',
-
+        path: "products/deposit-saving",
         element: (
           <Suspense fallback={Loading}>
             <DepositSaving />
@@ -202,7 +187,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'deposit/:depositProductId',
+        path: "deposit/:depositProductId",
         element: (
           <Suspense fallback={Loading}>
             <DepositDetailPage />
@@ -210,7 +195,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'saving/:savingProductId',
+        path: "saving/:savingProductId",
         element: (
           <Suspense fallback={Loading}>
             <SavingDetailPage />
@@ -218,7 +203,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/fund-stock',
+        path: "products/fund-stock",
         element: (
           <Suspense fallback={Loading}>
             <FundStock />
@@ -226,7 +211,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/fund',
+        path: "products/fund",
         element: (
           <Suspense fallback={Loading}>
             <Fund />
@@ -234,7 +219,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'products/stock',
+        path: "products/stock",
         element: (
           <Suspense fallback={Loading}>
             <Stock />
@@ -242,7 +227,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'realestate',
+        path: "realestate",
         element: (
           <Suspense fallback={Loading}>
             <RealEstate />
@@ -250,7 +235,7 @@ const root = createBrowserRouter([
         ),
         children: [
           {
-            path: 'search',
+            path: "search",
             element: (
               <Suspense fallback={Loading}>
                 <EstateSearchResult />
@@ -258,7 +243,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'map',
+            path: "map",
             element: (
               <Suspense fallback={Loading}>
                 <KakaoMap />
@@ -266,7 +251,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:name',
+            path: "details/:name",
             element: (
               <Suspense fallback={Loading}>
                 <SearchDetails />
@@ -274,7 +259,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'details/:id',
+            path: "details/:id",
             element: (
               <Suspense fallback={Loading}>
                 <ApartmentDetails />
@@ -284,42 +269,7 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'estate/favorite-apartments',
-        element: (
-          <Suspense fallback={Loading}>
-            <FavoriteApartmentList />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'estate/transactions',
-        element: (
-          <Suspense fallback={Loading}>
-            <ApartmentTransactionPage />
-          </Suspense>
-        ),
-      },
-      // 추천 상품 목록 페이지 (거래 가격이 부족할 때 이동)
-      {
-        path: 'estate/fss/mortgage-loan-products',
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
-            <MortgageLoanProducts />
-          </Suspense>
-        ),
-      },
-      // 상세 페이지 (각 추천 상품 클릭 시)
-      {
-        path: 'estate/fss/mortgage-loan-products/:id',
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
-            <MortgageLoanProductDetail />
-          </Suspense>
-        ),
-      },
-      // 커뮤니티 관련 페이지들
-      {
-        path: 'community/hobby',
+        path: "community/hobby",
         element: (
           <Suspense fallback={Loading}>
             <HobbyCommunity />
@@ -327,7 +277,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'community/real-estate',
+        path: "community/real-estate",
         children: [
           {
             index: true,
@@ -338,7 +288,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: 'new',
+            path: "new",
             element: (
               <Suspense fallback={Loading}>
                 <EstateCommunityForm />
@@ -346,7 +296,7 @@ const root = createBrowserRouter([
             ),
           },
           {
-            path: ':id',
+            path: ":id",
             element: (
               <Suspense fallback={Loading}>
                 <EstateCommunityDetail />
@@ -356,7 +306,7 @@ const root = createBrowserRouter([
         ],
       },
       {
-        path: 'community/check/:postId',
+        path: "community/check/:postId",
         element: (
           <Suspense fallback={Loading}>
             <CommuCheck />
@@ -364,7 +314,7 @@ const root = createBrowserRouter([
         ),
         children: [
           {
-            path: 'replies',
+            path: "replies",
             element: (
               <Suspense fallback={Loading}>
                 <CommuReply />
@@ -382,7 +332,7 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'community/:type/add',
+        path: "community/:type/add",
         element: (
           <Suspense fallback={Loading}>
             <CommuAdd />
@@ -390,15 +340,15 @@ const root = createBrowserRouter([
         ),
       },
       {
-        path: 'community/estate',
+        path: "community/estate",
         element: <Navigate to="/community/real-estate" replace />,
       },
     ],
   },
-  // 잘못된 URL은 홈으로 리다이렉트
+
   {
-    path: '*',
-    element: <Navigate to="/" replace />,
+    path: 'community/real_estate',
+    element: <Navigate to="/community/real-estate" replace />,
   },
 ]);
 

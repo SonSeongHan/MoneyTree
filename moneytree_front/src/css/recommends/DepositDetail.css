@@ -5,21 +5,6 @@
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative; /* 추가: 가입완료 배지를 위한 positioning */
-}
-
-/* 가입완료 배지 스타일 */
-.deposit-detail-joined-badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background-color: #007bff;
-    color: white;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
 .deposit-detail h2 {
@@ -61,16 +46,6 @@
 
 .deposit-join-btn:hover {
     background-color: #0056b3;
-}
-
-/* 가입 완료된 버튼 스타일 */
-.deposit-join-btn.joined {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-.deposit-join-btn.joined:hover {
-    background-color: #6c757d;
 }
 
 /* 반응형 스타일 */

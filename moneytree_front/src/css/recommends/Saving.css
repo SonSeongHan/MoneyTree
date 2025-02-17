@@ -75,10 +75,8 @@
     padding: 20px 0;
 }
 
-
 /* Product Card */
 .saving-product-card {
-    position: relative; /* 가입완료 배지를 위한 positioning */
     cursor: pointer;
     border: 1px solid #e9ecef;
     border-radius: 20px;
@@ -94,64 +92,30 @@
     height: 160px;
 }
 
-/* 가입완료 배지 스타일 */
-.saving-joined-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background-color: #007BFF;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-    z-index: 1;
-}
-
-/* 가입 완료된 상품 카드 스타일 */
-.saving-product-card.joined {
-    border-color: #007BFF;
-    background-color: rgba(0, 123, 255, 0.02);
-}
-
 .saving-product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     border-color: #007BFF;
 }
 
-/* 가입 완료된 상품 hover 효과 수정 */
-.saving-product-card.joined:hover {
-    border-color: #0056b3;
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-/* 추가 스타일 - 카드 내부 콘텐츠 정렬 개선 */
 .saving-product-title {
     font-size: 18px;
     margin: 0 0 12px 0;
     font-weight: 600;
     color: #343a40;
-    /* 긴 제목 처리를 위한 스타일 추가 */
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .saving-product-period {
     font-size: 15px;
     margin: 0 0 8px 0;
     color: #6c757d;
-    font-weight: 500;
 }
 
 .saving-product-rate {
     font-size: 16px;
     margin: 0;
     color: #007BFF;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 /* Pagination */
@@ -239,11 +203,5 @@
     .saving-product-card {
         height: auto;
         padding: 25px;
-        padding-top: 35px; /* 배지를 위한 상단 여백 추가 */
-    }
-
-    .saving-joined-badge {
-        top: 10px;
-        right: 10px;
     }
 }

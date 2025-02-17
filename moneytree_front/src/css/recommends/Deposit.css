@@ -77,7 +77,6 @@
 
 /* Product Card */
 .dep-product-card {
-    position: relative; /* 추가: 가입완료 배지를 위한 positioning */
     cursor: pointer;
     border: 1px solid #e9ecef;
     border-radius: 20px;
@@ -91,27 +90,6 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
     height: 160px;
-}
-
-/* 가입완료 배지 스타일 */
-.dep-joined-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background-color: #007BFF;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-    z-index: 1;
-}
-
-/* 가입 완료된 상품 카드 스타일 */
-.dep-product-card.joined {
-    border-color: #007BFF;
-    background-color: rgba(0, 123, 255, 0.02);
 }
 
 .dep-product-card:hover {

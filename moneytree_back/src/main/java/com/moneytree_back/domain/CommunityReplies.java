@@ -28,33 +28,27 @@ public class CommunityReplies {
     @Column(name = "membership_type")
     private MembershipType membershipType;
 
-    @Column(name = "content", nullable = false)
+    @Column(name="content",nullable = false)
     private String content;
 
-    @Column(name = "created_at")
+    @Column(name="created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name="updated_at")
     private LocalDateTime updateAt;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name= "post_id",nullable = false)
     private Community community;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id" ,nullable = false)
     private Member member;
-
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted; // 추가
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
-        if(this.isDeleted == null) {
-            this.isDeleted = false;
-        }
     }
 
     @PreUpdate

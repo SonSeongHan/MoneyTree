@@ -1,43 +1,43 @@
 package com.moneytree_back.domain.financialProduct;
 
+import com.moneytree_back.domain.TerminationType;
 import jakarta.persistence.*;
-import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Table(name = "saving_termination")
 public class SavingTermination {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "saving_termination_id", updatable = false, nullable = false)
-    private Long savingTerminationId; // 기본 키, 해지 아이디
+    private Long savingTerminationId; // 기본 키
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "saving_account_id", nullable = false)
+    private DepositAccount savingAccount; // 외래 키
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "saving_termination_type", nullable = false, length = 20)
+    private TerminationType savingTerminationType;
+
+    @Column(name = "saving_termination_rate", nullable = false, precision = 5, scale = 2)
+    private BigDecimal savingTerminationRate;
+
+    @Column(name = "saving_termination_final_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal savingTerminationFinalAmount;
 
     @Column(name = "saving_termination_date", nullable = false)
-    private LocalDateTime savingTerminationDate; // 해지 일자
+    private LocalDate savingTerminationDate;
 
-    @Column(name = "saving_termination_reason", length = 255)
-    private String savingTerminationReason; // 해지 사유
+    @CreationTimestamp
+    @Column(name = "saving_termination_created_at", updatable = false)
+    private LocalDateTime savingTerminationCreatedAt;
 
-    @Column(name = "saving_penalty_fee", precision = 15, scale = 2)
-    private BigDecimal savingPenaltyFee; // 위약금
-
-    @Column(name = "saving_refund_amount", precision = 15, scale = 2, nullable = false)
-    private BigDecimal savingRefundAmount; // 환급 금액
-
-    @Column(name = "saving_service_fee", precision = 15, scale = 2, nullable = false)
-    private BigDecimal savingServiceFee; // 해지 시 사이트 수익 (수수료)
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "saving_account_number", nullable = false)
-    private SavingAccount savingAccount; // 해지된 적금 계좌
+    @UpdateTimestamp
+    @Column(name = "saving_termination_updated_at")
+    private LocalDateTime savingTerminationUpdatedAt;
 }

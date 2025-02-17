@@ -50,10 +50,6 @@ public class DepositAccount {
     @Column(name = "last_payment_date")
     private LocalDate lastPaymentDate; // 마지막 납입일
 
-    @Column(name = "deposit_account_status")
-    @Enumerated(EnumType.STRING)
-    private DepositAccountStatus depositAccountStatus = DepositAccountStatus.DEPOSIT_ACCOUNT_ACTIVE;
-
     // 예금 상품 연결
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deposit_product_id", nullable = false)

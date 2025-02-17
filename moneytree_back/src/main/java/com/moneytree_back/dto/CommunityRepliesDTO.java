@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CommunityRepliesDTO {
+
     private Long replyId;
     private Long postId;
     private String memberId;
@@ -19,5 +20,7 @@ public class CommunityRepliesDTO {
     private String content;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    private Boolean is_deleted; // 추가: 삭제 여부, 기본 false가 기대됨
+
+
+
 }

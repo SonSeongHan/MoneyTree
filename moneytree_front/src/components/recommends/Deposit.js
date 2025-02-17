@@ -8,7 +8,6 @@ const Deposit = () => {
   const [filteredDeposits, setFilteredDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [joinedProducts, setJoinedProducts] = useState([]);
   const itemsPerPage = 8;
   const navigate = useNavigate();
 
@@ -19,7 +18,7 @@ const Deposit = () => {
   const [interestRateRange, setInterestRateRange] = useState({ min: '', max: '' });
   const [primeRate, setPrimeRate] = useState('');
   const [minAmount, setMinAmount] = useState('');
-  const [debouncedMinAmount, setDebouncedMinAmount] = useState('');
+  const [debouncedMinAmount, setDebouncedMinAmount] = useState(''); // ✅ 디바운싱 추가
   const [maturityPeriod, setMaturityPeriod] = useState('');
   const [depositType, setDepositType] = useState('');
 
@@ -28,23 +27,18 @@ const Deposit = () => {
     setInterestRateRange({ min: '', max: '' });
     setPrimeRate('');
     setMinAmount('');
-    setDebouncedMinAmount('');
+    setDebouncedMinAmount(''); // ✅ 디바운싱 변수도 초기화
     setMaturityPeriod('');
     setDepositType('');
   };
 
-  // 초기 데이터 로드 시 가입한 상품 목록도 함께 조회
+  // 초기 데이터 로드
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDeposits = async () => {
       try {
-        const depositData = await DepositAPI.getAllDeposits();
-        setDeposits(depositData);
-        setFilteredDeposits(depositData);
-
-        // 가입한 상품 목록 조회
-        const myAccounts = await DepositAPI.getMyDepositAccounts();
-        const joinedProductIds = myAccounts.accounts.map(account => account.depositProductId);
-        setJoinedProducts(joinedProductIds);
+        const data = await DepositAPI.getAllDeposits();
+        setDeposits(data);
+        setFilteredDeposits(data);
       } catch (err) {
         console.error('Error fetching deposits: ', err);
         setError('예금 데이터를 가져오는 중 문제가 발생하였습니다.');
@@ -52,29 +46,32 @@ const Deposit = () => {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchDeposits();
   }, []);
 
+  // ✅ 디바운싱 적용 (minAmount 입력 후 500ms 뒤에 적용)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedMinAmount(minAmount);
-    }, 500);
+    }, 500); // 500ms 뒤에 반영
 
-    return () => clearTimeout(handler);
+    return () => clearTimeout(handler); // 이전 타이머 제거
   }, [minAmount]);
 
+  // 필터링 로직
   useEffect(() => {
     const fetchFilteredDeposits = async () => {
       try {
         setLoading(true);
 
+        // 필터 조건이 하나라도 있는 경우에만 검색 API 사용
         if (interestRateRange.min || interestRateRange.max || primeRate ||
           debouncedMinAmount || maturityPeriod || depositType) {
           const searchParams = {
             minInterestRate: interestRateRange.min || undefined,
             maxInterestRate: interestRateRange.max || undefined,
             primeRate: primeRate || undefined,
-            minAmount: debouncedMinAmount || undefined,
+            minAmount: debouncedMinAmount || undefined, // ✅ 디바운싱된 값 사용
             maturityPeriod: maturityPeriod || undefined,
             depositType: depositType || undefined
           };
@@ -82,6 +79,7 @@ const Deposit = () => {
           const data = await DepositAPI.searchDeposits(searchParams);
           setFilteredDeposits(data);
         } else {
+          // 필터가 없는 경우 전체 목록 사용
           setFilteredDeposits(deposits);
         }
         setCurrentPage(0);
@@ -110,6 +108,7 @@ const Deposit = () => {
 
   const startIndex = currentPage * itemsPerPage;
   const currentItems = filteredDeposits.slice(startIndex, startIndex + itemsPerPage);
+
 
   return (
     <div className="dep-container">
@@ -171,28 +170,18 @@ const Deposit = () => {
       </div>
 
       <div className="dep-product-grid">
-        {currentItems.map((deposit) => {
-          const isJoined = joinedProducts.includes(deposit.depositProductId);
-
-          return (
-            <div
-              key={deposit.depositProductId}
-              className={`dep-product-card ${isJoined ? 'joined' : ''}`}
-              onClick={() => navigate(`/deposit/${deposit.depositProductId}`)}
-            >
-              {isJoined && (
-                <div className="dep-joined-badge">
-                  가입완료
-                </div>
-              )}
-              <h3 className="dep-product-title">{deposit.depositProductName}</h3>
-              <p className="dep-product-period">{deposit.depositMaturityPeriod}개월</p>
-              <p className="dep-product-rate">이율: {deposit.depositBaseInterestRate}%</p>
-            </div>
-          );
-        })}
+        {currentItems.map((deposit) => (
+          <div
+            key={deposit.depositProductId}
+            className="dep-product-card"
+            onClick={() => navigate(`/deposit/${deposit.depositProductId}`)}
+          >
+            <h3 className="dep-product-title">{deposit.depositProductName}</h3>
+            <p className="dep-product-period">{deposit.depositMaturityPeriod}개월</p>
+            <p className="dep-product-rate">이율: {deposit.depositBaseInterestRate}%</p>
+          </div>
+        ))}
       </div>
-
       <div className="dep-pagination-wrap">
         {Array.from({ length: totalPages }).map((_, index) => (
           <button

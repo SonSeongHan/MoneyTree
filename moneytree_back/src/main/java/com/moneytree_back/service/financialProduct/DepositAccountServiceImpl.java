@@ -2,14 +2,11 @@ package com.moneytree_back.service.financialProduct;
 
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.financialProduct.DepositAccount;
-import com.moneytree_back.domain.financialProduct.DepositAccountStatus;
 import com.moneytree_back.domain.financialProduct.DepositProduct;
-import com.moneytree_back.domain.financialProduct.DepositTermination;
 import com.moneytree_back.dto.financialProduct.DepositAccountDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.financialProduct.DepositAccountRepository;
 import com.moneytree_back.repository.financialProduct.DepositProductRepository;
-import com.moneytree_back.repository.financialProduct.DepositTerminationRepository;
 import com.moneytree_back.service.dandwac.DandwacService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -34,7 +30,6 @@ public class DepositAccountServiceImpl implements DepositAccountService {
     private final DepositAccountRepository depositAccountRepository;
     private final DepositProductRepository depositProductRepository;
     private final DandwacRepository dandwacRepository;
-    private final DepositTerminationRepository depositTerminationRepository;
     private final DandwacService dandwacService;
 
     private Long generateRandomAccountNumber() {
@@ -91,7 +86,6 @@ public class DepositAccountServiceImpl implements DepositAccountService {
                 .regularPaymentAmount(depositAccountDTO.getRegularPaymentAmount())
                 .regularPaymentDay(depositAccountDTO.getRegularPaymentDay())
                 .lastPaymentDate(null)
-                .depositAccountStatus(DepositAccountStatus.DEPOSIT_ACCOUNT_ACTIVE)
                 .build();
 
         if (depositAccount.getDepositAmount() == null ||
@@ -112,13 +106,11 @@ public class DepositAccountServiceImpl implements DepositAccountService {
 
     @Override
     public List<DepositAccountDTO> getDepositAccountsByDandwAcId(Dandwac dandwAcId) {
-        return depositAccountRepository.findByDandwAcIdAndDepositAccountStatus(
-                        dandwAcId,
-                        DepositAccountStatus.DEPOSIT_ACCOUNT_ACTIVE
-                ).stream()
+        return depositAccountRepository.findByDandwAcId(dandwAcId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     private BigDecimal calculatePenaltyFee(DepositAccount account) {
         // 원금의 1~5% 사이의 랜덤 위약금 계산
         double randomRate = 0.01 + Math.random() * 0.04; // 1~5% 사이의 랜덤 비율
@@ -128,59 +120,29 @@ public class DepositAccountServiceImpl implements DepositAccountService {
 
     @Override
     @Transactional
-    public void terminateDepositAccount(Long depositAccountNumber, String terminationReason) {
+    public void terminateDepositAccount(Long depositAccountNumber, String terminationReason, BigDecimal penaltyFee) {
         DepositAccount depositAccount = depositAccountRepository.findById(depositAccountNumber)
                 .orElseThrow(() -> new RuntimeException("예금 계좌를 찾을 수 없습니다."));
 
         // 이자 계산
         BigDecimal interest = calculateDepositInterest(depositAccountNumber);
 
-        // 기본 위약금 0으로 설정
-        BigDecimal depositPenaltyFee = BigDecimal.ZERO;
-
-        // 중도 해지라면 위약금 적용 (1% ~ 5%)
-        if (!terminationReason.equals("만기")) {
-            double randomRate = 0.01 + new Random().nextDouble() * 0.04; // 1% ~ 5%
-            depositPenaltyFee = depositAccount.getDepositAmount().multiply(BigDecimal.valueOf(randomRate))
-                    .setScale(2, RoundingMode.HALF_UP);
+        // 중도해지 위약금 적용
+        if (!depositAccount.getDepositEndDate().isEqual(LocalDate.now())) {
+            // 중도해지 시 위약금 계산 및 적용
+            BigDecimal calculatedPenaltyFee = calculatePenaltyFee(depositAccount);
+            interest = interest.subtract(calculatedPenaltyFee);
         }
 
-        // 서비스 수수료 0.7%
-        BigDecimal depositServiceFee = depositAccount.getDepositAmount().multiply(BigDecimal.valueOf(0.007))
-                .setScale(2, RoundingMode.HALF_UP);
-
-        // 총 환급 금액 계산
-        BigDecimal depositRefundAmount = depositAccount.getDepositAmount().add(interest)
-                .subtract(depositPenaltyFee).subtract(depositServiceFee)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        if (depositRefundAmount.compareTo(BigDecimal.ZERO) < 0) {
-            depositRefundAmount = BigDecimal.ZERO; // 환급 금액이 0보다 작으면 0 처리
-        }
-
-        // 원금 + 이자 - 위약금 - 수수료를 입출금 계좌에 반환
+        // 원금 + 이자를 입출금 계좌로 이체
         Dandwac dandwac = depositAccount.getDandwAcId();
-        dandwac.setBalance(dandwac.getBalance().add(depositRefundAmount));
+        BigDecimal totalAmount = depositAccount.getDepositAmount().add(interest);
+        dandwac.setBalance(dandwac.getBalance().add(totalAmount));
         dandwacRepository.save(dandwac);
 
-        // 해지 내역 저장
-        DepositTermination depositTermination = DepositTermination.builder()
-                .depositTerminationDate(LocalDateTime.now())
-                .depositTerminationReason(terminationReason)
-                .depositPenaltyFee(depositPenaltyFee)
-                .depositServiceFee(depositServiceFee)
-                .depositRefundAmount(depositRefundAmount)
-                .depositAccount(depositAccount)
-                .build();
-
-        depositTerminationRepository.save(depositTermination);
-
-        // 상태 변경
-        depositAccount.setDepositAccountStatus(DepositAccountStatus.DEPOSIT_ACCOUNT_TERMINATED);
-        depositAccountRepository.save(depositAccount);
+        // 예금 계좌 삭제
+        depositAccountRepository.delete(depositAccount);
     }
-
-
 
     @Transactional
     public void setRegularPayment(Long depositAccountNumber, BigDecimal regularAmount, Integer paymentDay) {
@@ -257,7 +219,7 @@ public class DepositAccountServiceImpl implements DepositAccountService {
                 .collect(Collectors.toList());
 
         for (DepositAccount account : maturedAccounts) {
-            terminateDepositAccount(account.getDepositAccountNumber(), "만기");
+            terminateDepositAccount(account.getDepositAccountNumber(), "만기", BigDecimal.ZERO);
         }
     }
 
@@ -324,122 +286,6 @@ public class DepositAccountServiceImpl implements DepositAccountService {
                 .formattedAccountNumber(String.format("320-%04d-%04d",
                         depositAccount.getDepositAccountNumber() / 10000,
                         depositAccount.getDepositAccountNumber() % 10000))
-                .isRegularPayment(depositAccount.getIsRegularPayment())
-                .regularPaymentAmount(depositAccount.getRegularPaymentAmount())
-                .regularPaymentDay(depositAccount.getRegularPaymentDay())
-                .lastPaymentDate(depositAccount.getLastPaymentDate())
                 .build();
-    }
-
-    @Override
-    public DepositAccountDTO createDepositAccount(Map<String, Object> request, String memberId) {
-        // 입출금 계좌 조회
-        Dandwac dandwac = dandwacRepository.findByMember_MemberId(memberId)
-                .orElseThrow(() -> new RuntimeException("입출금 계좌를 찾을 수 없습니다."));
-
-        if (!request.containsKey("depositAmount") || request.get("depositAmount") == null) {
-            throw new RuntimeException("예금 금액을 입력해주세요.");
-        }
-
-        // DTO 생성
-        DepositAccountDTO depositAccountDTO = DepositAccountDTO.builder()
-                .depositAmount(new BigDecimal(request.get("depositAmount").toString()))
-                .depositProductId(Long.parseLong(request.get("depositProductId").toString()))
-                .dandwAcId(dandwac.getDandwAcId())
-                .isRegularPayment(request.get("isRegularPayment") != null &&
-                        Boolean.parseBoolean(request.get("isRegularPayment").toString()))
-                .regularPaymentAmount(request.get("regularPaymentAmount") != null ?
-                        new BigDecimal(request.get("regularPaymentAmount").toString()) : null)
-                .regularPaymentDay(request.get("regularPaymentDay") != null ?
-                        Integer.parseInt(request.get("regularPaymentDay").toString()) : null)
-                .build();
-
-        return createDepositAccount(depositAccountDTO);
-    }
-
-    @Override
-    public List<DepositAccountDTO> getMyDepositAccounts(String memberId) {
-        Dandwac dandwac = dandwacRepository.findByMember_MemberId(memberId)
-                .orElseThrow(() -> new RuntimeException("입출금 계좌를 찾을 수 없습니다."));
-
-        return getDepositAccountsByDandwAcId(dandwac);
-    }
-
-    @Override
-    public Map<String, Object> terminateDepositAccount(Long accountNumber, String reason, String memberId) {
-        // 계좌 소유권 검증
-        validateAccountOwnership(accountNumber, memberId);
-
-        DepositAccount depositAccount = depositAccountRepository.findById(accountNumber)
-                .orElseThrow(() -> new RuntimeException("예금 계좌를 찾을 수 없습니다."));
-
-        // 현재 이자 계산
-        BigDecimal currentInterest = calculateDepositInterest(accountNumber);
-
-        // 위약금 계산 (중도해지인 경우)
-        BigDecimal depositPenaltyFee = BigDecimal.ZERO;
-        if (!reason.equals("만기")) {
-            double randomRate = 0.005 + new Random().nextDouble() * 0.015; // 0.5% ~ 2%
-            depositPenaltyFee = depositAccount.getDepositAmount().multiply(BigDecimal.valueOf(randomRate))
-                    .setScale(2, RoundingMode.HALF_UP);
-        }
-
-        // 서비스 수수료 0.7%
-        BigDecimal depositServiceFee = depositAccount.getDepositAmount().multiply(BigDecimal.valueOf(0.007))
-                .setScale(2, RoundingMode.HALF_UP);
-
-        // 총 환급 금액 계산
-        BigDecimal totalRefundAmount = depositAccount.getDepositAmount().add(currentInterest)
-                .subtract(depositPenaltyFee).subtract(depositServiceFee)
-                .setScale(2, RoundingMode.HALF_UP);
-
-        // 계좌 해지 처리
-        terminateDepositAccount(accountNumber, reason);
-
-        return Map.of(
-                "message", "계좌가 성공적으로 해지되었습니다.",
-                "interestEarned", currentInterest,
-                "totalRefundAmount", totalRefundAmount
-        );
-    }
-
-    @Override
-    public String setRegularPayment(Long accountNumber, Map<String, Object> request, String memberId) {
-        // 입력값 검증
-        if (request.get("regularAmount") == null || request.get("paymentDay") == null) {
-            throw new RuntimeException("정기 납입액과 납입일을 모두 입력해주세요.");
-        }
-
-        // 계좌 소유권 검증
-        validateAccountOwnership(accountNumber, memberId);
-
-        BigDecimal regularAmount = new BigDecimal(request.get("regularAmount").toString());
-        Integer paymentDay = Integer.parseInt(request.get("paymentDay").toString());
-
-        setRegularPayment(accountNumber, regularAmount, paymentDay);
-        return "정기 납입이 성공적으로 설정되었습니다.";
-    }
-
-    @Override
-    public String cancelRegularPayment(Long accountNumber, String memberId) {
-        // 계좌 소유권 검증
-        validateAccountOwnership(accountNumber, memberId);
-
-        cancelRegularPayment(accountNumber);
-        return "정기 납입이 성공적으로 해제되었습니다.";
-    }
-
-    // 계좌 소유권 검증을 위한 private 메소드
-    private void validateAccountOwnership(Long accountNumber, String memberId) {
-        Dandwac dandwac = dandwacRepository.findByMember_MemberId(memberId)
-                .orElseThrow(() -> new RuntimeException("입출금 계좌를 찾을 수 없습니다."));
-
-        List<DepositAccountDTO> accounts = getDepositAccountsByDandwAcId(dandwac);
-        boolean hasAccount = accounts.stream()
-                .anyMatch(acc -> acc.getDepositAccountNumber().equals(accountNumber));
-
-        if (!hasAccount) {
-            throw new RuntimeException("해당 계좌를 찾을 수 없거나 본인의 계좌가 아닙니다.");
-        }
     }
 }
