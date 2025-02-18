@@ -27,7 +27,7 @@ public class FileDownloadController {
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
     return ResponseEntity.ok()
-      .headers(headers)
-      .body(resource);
+            .headers(headers)
+            .body(resource);
   }
 }

@@ -49,6 +49,12 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
     //Json형식으로 LocalDateTime을 처리하기위한 설치
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.itextpdf:kernel:7.2.3'
+    implementation 'com.itextpdf:layout:7.2.3'
+    // Bouncy Castle: bcprov (업데이트된 저장소에서 찾음)
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+
 
 
     compileOnly 'org.projectlombok:lombok'

@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import useCustomLogin from "../../hooks/PlayerLoginHook";
-import KakaoLoginComponent from "./KakaoLoginComponent";
-import "../../css/logincomponent.css"; // CSS 파일 연결
-import { useNavigate } from "react-router-dom";
-import {useAuth} from "../../AuthContext";
+import React, { useState } from 'react';
+import useCustomLogin from '../../hooks/PlayerLoginHook';
+import KakaoLoginComponent from './KakaoLoginComponent';
+import '../../css/logincomponent.css'; // CSS 파일 연결
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../AuthContext';
 
 const initState = {
-  email: "",
-  pw: "",
+  email: '',
+  pw: '',
 };
 
 const LoginComponent = () => {
@@ -15,16 +15,14 @@ const LoginComponent = () => {
   const { login } = useAuth(); // AuthContext에서 login 함수 가져오기
   const { doLogin, moveToPath } = useCustomLogin();
 
-
   const handleChange = (e) => {
     loginParam[e.target.name] = e.target.value;
     setLoginParam({ ...loginParam });
   };
 
-
   const navigate = useNavigate(); // useNavigate 호출
   const handleSignUp = () => {
-    navigate("/player/make");
+    navigate('/player/make');
   };
 
   const handleClickLogin = async () => {
@@ -48,39 +46,39 @@ const LoginComponent = () => {
     }
   };
   return (
-      <div className="login-container">
-        <div className="login-header">
-          <h1>Login</h1>
-        </div>
-        <div className="login-form">
-          <label>Email</label>
-          <input
-              type="text"
-              name="email"
-              value={loginParam.email}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-              className="login-input"
-          />
-          <label>Password</label>
-          <input
-              type="password"
-              name="pw"
-              value={loginParam.pw}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-              className="login-input"
-          />
-          <button onClick={handleClickLogin} className="login-button">
-            Login
-          </button>
-          <>wdwdwd</>
-        </div>
-        <KakaoLoginComponent/>
-        <button className="signup-button" onClick={handleSignUp}>
-          회원가입
-        </button>
+    <div className="login-container">
+      <div className="login-header">
+        <h1>Login</h1>
       </div>
+      <div className="login-form">
+        <label>Email</label>
+        <input
+          type="text"
+          name="email"
+          value={loginParam.email}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          className="login-input"
+        />
+        <label>Password</label>
+        <input
+          type="password"
+          name="pw"
+          value={loginParam.pw}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          className="login-input"
+        />
+        <button onClick={handleClickLogin} className="login-button">
+          Login
+        </button>
+        <>wdwdwd</>
+      </div>
+      <KakaoLoginComponent />
+      <button className="signup-button" onClick={handleSignUp}>
+        회원가입
+      </button>
+    </div>
   );
 };
 

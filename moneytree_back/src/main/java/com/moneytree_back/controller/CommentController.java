@@ -37,8 +37,8 @@ public class CommentController {
    */
   @PostMapping
   public ResponseEntity<CommentDTO> addComment(
-    @RequestParam("postId") Long postId,
-    @RequestBody CommentDTO commentDTO) {
+          @RequestParam("postId") Long postId,
+          @RequestBody CommentDTO commentDTO) {
     CommentDTO createdComment = commentService.addComment(postId, commentDTO);
     return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
   }
@@ -53,8 +53,8 @@ public class CommentController {
    */
   @PutMapping("/{id}")
   public ResponseEntity<CommentDTO> updateComment(
-    @PathVariable Long id,
-    @RequestBody CommentDTO commentDTO) {
+          @PathVariable Long id,
+          @RequestBody CommentDTO commentDTO) {
     CommentDTO updatedComment = commentService.updateComment(id, commentDTO);
     return ResponseEntity.ok(updatedComment);
   }
@@ -83,9 +83,9 @@ public class CommentController {
    */
   @GetMapping
   public ResponseEntity<Page<CommentDTO>> getCommentsByPost(
-    @RequestParam("postId") Long postId,
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size) {
+          @RequestParam("postId") Long postId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size) {
     Page<CommentDTO> commentPage = commentService.getCommentsByPostId(postId, page, size);
     return ResponseEntity.ok(commentPage);
   }

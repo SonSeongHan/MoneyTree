@@ -18,17 +18,19 @@ public class AdminDataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 관리자 계정: ID: admin@admin, 비밀번호: 123456, MembershipType: ADMIN
+        // 여기에 계좌번호 110-23-123-456, 계좌 비밀번호 12345678 을 추가합니다.
         if (!memberRepository.existsById("admin@admin")) {
             Member admin = Member.builder()
                     .memberId("admin@admin")
                     .memberpassword("123456")
                     .membershipType(MembershipType.ADMIN)
                     .member_created_day(LocalDateTime.now())
+                    .member_accountNumber("110-23-123-456")   // 추가된 계좌번호
                     .build();
             memberRepository.save(admin);
         }
 
-        // 펀드 매니저 계정
+        // 나머지 관리자(펀드 매니저, 대출 매니저 등) 계정은 기존대로 생성
         if (!memberRepository.existsById("fundManager@fundManager")) {
             Member fundManager = Member.builder()
                     .memberId("fundManager@fundManager")
@@ -39,7 +41,6 @@ public class AdminDataInitializer implements CommandLineRunner {
             memberRepository.save(fundManager);
         }
 
-        // 대출 매니저 계정
         if (!memberRepository.existsById("loanManager@loanManager")) {
             Member loanManager = Member.builder()
                     .memberId("loanManager@loanManager")
@@ -50,7 +51,6 @@ public class AdminDataInitializer implements CommandLineRunner {
             memberRepository.save(loanManager);
         }
 
-        // 부동산 매니저 계정
         if (!memberRepository.existsById("realEstateManager@realEstateManager")) {
             Member realEstateManager = Member.builder()
                     .memberId("realEstateManager@realEstateManager")
@@ -61,7 +61,6 @@ public class AdminDataInitializer implements CommandLineRunner {
             memberRepository.save(realEstateManager);
         }
 
-        // 문의 매니저 계정
         if (!memberRepository.existsById("inquiryManager@inquiryManager")) {
             Member inquiryManager = Member.builder()
                     .memberId("inquiryManager@inquiryManager")
@@ -72,7 +71,6 @@ public class AdminDataInitializer implements CommandLineRunner {
             memberRepository.save(inquiryManager);
         }
 
-        // 커뮤니티 매니저 계정
         if (!memberRepository.existsById("communityManager@communityManager")) {
             Member communityManager = Member.builder()
                     .memberId("communityManager@communityManager")

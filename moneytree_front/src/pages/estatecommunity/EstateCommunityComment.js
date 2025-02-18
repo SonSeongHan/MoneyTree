@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../../css/estate/EstateCommunityComment.css';
 import { getCookie } from '../../util/cookieUtil';
-// 로그인 관련 모달용 컴포넌트 (예시로 LoginPage를 사용)
-import LoginPage from '../member/LoginPage';
+import LoginPage from '../member/LoginPage'; // 로그인 모달 컴포넌트
 
 const EstateCommunityComment = ({ postId, onCommentChange }) => {
   const [comments, setComments] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [totalResults, setTotalResults] = useState(0); // 전체 댓글 개수를 저장할 state 추가
+  const [totalResults, setTotalResults] = useState(0); // 전체 댓글 개수
   const [newCommentText, setNewCommentText] = useState('');
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingText, setEditingText] = useState('');
@@ -21,6 +20,7 @@ const EstateCommunityComment = ({ postId, onCommentChange }) => {
   const loggedInUser = getCookie('member');
   const loggedInUserId = loggedInUser?.memberId;
 
+  // 댓글 목록 불러오기
   const fetchComments = () => {
     axios
       .get(`http://localhost:8080/api/comments?postId=${postId}&page=${page}&size=10`)
@@ -28,12 +28,7 @@ const EstateCommunityComment = ({ postId, onCommentChange }) => {
         if (response.data && response.data.content !== undefined) {
           setComments(response.data.content);
           setTotalPages(response.data.totalPages);
-          // 백엔드에서 전체 댓글 개수를 totalElements라는 이름으로 전달하는 경우:
           setTotalResults(response.data.totalElements);
-        } else if (Array.isArray(response.data)) {
-          setComments(response.data);
-          setTotalPages(1);
-          setTotalResults(response.data.length);
         } else {
           console.error('알 수 없는 응답 구조:', response.data);
         }
@@ -129,7 +124,6 @@ const EstateCommunityComment = ({ postId, onCommentChange }) => {
 
   return (
     <div className="comment-container">
-      {/* 댓글 헤더에 전체 댓글 개수 표시 */}
       <h3 className="comment-header">💬 댓글 (댓글 개수: {totalResults}건)</h3>
       {comments.length > 0 ? (
         <ul className="comment-list">
@@ -220,10 +214,7 @@ const EstateCommunityComment = ({ postId, onCommentChange }) => {
           onChange={(e) => setNewCommentText(e.target.value)}
           className="create-textarea"
         />
-        <div
-          className="comment-create-button-container"
-          style={{ position: 'relative', display: 'inline-block' }}
-        >
+        <div className="comment-create-button-container">
           <button onClick={handleNewCommentSubmit} className="btn create-btn">
             댓글 작성
           </button>
@@ -231,7 +222,7 @@ const EstateCommunityComment = ({ postId, onCommentChange }) => {
         </div>
       </div>
 
-      {/* 로그인 모달 (비로그인시 댓글 작성 등에서 호출) */}
+      {/* 로그인 모달 (비로그인 시 댓글 작성 등에서 호출) */}
       {showLoginModal && (
         <div className="modal-overlay">
           <div className="modal-content">

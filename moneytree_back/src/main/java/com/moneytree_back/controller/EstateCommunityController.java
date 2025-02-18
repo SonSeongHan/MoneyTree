@@ -26,12 +26,12 @@ public class EstateCommunityController {
    */
   @GetMapping
   public ResponseEntity<Page<EstateCommunityPostDTO>> getAllPosts(
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "10") int size,
-    @RequestParam(defaultValue = "전체보기") String category,
-    @RequestParam(defaultValue = "") String searchField,
-    @RequestParam(defaultValue = "") String search,
-    @RequestParam(defaultValue = "") String commentFilter) {
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(defaultValue = "전체보기") String category,
+          @RequestParam(defaultValue = "") String searchField,
+          @RequestParam(defaultValue = "") String search,
+          @RequestParam(defaultValue = "") String commentFilter) {
     Page<EstateCommunityPostDTO> postPage = communityService.getAllPosts(page, size, category, searchField, search, commentFilter);
     return ResponseEntity.ok(postPage);
   }
@@ -50,11 +50,11 @@ public class EstateCommunityController {
    */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<EstateCommunityPostDTO> createPost(
-    @RequestParam("title") String title,
-    @RequestParam("content") String content,
-    @RequestParam(value = "image", required = false) MultipartFile image,
-    @RequestParam("memberId") String memberId,
-    @RequestParam("category") String category
+          @RequestParam("title") String title,
+          @RequestParam("content") String content,
+          @RequestParam(value = "image", required = false) MultipartFile image,
+          @RequestParam("memberId") String memberId,
+          @RequestParam("category") String category
   ) {
     EstateCommunityPostDTO savedDTO = communityService.createPost(title, content, image, memberId, category);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedDTO);
@@ -65,8 +65,8 @@ public class EstateCommunityController {
    */
   @PutMapping("/{id}")
   public ResponseEntity<EstateCommunityPostDTO> updatePost(
-    @PathVariable Long id,
-    @RequestBody EstateCommunityPostDTO postDTO
+          @PathVariable Long id,
+          @RequestBody EstateCommunityPostDTO postDTO
   ) {
     EstateCommunityPostDTO updatedDTO = communityService.updatePost(id, postDTO);
     return ResponseEntity.ok(updatedDTO);
@@ -77,10 +77,10 @@ public class EstateCommunityController {
    */
   @PutMapping(path = "/{id}/with-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<EstateCommunityPostDTO> updatePostWithFile(
-    @PathVariable Long id,
-    @RequestParam("title") String title,
-    @RequestParam("content") String content,
-    @RequestParam(value = "image", required = false) MultipartFile image
+          @PathVariable Long id,
+          @RequestParam("title") String title,
+          @RequestParam("content") String content,
+          @RequestParam(value = "image", required = false) MultipartFile image
   ) {
     EstateCommunityPostDTO updatedDTO = communityService.updatePostWithFile(id, title, content, image);
     return ResponseEntity.ok(updatedDTO);

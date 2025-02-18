@@ -48,7 +48,7 @@ public class CommunityController {
 
         return ResponseEntity.ok(result);
     }
-//조회
+    //조회
     @GetMapping("/{postId}")
     public ResponseEntity<CommunityDTO> getCommunityById(@PathVariable Long postId){
         CommunityDTO result = communityService.getCommunityById(postId);

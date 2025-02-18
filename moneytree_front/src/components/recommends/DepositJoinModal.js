@@ -4,7 +4,7 @@ import { getCookie } from '../../util/cookieUtil';
 import DepositAPI from '../../api/DepositAPI';
 import '../../css/recommends/DepositJoinModal.css';
 
-const DepositJoinModal = ({ deposit, onClose }) => {
+const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts }) => {
   const navigate = useNavigate();
 
   // 입력 필드 상태 관리
@@ -19,24 +19,48 @@ const DepositJoinModal = ({ deposit, onClose }) => {
     terms: false,
     privacy: false,
     interest: false,
-    maturity: false
+    maturity: false,
   });
 
   // 에러 메시지 상태
   const [error, setError] = useState('');
+  const [isAlreadyJoined, setIsAlreadyJoined] = useState(false);
 
   // 모든 약관 동의 체크
   const [allAgreed, setAllAgreed] = useState(false);
 
-  // 로그인 체크
+  // 이미 가입한 상품인지 체크
   useEffect(() => {
+    const checkExistingAccount = async () => {
+      try {
+        const response = await DepositAPI.getMyDepositAccounts();
+        const existingAccount = response.accounts.find(
+          (account) => account.depositProductId === deposit.depositProductId,
+        );
+
+        if (existingAccount) {
+          setIsAlreadyJoined(true);
+          alert('이미 가입한 상품입니다.');
+          onClose();
+        }
+
+        // 전체 가입 상품 목록 업데이트
+        const joinedProductIds = response.accounts.map((account) => account.depositProductId);
+        setJoinedProducts(joinedProductIds);
+      } catch (error) {
+        console.error('계좌 조회 중 오류 발생:', error);
+      }
+    };
+
     const memberInfo = getCookie('member');
     if (!memberInfo) {
       alert('로그인이 필요한 서비스입니다.');
       onClose();
       navigate('/loginpage');
+    } else {
+      checkExistingAccount();
     }
-  }, [navigate, onClose]);
+  }, [deposit.depositProductId, onClose, navigate, setJoinedProducts]);
 
   // 예금 만기일 계산
   const calculateMaturityDate = () => {
@@ -52,7 +76,7 @@ const DepositJoinModal = ({ deposit, onClose }) => {
       terms: checked,
       privacy: checked,
       interest: checked,
-      maturity: checked
+      maturity: checked,
     });
   };
 
@@ -60,23 +84,15 @@ const DepositJoinModal = ({ deposit, onClose }) => {
   const handleAgreementChange = (name, checked) => {
     const newAgreements = { ...agreements, [name]: checked };
     setAgreements(newAgreements);
-    setAllAgreed(Object.values(newAgreements).every(value => value));
+    setAllAgreed(Object.values(newAgreements).every((value) => value));
   };
 
   // 가입 신청 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const memberInfo = getCookie('member');
-    if (!memberInfo) {
-      alert('로그인이 필요한 서비스입니다.');
-      onClose();
-      navigate('/loginpage');
-      return;
-    }
-
     // 유효성 검사
-    if (!Object.values(agreements).every(value => value)) {
+    if (!Object.values(agreements).every((value) => value)) {
       setError('모든 약관에 동의해주세요.');
       return;
     }
@@ -86,30 +102,37 @@ const DepositJoinModal = ({ deposit, onClose }) => {
       return;
     }
 
+    if (isRegularPayment && (!regularAmount || !regularDay)) {
+      setError('정기 납입 정보를 모두 입력해주세요.');
+      return;
+    }
+
     try {
       const accountData = {
         depositAmount: Number(depositAmount),
         depositProductId: deposit.depositProductId,
-        // dandwAcId: memberInfo.accountNumber,
         accountPassword,
         isRegularPayment,
         regularPaymentAmount: isRegularPayment ? Number(regularAmount) : null,
-        regularPaymentDay: isRegularPayment ? Number(regularDay) : null
+        regularPaymentDay: isRegularPayment ? Number(regularDay) : null,
       };
 
-      console.log('Sending account data:', accountData);  // 데이터 확인
-
       await DepositAPI.createDepositAccount(accountData);
+
+      // 가입 성공 시 가입된 상품 목록 업데이트
+      setJoinedProducts((prev) => [...prev, deposit.depositProductId]);
+
       alert('예금 상품 가입이 완료되었습니다.');
+      onClose();
       navigate('/mypage');
     } catch (error) {
       setError(error.response?.data || '가입 처리 중 오류가 발생했습니다.');
     }
   };
 
-  // DepositJoinModal.js에서
-  const memberInfo = getCookie('member');
-  console.log('memberInfo:', memberInfo); // 쿠키에서 받아온 데이터 구조 확인
+  if (isAlreadyJoined) {
+    return null;
+  }
 
   return (
     <div className="deposit-modal-overlay">
@@ -117,10 +140,10 @@ const DepositJoinModal = ({ deposit, onClose }) => {
         <div className="deposit-modal-content">
           {/* 헤더 */}
           <div className="deposit-modal-header">
-            <h2 className="deposit-modal-title">
-              {deposit.depositProductName} 가입
-            </h2>
-            <button onClick={onClose} className="deposit-modal-close">×</button>
+            <h2 className="deposit-modal-title">{deposit.depositProductName} 가입</h2>
+            <button onClick={onClose} className="deposit-modal-close">
+              ×
+            </button>
           </div>
 
           {/* 상품 정보 요약 */}
@@ -136,7 +159,9 @@ const DepositJoinModal = ({ deposit, onClose }) => {
               </div>
               <div className="deposit-summary-item">
                 <p className="deposit-summary-label">최소가입금액</p>
-                <p className="deposit-summary-value">{deposit.depositMinAmount.toLocaleString()}원</p>
+                <p className="deposit-summary-value">
+                  {deposit.depositMinAmount.toLocaleString()}원
+                </p>
               </div>
               <div className="deposit-summary-item">
                 <p className="deposit-summary-label">만기일</p>
@@ -196,6 +221,7 @@ const DepositJoinModal = ({ deposit, onClose }) => {
                         onChange={(e) => setRegularAmount(e.target.value)}
                         className="deposit-input"
                         placeholder="월 납입액을 입력하세요"
+                        required
                       />
                     </div>
                     <div className="deposit-input-group">
@@ -204,10 +230,13 @@ const DepositJoinModal = ({ deposit, onClose }) => {
                         value={regularDay}
                         onChange={(e) => setRegularDay(e.target.value)}
                         className="deposit-select"
+                        required
                       >
                         <option value="">납입일 선택</option>
                         {[...Array(28)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>매월 {i + 1}일</option>
+                          <option key={i + 1} value={i + 1}>
+                            매월 {i + 1}일
+                          </option>
                         ))}
                       </select>
                     </div>

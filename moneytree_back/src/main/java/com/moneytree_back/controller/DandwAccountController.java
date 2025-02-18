@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -83,9 +84,6 @@ public class DandwAccountController {
         }
     }
 
-
-
-
     @GetMapping("/transactions")
     public ResponseEntity<?> getTransactionHistory(@RequestParam String memberId,
                                                    @RequestParam(defaultValue = "1") int months) {
@@ -132,6 +130,28 @@ public class DandwAccountController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
+        }
+    }
+
+    // 계좌 번호 조회 (02.17 손성한)
+    @GetMapping("/account-number/{memberId}")
+    public ResponseEntity<String> getDandwacAccountNumber(@PathVariable String memberId) {
+        try {
+            String accountNumber = dandwacService.getDandwacAccountNumberByMemberId(memberId);
+            return ResponseEntity.ok(accountNumber);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    // 계좌 잔액 조회 (02.17 손성한)
+    @GetMapping("/balance/{dandwAcId}")
+    public ResponseEntity<BigDecimal> getDandwacBalance(@PathVariable String dandwAcId) {
+        try {
+            BigDecimal balance = dandwacService.getDandwacBalance(dandwAcId);
+            return ResponseEntity.ok(balance);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(BigDecimal.ZERO);
         }
     }
 }

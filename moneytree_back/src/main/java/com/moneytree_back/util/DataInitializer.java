@@ -29,15 +29,17 @@ public class DataInitializer implements CommandLineRunner {
                     "비행기 자격증 취득을 위한 정보 및 커뮤니티를 제공합니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 100,000원
             hobbyRepository.save(new Hobby(
                     "코딩",
-                    new BigDecimal("0"),
+                    new BigDecimal("100000"),
                     "프로그래밍, 최신 기술 동향, 코드 리뷰 및 토론을 위한 방입니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 500,000원
             hobbyRepository.save(new Hobby(
                     "자동차",
-                    new BigDecimal("0"),
+                    new BigDecimal("500000"),
                     "자동차 관련 뉴스, 리뷰 및 모임 정보를 나누는 방입니다.",
                     "기술/교육"
             ));
@@ -53,15 +55,17 @@ public class DataInitializer implements CommandLineRunner {
                     "3D 프린팅 기법 및 창작 활동을 공유하는 방입니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 1,500,000원
             hobbyRepository.save(new Hobby(
                     "VR/AR 교육",
-                    new BigDecimal("0"),
+                    new BigDecimal("1500000"),
                     "가상현실 및 증강현실 기술 교육 및 체험을 위한 방입니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 1,000,000원
             hobbyRepository.save(new Hobby(
                     "IT 자격증",
-                    new BigDecimal("0"),
+                    new BigDecimal("1000000"),
                     "IT 관련 자격증 준비 및 정보 공유 방입니다.",
                     "기술/교육"
             ));
@@ -77,9 +81,10 @@ public class DataInitializer implements CommandLineRunner {
                     "디자인 기법 및 교육 정보를 공유하는 방입니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 1,000,000원
             hobbyRepository.save(new Hobby(
                     "데이터 사이언스",
-                    new BigDecimal("0"),
+                    new BigDecimal("1000000"),
                     "데이터 분석 및 머신러닝 관련 정보 공유 방입니다.",
                     "기술/교육"
             ));
@@ -91,9 +96,10 @@ public class DataInitializer implements CommandLineRunner {
                     "드론의 프로그래밍 및 자동 제어에 관한 정보를 공유합니다.",
                     "기술/교육"
             ));
+            // 기존 0원 → 1,000,000원
             hobbyRepository.save(new Hobby(
                     "사물인터넷(IoT) 기초",
-                    new BigDecimal("0"),
+                    new BigDecimal("1000000"),
                     "IoT 기초 교육 및 프로젝트 정보를 나누는 방입니다.",
                     "기술/교육"
             ));
@@ -119,15 +125,17 @@ public class DataInitializer implements CommandLineRunner {
                     "고급 명품 여행 정보 및 체험을 공유하는 방입니다.",
                     "프리미엄"
             ));
+            // 기존 0원 → 7,000,000원
             hobbyRepository.save(new Hobby(
                     "럭셔리 클럽",
-                    new BigDecimal("0"),
+                    new BigDecimal("7000000"),
                     "럭셔리 클럽 회원 전용 정보 및 모임을 위한 방입니다.",
                     "프리미엄"
             ));
+            // 기존 0원 → 8,000,000원
             hobbyRepository.save(new Hobby(
                     "VIP 이벤트",
-                    new BigDecimal("0"),
+                    new BigDecimal("8000000"),
                     "VIP 전용 이벤트 및 네트워킹 정보를 공유하는 방입니다.",
                     "프리미엄"
             ));
@@ -163,9 +171,10 @@ public class DataInitializer implements CommandLineRunner {
                     "명품 쇼핑 투어 및 브랜드 정보를 나누는 방입니다.",
                     "프리미엄"
             ));
+            // 기존 0원 → 8,000,000원
             hobbyRepository.save(new Hobby(
                     "VIP 콘서트",
-                    new BigDecimal("0"),
+                    new BigDecimal("8000000"),
                     "VIP 콘서트 티켓 및 독점 정보를 제공하는 방입니다.",
                     "프리미엄"
             ));
@@ -305,9 +314,10 @@ public class DataInitializer implements CommandLineRunner {
                     "클래식 음악 및 오케스트라 정보를 나누는 방입니다.",
                     "문화/예술"
             ));
+            // 기존 0원 → 10,000원
             hobbyRepository.save(new Hobby(
                     "문학 토론",
-                    new BigDecimal("0"),
+                    new BigDecimal("10000"),
                     "문학 작품 및 작가에 대한 토론을 위한 방입니다.",
                     "문화/예술"
             ));
@@ -395,9 +405,10 @@ public class DataInitializer implements CommandLineRunner {
                     "식물 재배, 정원 꾸미기 팁, 자연과 함께하는 시간을 공유하는 방입니다.",
                     "취미/건강"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "애완동물",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "반려동물 관리, 정보 공유, 커뮤니티 모임을 위한 방입니다.",
                     "취미/건강"
             ));
@@ -441,15 +452,17 @@ public class DataInitializer implements CommandLineRunner {
                     "크루즈 여행 정보 및 후기 공유 방입니다.",
                     "여행/레저"
             ));
+            // 기존 0원 → 30,000원
             hobbyRepository.save(new Hobby(
                     "여행 블로깅",
-                    new BigDecimal("0"),
+                    new BigDecimal("30000"),
                     "여행 블로깅 및 콘텐츠 제작 정보를 공유하는 방입니다.",
                     "여행/레저"
             ));
+            // 기존 0원 → 25,000원
             hobbyRepository.save(new Hobby(
                     "여행 준비",
-                    new BigDecimal("0"),
+                    new BigDecimal("25000"),
                     "여행 준비, 팁, 체크리스트를 공유하는 방입니다.",
                     "여행/레저"
             ));
@@ -513,27 +526,31 @@ public class DataInitializer implements CommandLineRunner {
                     "전기 스쿠터 이용 경험 및 리뷰를 공유하는 방입니다.",
                     "모빌리티"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "자동차 튜닝",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "자동차 튜닝 팁 및 정보 공유 방입니다.",
                     "모빌리티"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "카셰어링 체험",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "카셰어링 및 모빌리티 서비스 체험을 공유하는 방입니다.",
                     "모빌리티"
             ));
+            // 기존 0원 → 20,000원
             hobbyRepository.save(new Hobby(
                     "모빌리티 테크",
-                    new BigDecimal("0"),
+                    new BigDecimal("20000"),
                     "최신 모빌리티 기술 및 트렌드를 논의하는 방입니다.",
                     "모빌리티"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "드론 레이싱",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "드론 레이싱 대회 및 기술을 공유하는 방입니다.",
                     "모빌리티"
             ));
@@ -557,9 +574,10 @@ public class DataInitializer implements CommandLineRunner {
                     "전기 자전거 체험 및 라이딩 팁을 공유하는 방입니다.",
                     "모빌리티"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "모터스포츠 체험",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "모터스포츠 관련 체험 및 정보 공유 방입니다.",
                     "모빌리티"
             ));
@@ -621,21 +639,24 @@ public class DataInitializer implements CommandLineRunner {
                     "홈 카페 인테리어와 커피 레시피를 공유하는 방입니다.",
                     "라이프스타일"
             ));
+            // 기존 0원 → 20,000원
             hobbyRepository.save(new Hobby(
                     "라이프 코칭",
-                    new BigDecimal("0"),
+                    new BigDecimal("20000"),
                     "개인 라이프 코칭 및 동기 부여 정보를 나누는 방입니다.",
                     "라이프스타일"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "소셜 미디어 활용",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "소셜 미디어 마케팅 및 활용 팁을 공유하는 방입니다.",
                     "라이프스타일"
             ));
+            // 기존 0원 → 15,000원
             hobbyRepository.save(new Hobby(
                     "디지털 노마드 라이프",
-                    new BigDecimal("0"),
+                    new BigDecimal("15000"),
                     "디지털 노마드 및 원격 근무 정보를 나누는 방입니다.",
                     "라이프스타일"
             ));
@@ -643,75 +664,87 @@ public class DataInitializer implements CommandLineRunner {
             // ===========================
             // [비즈니스/재테크] 카테고리 (신규 12개)
             // ===========================
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "주식 투자",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "주식 투자 전략 및 시장 분석 정보를 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 "10"을 비싼 항목으로 처리 (1억 초과) → 150,000,000원
             hobbyRepository.save(new Hobby(
                     "부동산 투자",
-                    new BigDecimal("0"),
+                    new BigDecimal("150,000,000".replace(",", "")),
                     "부동산 투자 팁 및 시장 동향을 나누는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "재테크 세미나",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "재테크 세미나 및 투자 강의 정보를 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "크립토 투자",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "암호화폐 투자 및 블록체인 정보를 나누는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "재무 관리",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "개인 재무 관리 및 자산 증식 정보를 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "스타트업 네트워킹",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "스타트업 창업 및 네트워킹 정보를 나누는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "사업 아이디어",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "혁신적인 사업 아이디어와 창업 정보를 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "자산 관리",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "개인 자산 관리 및 투자 전략을 논의하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "펀드 투자",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "펀드 투자 정보 및 추천 전략을 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "비즈니스 모델 분석",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "다양한 비즈니스 모델을 분석하고 토론하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "온라인 마케팅",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "온라인 마케팅 전략 및 사례를 공유하는 방입니다.",
                     "비즈니스/재테크"
             ));
+            // 기존 0원 → 50,000원
             hobbyRepository.save(new Hobby(
                     "이커머스 창업",
-                    new BigDecimal("0"),
+                    new BigDecimal("50000"),
                     "이커머스 창업 아이디어 및 성공 사례를 나누는 방입니다.",
                     "비즈니스/재테크"
             ));
@@ -719,75 +752,87 @@ public class DataInitializer implements CommandLineRunner {
             // ===========================
             // [취미 기타] 카테고리 (신규 12개)
             // ===========================
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "애니메이션 감상",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "최신 애니메이션 리뷰 및 감상평을 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "만화 그리기",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "만화 및 일러스트 제작 정보를 나누는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "보드게임 개발",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "보드게임 아이디어 및 개발 정보를 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "유튜브 콘텐츠 제작",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "유튜브 영상 제작 및 콘텐츠 기획을 논의하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "팝 컬처 토론",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "팝 컬처와 최신 트렌드를 토론하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "디지털 아트",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "디지털 아트 제작 및 전시 정보를 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "VR 게임 체험",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "VR 게임 체험 및 리뷰를 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "e스포츠 분석",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "e스포츠 경기 분석 및 토론을 나누는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "음악 프로듀싱",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "음악 제작 및 프로듀싱 기법을 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "팟캐스트 제작",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "팟캐스트 기획, 제작 및 운영 정보를 공유하는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "모바일 게임 개발",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "모바일 게임 개발 관련 아이디어 및 기술 정보를 나누는 방입니다.",
                     "취미 기타"
             ));
+            // 기존 0원 → 5,000원
             hobbyRepository.save(new Hobby(
                     "크리에이티브 워크숍",
-                    new BigDecimal("0"),
+                    new BigDecimal("5000"),
                     "창의적 아이디어와 워크숍 정보를 공유하는 방입니다.",
                     "취미 기타"
             ));

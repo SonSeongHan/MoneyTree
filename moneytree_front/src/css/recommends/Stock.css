@@ -1,152 +1,135 @@
-/* Stock.css */
 .stock-container {
-    padding: 20px;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-}
-
-.stock-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.stock-item-container {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    overflow: hidden;
-    background: white;
-    transition: all 0.3s ease;
-}
-
-.stock-item-container:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
 }
 
 .stock-item {
-    padding: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px 16px;
+    gap: 12px;
 }
 
-.stock-rank {
-    width: 30px;
-    height: 30px;
-    background: #f5f5f5;
-    border-radius: 50%;
+.stock-name-section {
+    flex: 3;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
-    color: #666;
+    flex-direction: column;
 }
 
-.stock-name {
-    flex: 2;
-    font-weight: 600;
-    font-size: 16px;
-    margin-left: 12px;
+.stock-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stock-market {
+    font-size: 12px;
+    color: #666;
 }
 
 .stock-price {
     flex: 1;
     text-align: right;
-    font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
 }
 
-.stock-change {
-    width: 100px;
-    text-align: right;
+.stock-changes {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 160px;
+}
+
+.stock-change-values {
+    display: flex;
+    align-items: center;
+    gap: 120px;
     font-size: 14px;
-    margin: 0 20px;
 }
 
 .stock-positive {
-    color: #ff3b30;
+    color: #d60000;
 }
 
 .stock-negative {
-    color: #007aff;
+    color: #005dde;
 }
 
-.stock-expand-btn {
-    width: 24px;
-    height: 24px;
-    border: none;
-    background: #f5f5f5;
-    border-radius: 50%;
+.stock-volume {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.stock-item-container {
+    border-bottom: 1px solid #f1f1f1;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: transform 0.2s;
 }
 
-.stock-expand-btn.expanded {
-    transform: rotate(45deg);
-    background: #007aff;
+.stock-item-container:hover {
+    background-color: #f8f9fa;
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.filter-select,
+.filter-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+.filter-reset-btn {
+    padding: 8px 16px;
+    background: #007bff;
     color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-.stock-details {
-    padding: 20px;
-    background: #f9f9f9;
-    border-top: 1px solid #eee;
-    animation: slideDown 0.3s ease-out;
+.filter-reset-btn:hover {
+    background: #0056b3;
 }
 
-.stock-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.stock-detail-item {
+.stock-header {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 12px;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #eee;
-}
-
-.stock-detail-label {
-    color: #666;
-    font-size: 13px;
-}
-
-.stock-detail-value {
-    font-weight: 600;
-    font-size: 15px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 12px;
+    background-color: #f1f1f1;
+    font-weight: bold;
     color: #333;
+    border-bottom: 1px solid #ddd;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.stock-header-name {
+    flex: 3;
+    text-align: left;
 }
 
-/* Loading and Error States */
-.stock-loading-state,
-.stock-error-state,
-.stock-empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-    font-size: 16px;
+.stock-header-price {
+    flex: 1;
+    text-align: right;
+    min-width: 80px;
 }
 
-.stock-error-state {
-    color: #ff3b30;
+.stock-header-changes {
+    flex: 2;
+    display: flex;
+    justify-content: flex-end;
+    gap: 110px;
+    min-width: 160px;
 }
