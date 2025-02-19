@@ -114,7 +114,8 @@ public class DandwacServiceImpl implements DandwacService {
                               BigDecimal amount,
                               String password,
                               String depositPurpose,
-                              String fromMemberNameParam, // 프론트에서 온 값(굳이 안 써도 됨)
+                              // String fromMemberNameParam,
+                              String fromMemberName,
                               String toMemberName)
     {
         // 1) 송금자 계좌 조회 (memberId → Dandwac → Member)
@@ -195,6 +196,24 @@ public class DandwacServiceImpl implements DandwacService {
 
         transactionHistoryRepository.save(history);
     }
+    /**
+     * 대출 받은 금액을 계좌 잔액에 추가하는 메서드
+     * (추가 코드: 대출 받은 만큼 계좌 잔액을 증가시킵니다.)
+     */
+    @Transactional
+    @Override
+    public Dandwac addLoanAmountToBalance(String memberId, BigDecimal loanAmount) {
+    // 1) 회원의 계좌 조회
+        Dandwac account = dandwAccountRepository.findByMember_MemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원의 계좌를 찾을 수 없습니다."));
 
+    // 2) 현재 잔액이 null인 경우 0으로 초기화
+        BigDecimal currentBalance = account.getBalance() == null ? BigDecimal.ZERO : account.getBalance();
 
+    // 3) 대출 받은 금액만큼 잔액을 증가
+        account.setBalance(currentBalance.add(loanAmount));
+
+    // 4) 업데이트된 계좌 저장 및 반환 (추가 코드)
+        return dandwAccountRepository.save(account);
+    }
 }

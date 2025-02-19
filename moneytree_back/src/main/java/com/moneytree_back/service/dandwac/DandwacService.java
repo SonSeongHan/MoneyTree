@@ -47,4 +47,14 @@ public interface DandwacService {
      * @param amount 이동할 금액
      */
     void transferToStockAccount(String dandwAcId, Long stockAccountNumber, BigDecimal amount);
+
+    /**
+     * 대출 받은 금액을 계좌 잔액에 추가하는 메서드
+     *
+     * @param memberId 회원 아이디
+     * @param loanAmount 대출 받은 금액 (원 단위)
+     * @return 업데이트된 계좌 정보
+     */
+    Dandwac addLoanAmountToBalance(String memberId, BigDecimal loanAmount);
 }
+

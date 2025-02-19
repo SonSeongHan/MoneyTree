@@ -1,0 +1,13 @@
+.transaction-summary {
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.transaction-summary .pending-count {
+  color: red;
+  font-weight: bold;
+}

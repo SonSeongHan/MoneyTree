@@ -3,6 +3,7 @@ package com.moneytree_back.repository;
 import com.moneytree_back.domain.ApartmentTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
@@ -19,4 +20,5 @@ public interface ApartmentTransactionRepository extends JpaRepository<ApartmentT
 
   // 아파트 이름을 기준으로 최신 거래를 가져오는 메서드
   ApartmentTransaction findTopByApartment_NameOrderByTransactionDateDesc(String apartmentName);
+
 }

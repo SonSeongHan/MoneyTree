@@ -1,10 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import KakaoMap from '../estate/KakaoMap';
 import LoginModal from '../../components/LoginModal';
 import axios from 'axios';
 import { getCookie } from '../../util/cookieUtil';
-import { FaSearch, FaMapMarkedAlt, FaStar, FaBuilding, FaHandshake } from 'react-icons/fa';
+import {
+  FaSearch,
+  FaMapMarkedAlt,
+  FaStar,
+  FaBuilding,
+  FaHandshake,
+  FaMoneyBillWave,
+} from 'react-icons/fa';
 import '../../css/estate/RealEstateNav.css';
 
 const RealEstate = () => {
@@ -80,6 +87,10 @@ const RealEstate = () => {
           </Link>
           <Link to="/community/estate" className="nav-link">
             <FaBuilding className="nav-icon" /> 부동산 커뮤니티
+          </Link>
+          {/* 대출 상품 추천 항목 추가 */}
+          <Link to="/estate/loan-recommend" className="nav-link">
+            <FaMoneyBillWave className="nav-icon" /> 대출 상품 추천
           </Link>
         </div>
         {/* 로그인한 경우에만 우측에 pending 건수 표시 */}

@@ -9,70 +9,115 @@ const ITEMS_PER_PAGE = 5;
 const ApartmentTransactionPage = () => {
   const navigate = useNavigate();
 
-  // 탭 상태: 'buyer' (매수 거래 내역) 또는 'seller' (매도 거래 내역)
-  const [viewRole, setViewRole] = useState('buyer');
-
-  // 거래 내역 배열 (전체 데이터)
+  // 상태들
+  const [viewRole, setViewRole] = useState('buyer'); // 'buyer' 또는 'seller'
   const [buyerTransactions, setBuyerTransactions] = useState([]);
   const [sellerTransactions, setSellerTransactions] = useState([]);
-
-  // 로딩, 에러, 성공 메시지
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
-  // 거래 생성 폼 입력값 (매수 탭)
-  const [sellerId, setSellerId] = useState('');
+  const [sellerId, setSellerId] = useState(''); // 거래 요청 폼에서 입력하는 매도자 ID
   const [apartmentName, setApartmentName] = useState('');
   const [price, setPrice] = useState('');
   const [remarks, setRemarks] = useState('');
-  const [sellerExists, setSellerExists] = useState(null);
-  const [latestPrice, setLatestPrice] = useState(null);
-
-  // 추가: 계좌 잔액 상태 (실제 API에서 받아오거나, 쿠키에서 가져올 수 있음)
-  const [accountBalance, setAccountBalance] = useState(0);
-
-  // 아파트 목록
+  const [latestPrice, setLatestPrice] = useState(null); // 선택한 아파트의 최신 가격
   const [apartments, setApartments] = useState([]);
-
-  // Pagination 상태
   const [buyerPage, setBuyerPage] = useState(1);
   const [sellerPage, setSellerPage] = useState(1);
+  const [accountBalance, setAccountBalance] = useState(null);
+  const [sellerExists, setSellerExists] = useState(null); // 'empty', 'exists', 'not_exists', 'self'
 
-  // 매도 탭: 각 거래별 서명 입력값 관리
-  const [signatureInputs, setSignatureInputs] = useState({});
-
-  // 로그인 정보 (쿠키)
   const memberCookie = useMemo(() => getCookie('member'), []);
   const userId = memberCookie?.memberId || '';
 
-  // 계좌 잔액 정보를 가져오는 함수 (예시)
-  const fetchAccountBalance = () => {
-    // 예: 회원 정보 API에서 계좌 잔액을 가져온다고 가정합니다.
+  // 인증 헤더 생성 함수
+  const getAuthHeaders = () => {
+    if (!memberCookie || !memberCookie.accessToken) {
+      console.error('Access token is missing. Redirecting to login.');
+      navigate('/login');
+      return {};
+    }
+    return {
+      Authorization: `Bearer ${memberCookie.accessToken}`,
+      memberId: String(userId),
+    };
+  };
+
+  // 거래 취소 처리 함수
+  const handleCancelTransaction = (transactionId) => {
+    const headers = getAuthHeaders();
     axios
-      .get(`http://localhost:8080/api/members/${encodeURIComponent(userId)}`)
-      .then((res) => {
-        // 응답에 balance 필드가 있다고 가정합니다.
-        setAccountBalance(res.data.balance || 0);
+      .delete(`http://localhost:8080/api/apartment-transactions/${transactionId}`, { headers })
+      .then(() => {
+        setBuyerTransactions(buyerTransactions.filter((tx) => tx.id !== transactionId));
+        setSellerTransactions(sellerTransactions.filter((tx) => tx.id !== transactionId));
       })
       .catch((err) => {
-        console.error('계좌 잔액 조회 오류:', err);
+        console.error('거래 취소 처리 오류:', err);
+        alert('거래 취소 처리 중 오류가 발생했습니다.');
       });
   };
 
-  // 거래 내역 및 아파트 목록 조회 함수
+  // 거래 완료 처리 (서명 완료 후 거래 수락)
+  const handleCompleteTransaction = async (transactionId) => {
+    try {
+      const headers = getAuthHeaders();
+      const transaction = sellerTransactions.find((tx) => tx.id === transactionId);
+      if (!transaction || !transaction.consentGiven) {
+        alert('서명을 완료한 후 거래를 수락할 수 있습니다.');
+        return;
+      }
+      const response = await axios.put(
+        `http://localhost:8080/api/apartment-transactions/complete/${transactionId}`,
+        null,
+        { headers },
+      );
+      const updated = response.data;
+      setSellerTransactions(sellerTransactions.map((tx) => (tx.id === updated.id ? updated : tx)));
+      alert('거래가 완료되었습니다.');
+    } catch (error) {
+      console.error('거래 완료 처리 오류:', error);
+      let errorMessage = '거래 수락 처리 중 오류가 발생했습니다.';
+      if (error.response && error.response.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      alert(errorMessage);
+    }
+  };
+
+  // 계좌 잔액 조회
+  useEffect(() => {
+    if (!userId) return;
+    const headers = getAuthHeaders();
+    axios
+      .get(`http://localhost:8080/api/apartment-transactions/account-balance`, { headers })
+      .then((res) => {
+        setAccountBalance(Number(res.data.balance));
+      })
+      .catch((err) => {
+        console.error('계좌 정보 조회 오류:', err);
+      });
+  }, [userId, memberCookie, navigate]);
+
+  // 거래 내역 조회
+  useEffect(() => {
+    setLoading(true);
+    setError('');
+    fetchTransactions();
+  }, [userId, memberCookie]);
+
   const fetchTransactions = () => {
     if (!userId) {
       setError('로그인이 필요합니다.');
       setLoading(false);
       return;
     }
-    const headers = {
-      Authorization: `Bearer ${memberCookie.accessToken}`,
-      memberId: String(userId),
-    };
+    const headers = getAuthHeaders();
 
-    // 아파트 목록 조회
     axios
       .get('http://localhost:8080/api/apartments', { headers })
       .then((res) => {
@@ -83,7 +128,6 @@ const ApartmentTransactionPage = () => {
         setError('아파트 목록 조회 중 오류가 발생했습니다.');
       });
 
-    // 매수 및 매도 거래 내역 조회
     Promise.all([
       axios.get(
         `http://localhost:8080/api/apartment-transactions/buyer/${encodeURIComponent(String(userId))}`,
@@ -114,54 +158,77 @@ const ApartmentTransactionPage = () => {
       });
   };
 
-  useEffect(() => {
-    setLoading(true);
+  // 거래 생성 전 검증
+  const handlePreCreateTransaction = (e) => {
+    e.preventDefault();
     setError('');
-    fetchTransactions();
-    fetchAccountBalance();
-  }, [userId, memberCookie]);
+    setSuccessMessage('');
 
-  const handleTabChange = (role) => {
-    setViewRole(role);
+    if (!userId) {
+      setError('로그인이 필요합니다.');
+      return;
+    }
+    if (sellerExists !== 'exists') {
+      alert('매도자 ID를 확인해 주십시오.');
+      return;
+    }
+    if (parseInt(price, 10) < parseInt(latestPrice, 10)) {
+      const confirmResult = window.confirm(
+        '거래가격이 현재 가격보다 부족합니다. 추천 상품 페이지로 가시겠습니까?',
+      );
+      if (confirmResult) {
+        navigate('/estate/fss/mortgage-loan-products');
+      }
+      return;
+    }
+    if (accountBalance !== null && accountBalance < parseInt(price, 10) * 10000) {
+      alert('계좌 잔액이 부족하여 거래를 진행할 수 없습니다.');
+      const loanConfirm = window.confirm('대출 상품 추천 페이지로 이동하시겠습니까?');
+      if (loanConfirm) {
+        navigate('/estate/fss/mortgage-loan-products');
+      }
+      return;
+    }
+
+    handleCreateTransaction();
   };
 
-  const handleCompleteTransaction = (transactionId) => {
-    const headers = {
-      Authorization: `Bearer ${memberCookie.accessToken}`,
-      memberId: String(userId),
-    };
-    axios
-      .put(`http://localhost:8080/api/apartment-transactions/complete/${transactionId}`, null, {
-        headers,
-      })
-      .then((res) => {
-        const updated = res.data;
-        setSellerTransactions(
-          sellerTransactions.map((tx) => (tx.id === updated.id ? updated : tx)),
-        );
-      })
-      .catch((err) => {
-        console.error('거래 완료 처리 오류:', err);
-      });
+  // 거래 생성 처리
+  const handleCreateTransaction = async () => {
+    try {
+      const headers = getAuthHeaders();
+      const transactionDataToSend = {
+        buyerId: userId,
+        sellerId,
+        apartmentName,
+        price: parseInt(price, 10),
+        remarks,
+      };
+
+      console.log(transactionDataToSend);
+
+      const response = await axios.post(
+        'http://localhost:8080/api/apartment-transactions',
+        transactionDataToSend,
+        { headers },
+      );
+
+      setSuccessMessage('거래 요청이 성공적으로 생성되었습니다.');
+      setBuyerTransactions([response.data, ...buyerTransactions]);
+      setBuyerPage(1);
+
+      // 폼 초기화
+      setSellerId('');
+      setApartmentName('');
+      setPrice('');
+      setRemarks('');
+    } catch (error) {
+      console.error('거래 생성 오류:', error);
+      setError(error.response?.data || '거래 생성 중 오류가 발생했습니다.');
+    }
   };
 
-  const handleCancelTransaction = (transactionId) => {
-    const headers = {
-      Authorization: `Bearer ${memberCookie.accessToken}`,
-      memberId: String(userId),
-    };
-    axios
-      .delete(`http://localhost:8080/api/apartment-transactions/${transactionId}`, { headers })
-      .then(() => {
-        setBuyerTransactions(buyerTransactions.filter((tx) => tx.id !== transactionId));
-        setSellerTransactions(sellerTransactions.filter((tx) => tx.id !== transactionId));
-      })
-      .catch((err) => {
-        console.error('거래 취소 처리 오류:', err);
-        alert('거래 취소 처리 중 오류가 발생했습니다.');
-      });
-  };
-
+  // 매도자 존재 여부 체크 (서버에서 조회)
   const checkSellerExists = () => {
     if (!sellerId || sellerId.trim() === '') {
       setSellerExists('empty');
@@ -171,10 +238,15 @@ const ApartmentTransactionPage = () => {
       setSellerExists('self');
       return;
     }
+    const headers = getAuthHeaders();
     axios
-      .get(`http://localhost:8080/api/members/${encodeURIComponent(sellerId)}`)
+      .get(`http://localhost:8080/api/members/${encodeURIComponent(sellerId)}`, { headers })
       .then((res) => {
-        setSellerExists(res.data.exists);
+        if (res.data.exists) {
+          setSellerExists('exists'); // 존재하면 'exists'
+        } else {
+          setSellerExists('not_exists'); // 존재하지 않으면 'not_exists'
+        }
       })
       .catch((err) => {
         console.error('매도자 ID 확인 오류:', err);
@@ -191,95 +263,6 @@ const ApartmentTransactionPage = () => {
     } else {
       setLatestPrice(null);
     }
-  };
-
-  const handleCreateTransaction = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMessage('');
-
-    if (!userId) {
-      setError('로그인이 필요합니다.');
-      return;
-    }
-    if (sellerExists !== true) {
-      alert('매도자 ID를 확인해 주십시오.');
-      return;
-    }
-
-    // 거래 가격이 현재 가격보다 부족한 경우
-    if (parseInt(price, 10) < parseInt(latestPrice, 10)) {
-      const confirmResult = window.confirm(
-        '거래 가격이 현재 가격보다 부족합니다. 추천 상품 페이지로 이동하시겠습니까?',
-      );
-      if (confirmResult) {
-        navigate('/estate/fss/mortgage-loan-products');
-      }
-      return; // 거래 요청 진행하지 않음.
-    }
-
-    // 추가: 계좌 잔액을 확인 (거래 금액이 계좌 잔액보다 크면 진행 불가)
-    if (parseInt(price, 10) > accountBalance) {
-      alert('거래 금액이 계좌 잔액을 초과합니다.');
-      return;
-    }
-
-    const headers = {
-      Authorization: `Bearer ${memberCookie.accessToken}`,
-      memberId: String(userId),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    };
-
-    const params = new URLSearchParams();
-    params.append('buyerId', userId);
-    params.append('sellerId', sellerId);
-    params.append('apartmentName', apartmentName);
-    params.append('price', parseInt(price, 10));
-    params.append('remarks', remarks);
-
-    axios
-      .post('http://localhost:8080/api/apartment-transactions', params, { headers })
-      .then((res) => {
-        setSuccessMessage('거래 요청이 성공적으로 생성되었습니다.');
-        setBuyerTransactions([res.data, ...buyerTransactions]);
-        setBuyerPage(1);
-        // 거래 요청 후 입력값 초기화
-        setSellerId('');
-        setApartmentName('');
-        setPrice('');
-        setRemarks('');
-      })
-      .catch((err) => {
-        console.error('거래 생성 오류:', err);
-        setError('거래 생성 중 오류가 발생했습니다.');
-      });
-  };
-
-  const handleConsentForTransaction = (transactionId) => {
-    const signature = signatureInputs[transactionId] || '';
-    if (signature !== userId) {
-      alert('입력하신 서명이 매도자 ID와 일치하지 않습니다. 정확한 매도자 ID를 입력해 주세요.');
-      return;
-    }
-    const headers = {
-      Authorization: `Bearer ${memberCookie.accessToken}`,
-      memberId: String(userId),
-    };
-    axios
-      .post(`http://localhost:8080/api/apartment-transactions/consent/${transactionId}`, null, {
-        headers,
-      })
-      .then(() => {
-        setSellerTransactions(
-          sellerTransactions.map((tx) =>
-            tx.id === transactionId ? { ...tx, consentGiven: true } : tx,
-          ),
-        );
-      })
-      .catch((err) => {
-        console.error('서명 완료 처리 오류:', err);
-        alert('서명 완료 처리 중 오류가 발생했습니다.');
-      });
   };
 
   // Pagination 계산
@@ -313,94 +296,83 @@ const ApartmentTransactionPage = () => {
   return (
     <div className="at-container">
       <h1 className="at-title">내 부동산 거래 내역</h1>
+      {accountBalance !== null && (
+        <div className="account-balance">내 계좌 잔액: {accountBalance.toLocaleString()} 원</div>
+      )}
       <div className="pending-header">
         매수 대기중: {buyerTransactions.filter((tx) => tx.status === 'PENDING').length}개 | 매도
         대기중: {sellerTransactions.filter((tx) => tx.status === 'PENDING').length}개
       </div>
+
+      {/* 거래 요청 폼 */}
+      <section className="at-create-form">
+        <h2>새 거래 요청</h2>
+        <form onSubmit={handlePreCreateTransaction}>
+          <div className="form-group">
+            <label>매도자 ID:</label>
+            <input
+              type="text"
+              value={sellerId}
+              onChange={(e) => setSellerId(e.target.value)}
+              required
+            />
+            <button type="button" onClick={checkSellerExists}>
+              매도자 ID 확인
+            </button>
+            {sellerExists === 'empty' && <p>아이디를 입력해주세요.</p>}
+            {sellerExists === 'exists' && <p>해당 회원이 존재합니다.</p>}
+            {sellerExists === 'not_exists' && <p>해당 회원이 존재하지 않습니다.</p>}
+            {sellerExists === 'self' && <p>자신의 아이디를 사용할 수 없습니다.</p>}
+          </div>
+          <div className="form-group">
+            <label>아파트 단지명:</label>
+            <select value={apartmentName} onChange={handleApartmentChange} required>
+              <option value="">선택하세요</option>
+              {apartments.map((apt) => (
+                <option key={apt.id} value={apt.name}>
+                  {apt.name}
+                </option>
+              ))}
+            </select>
+            {latestPrice !== null && <p>현재 가격: {latestPrice.toLocaleString()} 만원</p>}
+          </div>
+          <div className="form-group">
+            <label>가격:</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>비고:</label>
+            <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+          </div>
+          <button type="submit" className="at-submit-btn">
+            거래 요청 생성
+          </button>
+        </form>
+        {successMessage && <p className="at-success">{successMessage}</p>}
+      </section>
+
+      {/* 거래 내역 탭 */}
       <div className="transaction-tabs">
         <button
           className={viewRole === 'buyer' ? 'active' : ''}
-          onClick={() => handleTabChange('buyer')}
+          onClick={() => setViewRole('buyer')}
         >
           매수 거래 내역
         </button>
         <button
           className={viewRole === 'seller' ? 'active' : ''}
-          onClick={() => handleTabChange('seller')}
+          onClick={() => setViewRole('seller')}
         >
           매도 거래 내역
         </button>
       </div>
 
-      {viewRole === 'buyer' && (
-        <section className="at-create-form">
-          <h2>새 거래 요청</h2>
-          <form onSubmit={handleCreateTransaction}>
-            <div className="form-group">
-              <label>매도자 ID:</label>
-              <input
-                type="text"
-                value={sellerId}
-                onChange={(e) => setSellerId(e.target.value)}
-                required
-              />
-              <button type="button" onClick={checkSellerExists}>
-                매도자 ID 확인
-              </button>
-              {sellerExists === null ? (
-                <p>매도자 ID를 확인해주세요.</p>
-              ) : sellerExists === 'empty' ? (
-                <p>매도자 ID 입력란에 아이디를 작성해 주십시오.</p>
-              ) : sellerExists === 'self' ? (
-                <p>타인 명의의 아이디를 적어주십시오.</p>
-              ) : sellerExists ? (
-                <p>매도자 ID가 존재합니다.</p>
-              ) : (
-                <p>매도자 ID가 존재하지 않습니다.</p>
-              )}
-            </div>
-            <div className="form-group apartment-select-group">
-              <label>아파트 단지명:</label>
-              <div
-                className="apartment-select-wrapper"
-                style={{ display: 'flex', alignItems: 'center' }}
-              >
-                <select value={apartmentName} onChange={handleApartmentChange} required>
-                  <option value="">선택하세요</option>
-                  {apartments.map((apt) => (
-                    <option key={apt.id} value={apt.name}>
-                      {apt.name}
-                    </option>
-                  ))}
-                </select>
-                {latestPrice !== null && (
-                  <span className="latest-transaction" style={{ marginLeft: '10px' }}>
-                    현재 가격: {latestPrice} 만원
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="form-group">
-              <label>거래 가격 (만원):</label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>비고:</label>
-              <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-            </div>
-            <button type="submit" className="at-submit-btn">
-              거래 요청 생성
-            </button>
-          </form>
-          {successMessage && <p className="at-success">{successMessage}</p>}
-        </section>
-      )}
-
+      {/* 거래 내역 목록 */}
       <section className="at-list">
         <h2>{viewRole === 'buyer' ? '내 거래 내역' : '거래 요청 목록'}</h2>
         {viewRole === 'buyer' ? (
@@ -410,7 +382,7 @@ const ApartmentTransactionPage = () => {
             <>
               <ul>
                 {paginatedBuyerTransactions.map((tx) => (
-                  <li key={tx.id} className="at-item">
+                  <li key={tx.id}>
                     <p>
                       <strong>거래 ID:</strong> {tx.id}
                     </p>
@@ -421,14 +393,14 @@ const ApartmentTransactionPage = () => {
                       <strong>매도자:</strong> {tx.sellerId}
                     </p>
                     <p>
-                      <strong>아파트:</strong> {tx.apartmentName}{' '}
+                      <strong>아파트:</strong> {tx.apartmentName}
                       <button
-                        className="view-apartment-btn"
                         onClick={() =>
-                          navigate(`/realestate/details/${encodeURIComponent(tx.apartmentName)}`)
+                          (window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`)
                         }
+                        style={{ marginLeft: '10px' }}
                       >
-                        아파트 조회
+                        아파트 상세 조회
                       </button>
                     </p>
                     <p>
@@ -470,12 +442,12 @@ const ApartmentTransactionPage = () => {
             </>
           )
         ) : paginatedSellerTransactions.length === 0 ? (
-          <p>거래 내역이 없습니다.</p>
+          <p>매도 거래 내역이 없습니다.</p>
         ) : (
           <>
             <ul>
               {paginatedSellerTransactions.map((tx) => (
-                <li key={tx.id} className="at-item">
+                <li key={tx.id}>
                   <p>
                     <strong>거래 ID:</strong> {tx.id}
                   </p>
@@ -486,14 +458,13 @@ const ApartmentTransactionPage = () => {
                     <strong>매도자:</strong> {tx.sellerId}
                   </p>
                   <p>
-                    <strong>아파트:</strong> {tx.apartmentName}{' '}
+                    <strong>아파트:</strong> {tx.apartmentName}
                     <button
-                      className="view-apartment-btn"
-                      onClick={() =>
-                        navigate(`/realestate/details/${encodeURIComponent(tx.apartmentName)}`)
-                      }
+                      onClick={() => {
+                        window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`;
+                      }}
                     >
-                      아파트 조회
+                      아파트 상세 조회
                     </button>
                   </p>
                   <p>
@@ -514,32 +485,19 @@ const ApartmentTransactionPage = () => {
                     <strong>비고:</strong> {tx.remarks || '없음'}
                   </p>
                   {tx.status === 'PENDING' && !tx.consentGiven && (
-                    <div className="consent-buttons">
-                      <input
-                        type="text"
-                        placeholder="매도자 ID 입력"
-                        value={signatureInputs[tx.id] || ''}
-                        onChange={(e) =>
-                          setSignatureInputs((prev) => ({ ...prev, [tx.id]: e.target.value }))
+                    <button
+                      onClick={() => {
+                        if (viewRole !== 'seller') {
+                          alert('매도자만 매도 인증 문서를 열 수 있습니다.');
+                          return;
                         }
-                        className="signature-input"
-                      />
-                      <button
-                        className="consent-btn"
-                        onClick={() => {
-                          const documentUrl = `http://localhost:8080/api/apartment-transactions/complete/${tx.id}/document?memberId=${String(userId)}`;
-                          window.open(documentUrl, '_blank');
-                        }}
-                      >
-                        동의 대기중
-                      </button>
-                      <button
-                        className="consent-complete-btn"
-                        onClick={() => handleConsentForTransaction(tx.id)}
-                      >
-                        서명 완료
-                      </button>
-                    </div>
+                        // 매도 인증 문서를 새 창에서 열어서 서명을 진행하도록 합니다.
+                        const sellerAuthUrl = `http://localhost:8080/api/apartment-transactions/seller-auth-html/${tx.id}?memberId=${userId}`;
+                        window.open(sellerAuthUrl, '_blank');
+                      }}
+                    >
+                      부동산 거래 계약서 서명
+                    </button>
                   )}
                   {tx.status === 'PENDING' && tx.consentGiven && (
                     <>
@@ -553,11 +511,6 @@ const ApartmentTransactionPage = () => {
                         거래 취소
                       </button>
                     </>
-                  )}
-                  {tx.status !== 'PENDING' && (
-                    <button className="cancel-btn" onClick={() => handleCancelTransaction(tx.id)}>
-                      거래 취소
-                    </button>
                   )}
                 </li>
               ))}

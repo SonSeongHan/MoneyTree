@@ -23,6 +23,8 @@ import MortgageLoanProductDetail from '../pages/estate/fss/MortgageLoanProductDe
 import ReactivateAccount from '../pages/member/ReactivateAccount';
 import HobbyPage from '../pages/hobby/HobbyPage';
 
+import { Outlet } from 'react-router-dom'; // Outlet 추가
+
 // 로딩 대체 UI
 const Loading = <div>Loading...</div>;
 
@@ -51,9 +53,9 @@ const ApartmentDetails = lazy(() => import('../pages/estate/ApartmentDetails'));
 
 // 거래 내역 페이지
 const ApartmentTransactionPage = lazy(() => import('../pages/estate/ApartmentTransactionPage'));
-
 // 추천 상품 목록 페이지 (DB에 저장된 모기지론 상품 데이터를 활용)
 const MortgageLoanProducts = lazy(() => import('../pages/estate/fss/MortgageLoanProducts'));
+const SubscriptionDetail = lazy(() => import('../pages/estate/fss/SubscriptionDetail'));
 
 const root = createBrowserRouter([
   {
@@ -401,6 +403,51 @@ const root = createBrowserRouter([
             <CreateStockAccount />
           </Suspense>
         ),
+      },
+      // 대출 상품 추천 페이지 추가
+      {
+        path: 'estate/loan-recommend',
+        element: <Navigate to="/estate/fss/mortgage-loan-products" replace />,
+      },
+      // 가입 상세 페이지 (구독 완료 후 이동) → 절대 경로 사용
+      {
+        path: '/subscription-details/:id',
+        element: (
+          <Suspense fallback={<div>Loading...</div>}>
+            <SubscriptionDetail />
+          </Suspense>
+        ),
+      },
+      // 커뮤니티 관련 페이지 정리 (Outlet 활용)
+      {
+        path: 'community/real-estate',
+        element: <Outlet />,
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityList />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'new',
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityForm />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <Suspense fallback={Loading}>
+                <EstateCommunityDetail />
+              </Suspense>
+            ),
+          },
+        ],
       },
     ],
   },

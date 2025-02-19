@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>매도 인증 문서 제출</title>
+	<style>
+      body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+      .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      .header { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+      .info { margin-bottom: 10px; }
+      .form-group { margin-bottom: 15px; }
+      label { display: block; margin-bottom: 5px; font-weight: bold; }
+      input[type="text"], input[type="password"], textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+      button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+      button:hover { background: #0056b3; }
+      .instruction { margin-bottom: 20px; font-size: 14px; color: #555; }
+	</style>
+</head>
+<body>
+<div class="container">
+	<div class="header">부동산 매도자 인증 문서 제출</div>
+	<div class="instruction">
+		아래 정보를 확인 후, 실제 매도자의 ID와 비밀번호를 입력하고 서명을 제출해 주세요.<br>
+		서명 제출 후 거래가 완료됩니다.
+	</div>
+	<div class="info">거래 ID: <span th:text="${transaction.id}"></span></div>
+	<div class="info">매수자: <span th:text="${transaction.buyerId}"></span></div>
+	<div class="info">매도자: <span th:text="${transaction.sellerId}"></span></div>
+	<div class="info">아파트: <span th:text="${transaction.apartmentName}"></span></div>
+	<div class="info">거래 가격: <span th:text="${transaction.price}"></span> 만원</div>
+	<div class="info">거래일자: <span th:text="${transaction.transactionDate}"></span></div>
+
+	<!-- 매도자 인증 문서 입력 폼 -->
+	<form id="sellerAuthForm" th:action="@{/api/apartment-transactions/submit-seller-auth}" method="post">
+		<!-- 거래 ID와 매도자 ID를 숨김 필드로 전달 -->
+		<input type="hidden" name="transactionId" th:value="${transaction.id}" />
+		<input type="hidden" name="memberId" th:value="${transaction.sellerId}" />
+
+		<div class="form-group">
+			<label for="sellerIdInput">매도자 ID:</label>
+			<input type="text" id="sellerIdInput" name="sellerIdInput" placeholder="매도자 ID 입력" required>
+		</div>
+		<div class="form-group">
+			<label for="password">비밀번호:</label>
+			<input type="password" id="password" name="password" placeholder="비밀번호 입력" required>
+		</div>
+		<div class="form-group">
+			<label for="signature">서명:</label>
+			<input type="text" id="signature" name="signature" placeholder="서명을 입력하세요" required>
+		</div>
+		<div class="form-group">
+			<label for="comments">비고:</label>
+			<textarea id="comments" name="comments" rows="4" placeholder="비고 입력 (선택)"></textarea>
+		</div>
+		<button type="submit">제출</button>
+	</form>
+</div>
+
+<script>
+    // 폼 제출을 intercept하여 AJAX 요청으로 처리
+    document.getElementById("sellerAuthForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 제출 동작 차단
+        const form = event.target;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: form.method,
+            body: formData
+        })
+            .then(response => response.text())
+            .then(result => {
+                // 서버에서 반환한 결과 메시지를 확인합니다.
+                if(result.indexOf("거래가 완료되었습니다") !== -1) {
+                    alert("거래가 완료되었습니다.");
+                    window.location.href = "http://localhost:3000/estate/transactions";
+                } else if(result.indexOf("비밀번호가 일치하지 않습니다") !== -1) {
+                    alert("매도자의 아이디와 비밀번호가 일치하지 않습니다.");
+                } else {
+                    // 그 외 오류 메시지 처리
+                    alert(result);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("서버와 통신 중 오류가 발생했습니다.");
+            });
+    });
+</script>
+</body>
+</html>
