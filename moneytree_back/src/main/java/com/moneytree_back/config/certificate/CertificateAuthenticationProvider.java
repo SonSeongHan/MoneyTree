@@ -1,18 +1,26 @@
 package com.moneytree_back.config.certificate;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Base64;
 import java.util.Collections;
 
 /**
- * "문서 인증"을 처리하는 Provider
- * - fileContent 안에 "은행 인증서" 문구가 있는지,
- * - parsedId, parsedName이 유효한지
- * - 실제 DB 조회 로직은 생략 or 간단히 처리
+ * PDF 인증서를 처리하는 Provider
+ * - 클라이언트로부터 Base64로 인코딩된 PDF 파일을 받고,
+ * - PDFBox를 사용해 텍스트를 추출한 후 "은행 인증서" 문구와
+ *   발급 ID/이름을 파싱하여 검증
  */
 @Component
 @Log4j2
@@ -25,45 +33,78 @@ public class CertificateAuthenticationProvider implements AuthenticationProvider
             return null; // 지원하지 않는 타입
         }
 
-        String fileContent = certToken.getFileContent();
-        String parsedId = certToken.getParsedId();
-        String parsedName = certToken.getParsedName();
+        // 클라이언트로부터 Base64 인코딩된 PDF 파일 내용
+        String base64Pdf = certToken.getFileContent();
 
-        // 1) 문서에 "은행 인증서" 문구가 있는지
-        if (!fileContent.contains("은행 인증서")) {
+        // PDF 파일을 파싱하여 텍스트 추출
+        String textContent = extractTextFromPDF(base64Pdf);
+        log.info("추출된 PDF 텍스트: {}", textContent);
+
+        // PDF에 "은행 인증서" 문구가 있는지 확인
+        if (!textContent.contains("은행 인증서")) {
             throw new BadCredentialsException("문서에 '은행 인증서' 문구가 없습니다.");
         }
 
-        // 2) ID/이름이 있는지
-        if (parsedId == null || parsedId.isEmpty()) {
+        // PDF 텍스트에서 "발급 ID:"와 "발급 이름:" 추출 (줄 단위로 파싱)
+        String extractedId = extractField(textContent, "발급 ID:");
+        String extractedName = extractField(textContent, "발급 이름:");
+        log.info("추출된 ID: {}", extractedId);
+        log.info("추출된 이름: {}", extractedName);
+
+        // 발급 ID/이름이 없는 경우 예외 발생
+        if (extractedId == null || extractedId.isEmpty()) {
             throw new BadCredentialsException("문서에서 ID를 확인할 수 없습니다.");
         }
-        if (parsedName == null || parsedName.isEmpty()) {
+        if (extractedName == null || extractedName.isEmpty()) {
             throw new BadCredentialsException("문서에서 이름을 확인할 수 없습니다.");
         }
 
-        // 3) DB 조회 로직 (예시)
-        // 여기서는 간단히 "아이디/이름이 있으면 성공" 처리
-        // 실제로는 parsedId, parsedName을 DB와 대조해야 함.
-        log.info("Received fileContent: {}", fileContent);
-        log.info("Received parsedId: {}", parsedId);
-        log.info("Received parsedName: {}", parsedName);
-
-        // 4) 인증 성공 시, 인증 완료 토큰 생성
+        // 실제 DB 조회 로직 (예시에서는 값이 있으면 인증 성공으로 간주)
         CertificateLoginToken authenticated = new CertificateLoginToken(
-                fileContent,
-                parsedId,
-                parsedName,
+                base64Pdf,
+                extractedId,
+                extractedName,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-
-
         );
         return authenticated;
     }
 
+    /**
+     * Base64 인코딩된 PDF 데이터를 디코딩 후 PDFBox를 이용해 텍스트를 추출하는 메서드
+     */
+    private String extractTextFromPDF(String base64Pdf) {
+        try {
+            byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
+            PDDocument document = PDDocument.load(new ByteArrayInputStream(pdfBytes));
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(document);
+            document.close();
+            return text;
+        } catch (Exception e) {
+            throw new RuntimeException("PDF 파싱 실패", e);
+        }
+    }
+
+    /**
+     * 추출한 텍스트에서 지정된 필드 이름으로 시작하는 줄에서 값만 추출하는 헬퍼 메서드
+     */
+    private String extractField(String text, String fieldName) {
+        try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.startsWith(fieldName)) {
+                    return line.substring(fieldName.length()).trim();
+                }
+            }
+        } catch (IOException e) {
+            // StringReader 사용 시 IOException 발생 가능성이 거의 없으므로 무시
+        }
+        return null;
+    }
+
     @Override
     public boolean supports(Class<?> authentication) {
-        // CertificateLoginToken 타입만 처리
         return CertificateLoginToken.class.isAssignableFrom(authentication);
     }
 }

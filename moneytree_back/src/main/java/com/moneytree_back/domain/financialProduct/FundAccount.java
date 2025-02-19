@@ -1,5 +1,6 @@
 package com.moneytree_back.domain.financialProduct;
 
+import com.moneytree_back.domain.Dandwac;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,6 @@ import java.time.LocalDate;
 public class FundAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fund_account_number", updatable = false, nullable = false)
     private Long fundAccountNumber; // 기본 키, 펀드 계좌 ID
 
@@ -29,23 +29,17 @@ public class FundAccount {
     @Column(name = "fund_maturity_date")
     private LocalDate fundMaturityDate; // 만기일
 
-    @Column(name = "fund_current_value", precision = 15, scale = 2)
-    private BigDecimal fundCurrentValue; // 현재 평가 금액, 남은 금액
+    @Column(name = "fund_expected_return", precision = 5, scale = 2)
+    private BigDecimal fundExpectedReturn; // 예상 수익률
 
     @Column(name = "fund_status")
     private String fundStatus; // 계좌 상태 (운용 중, 만기, 해지됨 등)
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fund_product_id", nullable = false)
+    @JoinColumn(name = "fund_product_id", nullable = true)
     private FundProduct fundProductId; // 연결된 펀드 상품
 
-    // 나중에 추가할 회원 연동
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "member_id")
-    // private Member member;
-
-    // 나중에 추가할 입출금 계좌 연동
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "deposit_account_id")
-    // private DepositAccount depositAccount;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dandw_ac_id", nullable = false)
+    private Dandwac dandwAcId;
 }

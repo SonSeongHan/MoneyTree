@@ -35,6 +35,7 @@ const MySavingDetail = ({ isOpen, onClose, account, productDetails }) => {
     const startDate = new Date(account.savingStartDate);
     const endDate = new Date(account.savingEndDate);
     const totalMonths = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24 * 30.44));
+    const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
 
     // 시뮬레이션 기간 생성
     const periods = [
@@ -52,47 +53,71 @@ const MySavingDetail = ({ isOpen, onClose, account, productDetails }) => {
       periods.push({ label: `만기(${totalMonths}개월)`, months: totalMonths });
     }
 
-    // 동적 위약금 계산 로직
-    const calculatePenaltyRate = (monthsPassed) => {
-      const ratioToMaturity = monthsPassed / totalMonths;
-      // 초기에 높은 위약금, 만기에 가까워질수록 낮아짐
-      return Math.max(0, 0.02 - (ratioToMaturity * 0.02));
-    };
-
     return periods.map(period => {
-      let totalDeposit = principal;
+      // 해당 기간까지의 총 납입액 계산
+      const monthlyDeposits = period.months * regularPayment;
+      let currentTotalDeposit = principal + monthlyDeposits;
       let totalInterest = 0;
 
-      // 정기 납입 고려
-      for (let i = 0; i < period.months; i++) {
-        // 매월 정기 납입 추가
-        totalDeposit += regularPayment;
+      if (isSimple) {
+        // 단리 계산 (개선된 방식)
+        // 첫 납입금의 이자
+        totalInterest = principal * totalRate * (period.months / 12);
 
-        // 이자 계산
-        if (isSimple) {
-          // 단리의 경우
-          totalInterest += totalDeposit * totalRate / 12;
-        } else {
-          // 복리의 경우
-          totalInterest += (totalDeposit * Math.pow(1 + totalRate/12, i+1)) - totalDeposit;
+        // 매월 납입금의 이자 (정확한 일수 기반 계산)
+        for (let i = 0; i < period.months; i++) {
+          const paymentDate = new Date(startDate);
+          paymentDate.setMonth(startDate.getMonth() + i);
+
+          const daysInMonth = new Date(paymentDate.getFullYear(), paymentDate.getMonth() + 1, 0).getDate();
+          const remainingDaysToEnd = Math.min(daysInMonth,
+            Math.ceil((endDate - paymentDate) / (1000 * 60 * 60 * 24))
+          );
+
+          const monthlyInterest = regularPayment * totalRate * (remainingDaysToEnd / 365);
+          totalInterest += monthlyInterest;
+        }
+      } else {
+        // 복리 계산 (더 정확한 방식)
+        let accumulatedDeposit = principal;
+
+        // 첫 납입금의 복리 이자
+        totalInterest = principal * Math.pow(1 + totalRate/12, period.months) - principal;
+
+        // 매월 납입금의 복리 이자 (정확한 월별 가중 계산)
+        for (let i = 0; i < period.months; i++) {
+          accumulatedDeposit += regularPayment;
+          const remainingMonths = period.months - i;
+
+          // 각 월별 납입금에 대한 정확한 복리 이자 계산
+          const monthlyInterest = regularPayment *
+            (Math.pow(1 + totalRate/12, remainingMonths) - 1);
+
+          totalInterest += monthlyInterest;
         }
       }
 
-      // 동적 위약금 적용
-      const penaltyRate = period.months === totalMonths ? 0 : calculatePenaltyRate(period.months);
-      const penalty = period.months === totalMonths ? 0 : totalDeposit * penaltyRate;
-      const serviceFee = totalDeposit * 0.007;
+      // 중도해지 위약금 계산 (더 세밀한 로직)
+      const terminationRatio = period.months / totalMonths;
+      const penaltyRate = period.months === totalMonths ? 0 :
+        terminationRatio < 0.3 ? 0.03 :
+          terminationRatio < 0.6 ? 0.02 :
+            terminationRatio < 0.9 ? 0.01 :
+              0;
 
-      const totalReturn = totalDeposit + totalInterest - penalty - serviceFee;
-      const profit = totalReturn - totalDeposit;
+      const penalty = period.months === totalMonths ? 0 : currentTotalDeposit * penaltyRate;
+
+      // 서비스 수수료 (0.5%)
+      const serviceFee = currentTotalDeposit * 0.005;
+
+      const totalReturn = currentTotalDeposit + totalInterest - penalty - serviceFee;
+      const profit = totalInterest - penalty - serviceFee;
 
       return {
         period: period.label,
-        months: period.months,
-        interest: Math.round(totalInterest),
-        serviceFee: Math.round(serviceFee),
         totalReturn: Math.round(totalReturn),
-        profit: Math.round(profit)
+        profit: Math.round(profit),
+        serviceFee: Math.round(serviceFee)
       };
     });
   };

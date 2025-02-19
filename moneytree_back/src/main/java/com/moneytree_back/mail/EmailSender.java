@@ -1,4 +1,3 @@
-// src/main/java/com/moneytree_back/mail/EmailSender.java
 package com.moneytree_back.mail;
 
 import javax.mail.*;

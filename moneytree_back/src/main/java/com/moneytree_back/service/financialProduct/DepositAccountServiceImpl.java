@@ -180,8 +180,6 @@ public class DepositAccountServiceImpl implements DepositAccountService {
         depositAccountRepository.save(depositAccount);
     }
 
-
-
     @Transactional
     public void setRegularPayment(Long depositAccountNumber, BigDecimal regularAmount, Integer paymentDay) {
         if (paymentDay < 1 || paymentDay > 28) {

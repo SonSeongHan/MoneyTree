@@ -1,0 +1,286 @@
+.fund-trade-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.fund-trade-modal-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 로딩 & 에러 상태 */
+.fund-trade-modal-loading,
+.fund-trade-modal-error {
+    background-color: white;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.fund-trade-modal-error-message {
+    color: #e53e3e;
+    margin-bottom: 16px;
+}
+
+/* 헤더 섹션 */
+.fund-trade-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.fund-trade-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    color: #1a202c;
+    display: flex;
+    align-items: center;
+}
+
+.fund-trade-modal-invested-badge {
+    background-color: #4299e1;
+    color: white;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    display: inline-block;
+}
+
+.fund-trade-modal-manager {
+    font-size: 14px;
+    color: #718096;
+    margin: 4px 0 0 0;
+}
+
+.fund-trade-modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #a0aec0;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.fund-trade-modal-close-btn:hover {
+    color: #718096;
+}
+
+/* 펀드 정보 섹션 */
+.fund-trade-modal-info-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+}
+
+.fund-trade-modal-info-label {
+    font-size: 14px;
+    color: #718096;
+    margin: 0 0 4px 0;
+}
+
+.fund-trade-modal-info-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+    margin: 0;
+}
+
+/* 수수료 정보 섹션 */
+.fund-trade-modal-fee-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: #f7fafc;
+    border-radius: 8px;
+}
+
+.fund-trade-modal-fee-label {
+    font-size: 14px;
+    color: #718096;
+    margin: 0 0 4px 0;
+}
+
+.fund-trade-modal-fee-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+    margin: 0;
+}
+
+/* 계좌 정보 섹션 */
+.fund-trade-modal-account-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+}
+
+.fund-trade-modal-account-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.fund-trade-modal-account-row:last-child {
+    margin-bottom: 0;
+}
+
+.fund-trade-modal-account-label {
+    font-size: 14px;
+    color: #718096;
+}
+
+.fund-trade-modal-account-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+/* 투자금액 입력 섹션 */
+.fund-trade-modal-amount-section {
+    margin-bottom: 24px;
+}
+
+.fund-trade-modal-amount-label {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 8px;
+}
+
+.fund-trade-modal-amount-input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-align: right;
+}
+
+.fund-trade-modal-amount-unit {
+    font-size: 14px;
+    color: #718096;
+    text-align: right;
+    margin-top: 4px;
+}
+
+/* 버튼 섹션 */
+.fund-trade-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.fund-trade-modal-invest-btn,
+.fund-trade-modal-redeem-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.fund-trade-modal-invest-btn {
+    background-color: #4299e1;
+    color: white;
+}
+
+.fund-trade-modal-invest-btn:hover:not(:disabled) {
+    background-color: #3182ce;
+}
+
+.fund-trade-modal-invest-btn:disabled {
+    background-color: #90cdf4;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.fund-trade-modal-redeem-btn {
+    background-color: #e53e3e;
+    color: white;
+}
+
+.fund-trade-modal-redeem-btn:hover:not(:disabled) {
+    background-color: #c53030;
+}
+
+.fund-trade-modal-redeem-btn:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+}
+
+/* 환매 버튼 툴팁 */
+.fund-trade-modal-redeem-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px;
+    background-color: #2d3748;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 8px;
+}
+
+.fund-trade-modal-redeem-btn[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #2d3748 transparent transparent transparent;
+    margin-bottom: 2px;
+}
+
+/* 스크롤바 스타일링 */
+.fund-trade-modal-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fund-trade-modal-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.fund-trade-modal-container::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+.fund-trade-modal-container::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}

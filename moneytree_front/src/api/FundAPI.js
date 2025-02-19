@@ -1,9 +1,12 @@
-import axios, { baseURL } from '../util/jwtUtil';
+import axios from 'axios';
+import jwtAxios, { baseURL } from '../util/jwtUtil';
 
 const FUND_API_BASE_URL = `${baseURL}/api/fund-products`;
+const FUND_ACCOUNT_API_BASE_URL = `${baseURL}/api/fund-account`;
+const DANDWAC_API_BASE_URL = `${baseURL}/api/accounts`;
 
 const FundAPI = {
-  // 모든 펀드 상품 가져오기
+  // 기존 펀드 상품 관련 API
   getAllFunds: async () => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/all`);
@@ -14,7 +17,6 @@ const FundAPI = {
     }
   },
 
-  // 페이지별 펀드 데이터 가져오기 -> 10개씩
   getFundsByPage: async (page, limit = 10) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/all`, {
@@ -27,7 +29,6 @@ const FundAPI = {
     }
   },
 
-  // 특정 펀드 상품 가져오기
   getFundById: async (fundProductId) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/${fundProductId}`);
@@ -38,7 +39,6 @@ const FundAPI = {
     }
   },
 
-  // 특정 연도의 펀드 조회
   getFundsByYear: async (fundProductYear) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/year`, {
@@ -51,7 +51,6 @@ const FundAPI = {
     }
   },
 
-  // 펀드 총 규모 범위 내 조회
   getFundsByTotalAmountRange: async (minAmount, maxAmount) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/total-amount`, {
@@ -64,7 +63,6 @@ const FundAPI = {
     }
   },
 
-  // 운용 보수가 특정 값 이상인 펀드 조회
   getFundsByManagementFee: async (minManagementFee) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/management-fee`, {
@@ -77,7 +75,6 @@ const FundAPI = {
     }
   },
 
-  // 환매 수수료가 특정 값 이하인 펀드 조회
   getFundsByRedemptionFee: async (maxRedemptionFee) => {
     try {
       const response = await axios.get(`${FUND_API_BASE_URL}/redemption-fee`, {
@@ -90,14 +87,11 @@ const FundAPI = {
     }
   },
 
-  // ✅ 전체 필터링 (백엔드 통합 API 호출)
   getFilteredFunds: async (filters) => {
     try {
-      // 필터 값이 비어있으면 undefined로 설정 → API 요청에서 불필요한 params 제거
       const validFilters = Object.fromEntries(
         Object.entries(filters).filter(([_, value]) => value !== '' && value !== undefined)
       );
-
       const response = await axios.get(`${FUND_API_BASE_URL}/filter`, { params: validFilters });
       return response.data;
     } catch (error) {
@@ -105,6 +99,133 @@ const FundAPI = {
       throw error;
     }
   },
+
+  // -------------- 펀드 계좌 관련 API --------------
+
+  // 펀드 계좌 생성
+  createFundAccount: async () => {
+    try {
+      const response = await jwtAxios.post(`${FUND_ACCOUNT_API_BASE_URL}/account-create`);
+
+      // 전체 응답 로그
+      console.log('펀드 계좌 생성 API 응답:', response);
+      console.log('응답 데이터:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('펀드 계좌 생성 중 API 에러:', error);
+      console.error('에러 응답:', error.response);
+      throw error;
+    }
+  },
+
+  // 해당 회원의 입출금 계좌번호 가져오기
+  getDandwacAccountNumber: async (memberId) => {
+    try {
+      const response = await jwtAxios.get(`${DANDWAC_API_BASE_URL}/account-number/${memberId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching deposit account number:', error);
+      return null;
+    }
+  },
+
+  // 입출금 계좌 잔액 조회
+  getDandwacBalance: async (dandwAcId) => {
+    try {
+      const response = await jwtAxios.get(`${DANDWAC_API_BASE_URL}/balance/${dandwAcId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching deposit account balance:', error);
+      return 0;
+    }
+  },
+
+  // 펀드 계좌 정보 조회
+  getFundAccount: async (accountNumber) => {
+    try {
+      const response = await jwtAxios.get(`${FUND_ACCOUNT_API_BASE_URL}/account/${accountNumber}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching fund account details:', error);
+      throw error;
+    }
+  },
+
+  // 펀드 투자
+  investInFund: async (dandwAcId, fundProductId, investmentAmount) => {
+    try {
+      const response = await axios.post(`${FUND_ACCOUNT_API_BASE_URL}/invest`, {
+        dandwAcId,
+        fundProductId,
+        investmentAmount
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error investing in fund:', error);
+      throw error;
+    }
+  },
+
+  // 펀드 환매 가능 여부 확인
+  checkRedemptionEligibility: async (fundAccountNumber) => {
+    try {
+      const response = await axios.get(`${FUND_ACCOUNT_API_BASE_URL}/redeem/check/${fundAccountNumber}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error checking redemption eligibility:', error);
+      throw error;
+    }
+  },
+
+  // 펀드 환매
+  redeemFund: async (fundAccountNumber, amount) => {
+    try {
+      const response = await axios.post(`${FUND_ACCOUNT_API_BASE_URL}/redeem`, {
+        fundAccountNumber,
+        amount
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error redeeming fund:', error);
+      throw error;
+    }
+  },
+
+  // 예상 수익금 계산
+  calculateExpectedProfit: async (fundAccountNumber) => {
+    try {
+      const response = await jwtAxios.get(`${FUND_ACCOUNT_API_BASE_URL}/expected-profit/${fundAccountNumber}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error calculating expected profit:', error);
+      throw error;
+    }
+  },
+
+  // 환매 금액 계산
+  calculateRedemptionAmount: async (fundAccountNumber, amount) => {
+    try {
+      const response = await jwtAxios.get(`${FUND_ACCOUNT_API_BASE_URL}/redemption-amount`, {
+        params: { fundAccountNumber, amount }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error calculating redemption amount:', error);
+      throw error;
+    }
+  },
+
+  // 만기까지 남은 일수 조회
+  getRemainingDays: async (fundAccountNumber) => {
+    try {
+      const response = await jwtAxios.get(`${FUND_ACCOUNT_API_BASE_URL}/remaining-days/${fundAccountNumber}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting remaining days:', error);
+      throw error;
+    }
+  }
 };
 
 export default FundAPI;

@@ -37,6 +37,7 @@ const Stock = lazy(() => import('../pages/nav/Stock'));
 const HobbyCommunity = lazy(() => import('../pages/nav/HobbyCommunity'));
 const DepositDetailPage = lazy(() => import('../pages/recommends/DepositDetailPage'));
 const SavingDetailPage = lazy(() => import('../pages/recommends/SavingDetailPage'));
+const CreateStockAccount = lazy(() => import('../pages/member/CreateStockAccount'));
 
 const RealEstateCommunity = lazy(() => import('../pages/nav/RealEstateCommunity'));
 const EstateCommunityList = lazy(() => import('../pages/estatecommunity/EstateCommunityList'));
@@ -392,6 +393,14 @@ const root = createBrowserRouter([
       {
         path: 'community/estate',
         element: <Navigate to="/community/real-estate" replace />,
+      },
+      {
+        path: 'create-stock-account',
+        element: (
+          <Suspense fallback={Loading}>
+            <CreateStockAccount />
+          </Suspense>
+        ),
       },
     ],
   },

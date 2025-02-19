@@ -52,14 +52,16 @@ dependencies {
 
     implementation 'com.itextpdf:kernel:7.1.15'
     implementation 'com.itextpdf:layout:7.1.15'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
 
     //itext 7
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    runtimeOnly	'io.jsonwebtoken:jjwt-impl:0.11.5'
-    runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 
     annotationProcessor 'org.projectlombok:lombok'
 
