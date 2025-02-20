@@ -54,8 +54,8 @@ def get_deposit_data():
         if conn is not None:
             conn.close()
 
-def get_deposit_product_id(product_name):
-    """예금 상품명으로 ID를 조회하는 함수(LIKE 검색 적용)"""    
+def get_deposit_by_name(product_name):
+    """예금 상품명을 기준으로 조회하는 함수(LIKE 검색 적용)"""    
     conn = None
 
     try:
@@ -63,19 +63,26 @@ def get_deposit_product_id(product_name):
         cur= conn.cursor()
 
         #LIKE 검색을 사용하여 부분 일치 조회
-        query = "SELECT id FROM deposit_product WHERE deposit_product_name LIKE %s"
+        query = "SELECT * FROM deposit_product WHERE deposit_product_name LIKE %s"
         cur.execute(query, (f"%{product_name}",))
         result = cur.fetchone()
 
         if result:
-            return result[0]
+            columns = [desc[0] for desc in cur.description]
+            product_data=dict(zip(columns,result))
+
+            #최소 예치 금액 정보 추가
+            product_data["min_deposit_amount"] = product_data.get("min_deposit_amount")
+            product_data["deposit_maturity_period"] = product_data.get("deposit_maturity_period")  # 기본 12개월 설정
+
+            return product_data
         else:
+            print(f"'{product_name}'에 해당하는 예금 상품을 찾을 수 없습니다.")
             return None
         
     except mariadb.Error as e:
         print(f"데이터 베이스 오류 {e}")
         return None
-    
     finally:
         if conn is not None:
             conn.close()
@@ -121,21 +128,28 @@ def get_saving_data():
         if conn is not None:
             conn.close()
 
-def get_saving_product_id(product_name):
-    """적금 상품명으로 ID를 조회하는 함수(LIKE 검색 적용)"""
+def get_saving_by_name(product_name):
+    """적금 상품명을 기준으로 조회하는 함수(LIKE 검색 적용)"""
     conn = None
     try:
         conn=mariadb.connect(**DB_CONFIG)
         cur= conn.cursor()
 
         #LIKE 검색을 사용하여 부분 일치 조회
-        query = "SELECT id FROM saving_product WHERE saving_product_name LIKE %s"
+        query = "SELECT * FROM saving_product WHERE saving_product_name LIKE %s"
         cur.execute(query, (f"%{product_name}",))
         result = cur.fetchone()
 
         if result:
-            return result[0]
+            columns = [desc[0] for desc in cur.description]
+            product_data = dict(zip(columns, result))
+
+            product_data["saving_min_amount"] = product_data.get("saving_min_amount", 0)
+            product_data["saving_max_amount"] = product_data.get("saving_max_amount", 0)
+
+            return product_data
         else:
+            print(f"'{product_name}'에 해당하는 적금 상품을 찾을 수 없습니다.")
             return None
     except mariadb.Error as e:
         print(f"데이터 베이스 오류 {e}")
@@ -309,8 +323,57 @@ def get_fund_product_id(product_name):
         if conn is not None:
             conn.close()
 
+def calculate_deposit_maturity(initail_amount,interest_rate,months):
+    """
+    예금 만기 금액 계산(단리)
+    :param initial_amount: 가입 금액
+    :param interest_rate: 연이율 (예: 2% → 0.02 입력)
+    :param months: 예치 기간 (개월 단위)
+    :return: 만기 시 총 수령 금액
+    """
+    return float(initail_amount) * (1 + float(interest_rate) * float((months)/12))
 
-        
+def calculate_deposit_maturity_compound(initall_amount, final_interest_rate, months , compounds_per_year=1):
+    """
+    예금 복리 계산
+    :param principal: 예치 금액 (원금)
+    :param interest_rate: 연이율 (예 2% → 0.02 입력)
+    :param years: 예치 기간 (년 단위)
+    :param compounds_per_year: 복리 계산 횟수 (연 복리: 1, 월 복리: 12, 일 복리: 365)
+    :return: 만기 총 수령액
+    """
+    years = months/12
+    total = float(initall_amount) * ((1 + float(final_interest_rate) / float(compounds_per_year)) ** (float(years) * float(compounds_per_year)))
+    return round(total, 2)
+
+def calculate_saving_maturity(monthly_saving, interest_rate, months):
+    """
+    적금 만기 금액 계산(복리 적용)
+    :param monthly_saving: 매월 납입 금액
+    :param interest_rate: 연이율 (예 2% -> 00.2 입력)
+    :param months: 납입 기간 (월 단위)
+    :return: 만기 시 총 수령 금액
+    """
+
+    rate_per_month = interest_rate / 12
+    total = 0
+
+    for month in range(1, months + 1):
+        total += float(monthly_saving) * ((1 + float(rate_per_month)) ** (float(months) - float(month) + 1))
+    return round(total,2) #소수점 두자리까지 반올림함
+
+def calculate_saving_maturity_simple(monthly_saving, interest_rate, months):
+    """
+    적금 만기 금액 계산 (단리 적용)
+    :param monthly_saving: 매월 납입 금액
+    :param interest_rate: 연이율 (예 2% -> 0.02 입력)
+    :param months: 납입 기간 (월 단위)
+    :return: 만기 시 총 수령 금액 (단리 적용)
+    """
+    total_principal = float(monthly_saving * months)
+    total_interest = float(total_principal) * float(interest_rate/12) * float(months + 1) / 2
+    return round(total_principal + total_interest, 2)
+  
 # 실행 예제
 if __name__ == "__main__":
     deposit_data = get_deposit_data()
@@ -318,6 +381,7 @@ if __name__ == "__main__":
     apartments_data = get_apartments_data()
     stock_data = get_stock_data()
     fund_data = get_fund_data()
+    
 
     if deposit_data is not None:
         print(deposit_data)

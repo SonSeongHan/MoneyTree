@@ -8,17 +8,17 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
   const navigate = useNavigate();
 
   // 입력 필드 상태 관리
-  const [savingDepositAmount, setSavingDepositAmount] = useState('');  // 변경: initialAmount -> savingDepositAmount
+  const [savingDepositAmount, setSavingDepositAmount] = useState(''); // 변경: initialAmount -> savingDepositAmount
   const [accountPassword, setAccountPassword] = useState('');
-  const [savingRegularPaymentAmount, setSavingRegularPaymentAmount] = useState('');  // 변경: monthlyAmount -> savingRegularPaymentAmount
-  const [savingRegularPaymentDay, setSavingRegularPaymentDay] = useState('');  // 변경: paymentDay -> savingRegularPaymentDay
+  const [savingRegularPaymentAmount, setSavingRegularPaymentAmount] = useState(''); // 변경: monthlyAmount -> savingRegularPaymentAmount
+  const [savingRegularPaymentDay, setSavingRegularPaymentDay] = useState(''); // 변경: paymentDay -> savingRegularPaymentDay
 
   // 약관 동의 상태 관리
   const [agreements, setAgreements] = useState({
     terms: false,
     privacy: false,
     interest: false,
-    maturity: false
+    maturity: false,
   });
 
   // 에러 메시지 상태
@@ -39,7 +39,7 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
         if (!isSubscribed) return;
 
         const existingAccount = response.accounts.find(
-          account => account.savingProductId === saving.savingProductId
+          (account) => account.savingProductId === saving.savingProductId,
         );
 
         if (existingAccount) {
@@ -49,7 +49,7 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
           return;
         }
 
-        const joinedProductIds = response.accounts.map(account => account.savingProductId);
+        const joinedProductIds = response.accounts.map((account) => account.savingProductId);
         if (isSubscribed) {
           setJoinedProducts(joinedProductIds);
         }
@@ -88,7 +88,7 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
       terms: checked,
       privacy: checked,
       interest: checked,
-      maturity: checked
+      maturity: checked,
     });
   };
 
@@ -96,7 +96,7 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
   const handleAgreementChange = (name, checked) => {
     const newAgreements = { ...agreements, [name]: checked };
     setAgreements(newAgreements);
-    setAllAgreed(Object.values(newAgreements).every(value => value));
+    setAllAgreed(Object.values(newAgreements).every((value) => value));
   };
 
   // 가입 신청 처리
@@ -104,7 +104,7 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
     e.preventDefault();
 
     // 유효성 검사
-    if (!Object.values(agreements).every(value => value)) {
+    if (!Object.values(agreements).every((value) => value)) {
       setError('모든 약관에 동의해주세요.');
       return;
     }
@@ -131,15 +131,15 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
 
     try {
       const accountData = {
-        savingDepositAmount: Number(savingDepositAmount),  // 변경: 필드명 매칭
+        savingDepositAmount: Number(savingDepositAmount), // 변경: 필드명 매칭
         savingProductId: saving.savingProductId,
         accountPassword,
-        savingRegularPaymentAmount: Number(savingRegularPaymentAmount),  // 변경: 필드명 매칭
-        savingRegularPaymentDay: Number(savingRegularPaymentDay)  // 변경: 필드명 매칭
+        savingRegularPaymentAmount: Number(savingRegularPaymentAmount), // 변경: 필드명 매칭
+        savingRegularPaymentDay: Number(savingRegularPaymentDay), // 변경: 필드명 매칭
       };
 
       await SavingAPI.createSavingAccount(accountData);
-      setJoinedProducts(prev => [...prev, saving.savingProductId]);
+      setJoinedProducts((prev) => [...prev, saving.savingProductId]);
 
       alert('적금 상품 가입이 완료되었습니다.');
       onClose();
@@ -159,7 +159,9 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
         <div className="saving-modal-content">
           <div className="saving-modal-header">
             <h2 className="saving-modal-title">{saving.savingProductName} 가입</h2>
-            <button onClick={onClose} className="saving-modal-close">×</button>
+            <button onClick={onClose} className="saving-modal-close">
+              ×
+            </button>
           </div>
 
           <div className="saving-product-summary">
@@ -234,7 +236,9 @@ const SavingJoinModal = ({ saving, onClose, joinedProducts, setJoinedProducts })
                 >
                   <option value="">납입일 선택</option>
                   {[...Array(28)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>매월 {i + 1}일</option>
+                    <option key={i + 1} value={i + 1}>
+                      매월 {i + 1}일
+                    </option>
                   ))}
                 </select>
               </div>

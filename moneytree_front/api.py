@@ -10,13 +10,16 @@ import uuid
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 from matplotlib import rc
+import numpy as np
 import platform
 from flask_session import Session
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from db import get_apartments_data
+from flask import send_from_directory
 
 from langchain_openai import ChatOpenAI
 
@@ -53,6 +56,21 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if OPENAI_API_KEY is None:
     print("❌ [ERROR] OPENAI_API_KEY가 설정되지 않았습니다!")
     exit(1)  # 프로그램 강제 종료
+
+@app.route('/welcome', methods=['GET'])
+def welcome():
+    return jsonify({
+        "response": {
+            "type": "text",
+            "content": ("안녕하세요! 😊 저는 고객님의 MoneyTree 도우미 챗봇입니다. 궁금한 점이 있으면 질문해 주세요!"
+            "예) '매매 정보','예금 추천','적금 추천','펀드 추천'"
+            "예)'전체 적금 상품 보기','전체 예금 상품 보기','전체 펀드 상품 보기','전체 주식 상품 보기'"
+            "등이 있습니다!"
+            "아! 그리고 혹시 예금이나 적금을 어떤 상품을 가입하려 할 때 만기 했을 때 얼마나 이득을 보는지 궁금하시다면 '예금 시뮬레이션' 또는 '적금 시뮬레이션'이라고 입력해주세요!"
+            "챗봇이 고객님의 궁금점을 해결해드릴게요!"
+            )
+         }
+    })
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -115,6 +133,8 @@ def chat():
             chatbot_response = f"선택하신 상품의 상세 페이지로 이동합니다. 혹시 이동이 안되셨다면 아래 링크를 클릭해주세요: [상세페이지](http://localhost:3000/{current_category}/{product_id})"
         else:
             chatbot_response = f"유효한 추천 상품의 번호를 입력해 주세요. (예: {', '.join(top_savings.keys())} 중 하나를 선택해 주세요.)"
+
+        # session.clear()
             
         return jsonify({
             "response": chatbot_response,
@@ -181,6 +201,7 @@ def chat():
         else:
             chatbot_response = f"유효한 추천 상품의 번호를 입력해 주세요. (예 {', '.join(top_deposits.key())} 중 하나를 선택해 주세요.)"
         
+        # session.clear()
         return jsonify({
             "response": chatbot_response,
             "current_category": current_category,
@@ -222,30 +243,6 @@ def chat():
             session.modified = True
 
         return jsonify({"response": chatbot_response})
-    
-    # elif user_input.strip().isdigit() and session.get("step") == "selectfund":
-    #     product_id = user_input.strip()
-    #     top_stock_market_capitalization=session.get("top_stock_market_capitalization",{})
-
-    #     print("거래량 많고 시총 높은 순서의 정보들: ",top_stock_market_capitalization)
-    #     redirect_url = "products/fund-stock?tab=stock"
-
-    #     if product_id in top_stock_market_capitalization:
-    #         chatbot_response = f"추천된 주식 상품에서 선택하신 상품의 페이지로 이동합니다.[상세페이지](http://localhost:3000/{redirect_url})"
-    #         session[redirect_url] = redirect_url
-    #         session["valid_products_ids"] = product_id
-    #     else:
-    #         chatbot_response = f"유효한 추천 상품의 번호를 입력해 주세요.(예:)"
-    #         session[redirect_url] = None
-        
-    #     session.modified = True
-
-    #     return jsonify({
-    #         "response": chatbot_response,
-    #         "valid_product_ids" : session["valid_products_ids"],
-    #         "current_category": "stock",
-    #         "redirect_url" : session[redirect_url],
-    #         })
     
     elif "전체 주식 상품 보기" in user_input:
         chatbot_response = "전체 주식 상품 페이지로 이동하셨습니다. 혹시 이동이 안되셨다면 아래 링크를 아래 링크를 클릭해주세요:\n"
@@ -344,6 +341,147 @@ def chat():
         chatbot_response += "➡ [펀드 상품 페이지로 이동](http://localhost:3000/products/fund-stock?tab=fund)"
         return jsonify({"response": chatbot_response})
     
+    elif "예금 시뮬레이션" in user_input:
+        chatbot_response = "📢 예금 시뮬레이션에 입장하셨습니다.\n원하는 예금 상품명을 입력해주세요!\n"
+        session["step"] = "deposit_info"
+        session.modified = True
+        return jsonify({"response": chatbot_response})
+    
+    elif session.get("step") == "deposit_info":
+        session["product_name"]= user_input
+        product_name = session.get("product_name")
+        deposit_data = db.get_deposit_by_name(product_name)
+
+        if not deposit_data:
+            session["step"] = "deposit_select"
+            chatbot_response = f"'{product_name}' 상품을 찾을 수 없습니다. 다시 입력해주세요."
+            return jsonify({"response": chatbot_response})
+        
+        final_interest_rate = deposit_data["deposit_base_interest_rate"] + deposit_data["deposit_prime_interest_rate"]
+
+        chatbot_response = (
+            f"{product_name} 상품 정보: \n"
+            f"- 최소 예치 금액: {int(deposit_data['deposit_min_amount'])}원\n"
+            f"- 이율 종류: {deposit_data['deposit_interest_rate_type']}\n"
+            f"- 예치 기간: {deposit_data['deposit_maturity_period']}개월\n"
+            f"- 최종 이율: {final_interest_rate}%\n\n"
+            "가입할 금액을 입력해주세요!"
+            )
+        session["step"] = "deposit_amount"
+        session.modified = True
+        return jsonify({"response": chatbot_response})
+    
+    elif session.get("step") == "deposit_amount":
+        try:
+            deposit_amount = float(user_input)
+        except ValueError:
+            return jsonify({"response": "올바른 숫자를 입력해주세요!"})
+        
+        product_name = session.get("product_name")
+        deposit_data = db.get_deposit_by_name(product_name)
+        print("DB에서 가져온 상품 데이터:", deposit_data)
+        if deposit_amount < deposit_data["deposit_min_amount"]:
+            return jsonify({"response": f"❌ 최소 예치 금액은 {deposit_data['deposit_min_amount']}원 이상이어야 합니다!"})
+
+        final_interest_rate = (deposit_data["deposit_base_interest_rate"] + deposit_data["deposit_prime_interest_rate"])/100
+        maturity_period = deposit_data["deposit_maturity_period"]
+        # deposit_data['deposit_interest_rate_type'] #단리 or 복리 확인
+        print("data에서 이율이 출력되나요?",deposit_data['deposit_interest_rate_type'])
+        print("최종 이율:",final_interest_rate)
+
+        if deposit_data['deposit_interest_rate_type'] == "단리":
+            maturity_amount = db.calculate_deposit_maturity(deposit_amount, final_interest_rate, maturity_period)
+        elif deposit_data['deposit_interest_rate_type'] == "복리":
+            maturity_amount = db.calculate_deposit_maturity_compound(deposit_amount,final_interest_rate, maturity_period)
+        else:
+            return jsonify({"response": "금리 유형을 알 수 없습니다. 관리자에게 문의하세요!"})
+        
+        chatbot_response = f"💰 예상 만기 금액: {maturity_amount:,.0f}원\n\n📈 그래프를 보시겠습니까? (예,네,ㅇㅇ) / (아니요,아뇨,ㄴㄴ)"
+        session["deposit_amount"] = deposit_amount
+        session["step"] = "show_graph"
+        session.modified = True
+
+        return jsonify({"response": chatbot_response, "next_step": "show_graph"})
+
+    # ✅ 그래프 생성 요청
+    elif session.get("step") == "show_graph":
+        if user_input.lower() in ["예","네","ㅇㅇ"]:
+            return generate_graph()
+        else:
+            session.clear()  # 세션 종료
+            return jsonify({"response": "다른 궁금하신 점이 있다면 얘기해주세요!"})
+    
+    elif "적금 시뮬레이션" in user_input:
+        chatbot_response = "📢 적금 시뮬레이션에 입장하셨습니다. \n 원하는 적금 상품명을 입력해주세요!\n"
+        session["step"] = "saving_info"
+        session.modified = True
+        return jsonify({"response": chatbot_response})
+
+    elif session.get("step") == "saving_info":
+        session["product_name"] = user_input
+        product_name = session.get("product_name")
+        saving_data = db.get_saving_by_name(product_name)
+
+        if not saving_data:
+            session["step"] = "saving_select"
+            chatbot_response = f"'{product_name}' 상품을 찾을 수 없습니다. 다시 입력해주세요."
+            return jsonify({"response": chatbot_response})
+        
+        final_interest_rate = saving_data["saving_base_interest_rate"] + saving_data["saving_prime_interest_rate"]
+
+        chatbot_response = (
+            f"{product_name} 상품 정보: \n"
+            f"- 최소 매월 예치 금액: {int(saving_data['saving_min_amount'])}원\n"
+            f"- 최대 매월 예치 금액: {int(saving_data['saving_max_amount'])}원\n"
+            f"- 예치 기간: {saving_data['saving_maturity_period']}개월\n"
+            f"- 최종 이율: {final_interest_rate}%\n\n"
+            "가입할 금액을 입력해주세요!"
+        )
+        session["step"] = "saving_amount"
+        session.modified = True
+        return jsonify({"response": chatbot_response})
+    elif session.get("step") == "saving_amount":
+        try:
+            saving_amount = float(user_input)
+        except ValueError:
+            return jsonify({"response": "올바른 숫자를 입력해주세요!"})
+        
+        product_name = session.get("product_name")
+        saving_data = db.get_saving_by_name(product_name)
+        print("DB에서 가져온 상품 데이터:", saving_data)
+
+        if saving_amount < saving_data["saving_maturity_period"] :
+            return jsonify({"response": f"최소 예치 금액은 {saving_data['saving_maturity_period']}원 이상이어야 합니다!"})
+
+        final_interest_rate = (saving_data["saving_base_interest_rate"] + saving_data["saving_prime_interest_rate"])/100
+        maturity_period = saving_data["saving_maturity_period"]
+        print("data에서 이율이 출력되나요?",saving_data['saving_interest_rate_type'])
+        print("최종 이율:",final_interest_rate)
+
+        if saving_data["saving_interest_rate_type"] == "단리":
+            maturity_amount = db.calculate_saving_maturity_simple(saving_amount, final_interest_rate, saving_data["saving_maturity_period"])
+        elif saving_data["saving_interest_rate_type"] == "복리":
+            maturity_amount = db.calculate_saving_maturity(saving_amount, final_interest_rate, saving_data["saving_maturity_period"])
+        else:
+            return jsonify({"response": "금리 유형을 알 수 없습니다. 관리자에게 문의하세요!"})
+        
+        chatbot_response = f"💰 예상 만기 금액: {maturity_amount:,.0f}원\n\n📈 그래프를 보시겠습니까? (예,네,ㅇㅇ) / (아니요,아뇨,ㄴㄴ)"
+        session["saving_amount"] = saving_amount
+        session["step"] = "show_graph"
+        session.modified = True
+
+        return jsonify({"response": chatbot_response,"next_step": "show_graph"})
+    
+    if "매매 정보" in user_input or "부동산 시세" in user_input:
+        chatbot_response = (
+            "현재 저희가 제공하는 부동산 데이터 중에서 궁금한 부동산 이름을 입력하시면 "
+            "(예: LG선릉에클라트(B)) 2022~2024년도에 매매된 가격을 그래프로 보여드립니다. "
+            "단 그래프에 0이 있다면 그 해당 년도에 판매된 이력이 없다는 뜻입니다. "
+            "원하시는 부동산의 이름을 입력해주세요. "
+            "부동산 정보 페이지에 가시면 여러 부동산을 검색하실 수 있습니다. 🏠🔍"
+        )
+        return jsonify({"response": chatbot_response})
+    
     # 🛠 AI가 필요한 경우에만 실행되도록 추가
     elif any(keyword in user_input for keyword in ["대화", "상담", "문의"]):
         try:
@@ -371,15 +509,7 @@ def info():
     user_input = request.json.get("message")
     print(f"user_input /info 사용자 입력:{user_input}") #사용자의 질문 확인 -> 리액트와 python의 통신에 문제 없음 
 
-    if "매매 정보" in user_input or "부동산 시세" in user_input:
-        chatbot_response = (
-            "현재 저희가 제공하는 부동산 데이터 중에서 궁금한 부동산 이름을 입력하시면 "
-            "(예: LG선릉에클라트(B)) 2022~2024년도에 매매된 가격을 그래프로 보여드립니다. "
-            "단 그래프에 0이 있다면 그 해당 년도에 판매된 이력이 없다는 뜻입니다. "
-            "원하시는 부동산의 이름을 입력해주세요. "
-            "부동산 정보 페이지에 가시면 여러 부동산을 검색하실 수 있습니다. 🏠🔍"
-        )
-        return jsonify({"response": chatbot_response})
+    
 
 
     os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY #openai.api_key = OPENAI_API_KEY
@@ -398,7 +528,7 @@ def info():
 
         너는 사용자의 {user_input} 이라는 질문이 위의 기능 중 어디에 해당하는지를 알아야 해.
         {user_input}이 주어지면, 위의 기능 1, 2, 3, 4 중 어디에 해당하는지 알려줘.
-        현재 연결된 정보 테이블은 예금,적금,부동산,주식,펀드야.
+        그리고
 
 
         기능의 번호를 먼저 말해.
@@ -482,7 +612,7 @@ def filter_data_internal(user_input):
     
     return response["output"]
 
-@app.route('/graph',methods=['POST'])
+@app.route('/graph/real-estate',methods=['POST'])
 def stream_graph():
     """아파트 가격 변동 그래프 생성"""
     print("📌 [DEBUG] 그래프 요청 수신됨")
@@ -501,12 +631,15 @@ def stream_graph():
     #가격 변동 데이터를 포함하는 컬럼 선택
     price_columns = ['price_2022','price_2023','price_2024']
 
+    year_labels=[col.replace("price_","") for col in price_columns]
+
     filtered_df = apartdataframe[apartdataframe['name'] == user_input]
 
     if filtered_df.empty:
         return jsonify({"error": f"'{user_input}'에 대한 데이터를 찾을 수 없습니다."})
     
     prices = filtered_df[price_columns].values.flatten()
+    prices = [p/10000 for p in prices]
 
     STATIC_FOLDER = "static"
     if not os.path.exists(STATIC_FOLDER):
@@ -515,10 +648,10 @@ def stream_graph():
 
     #특정 부동산 그래프 생성
     plt.figure(figsize=(8,5))
-    plt.bar(price_columns, prices, color="royalblue",alpha=0.75)
+    plt.bar(year_labels, prices, color="royalblue",alpha=0.75)
     plt.title(f"{user_input} 가격 변동 추이", fontproperties="Malgun Gothic",fontsize=14)
     plt.xlabel("년도", fontproperties = "Malgun Gothic",fontsize=12)
-    plt.ylabel("최고가 매매 가격(단위: 억 원)", fontproperties = "Malgun Gothic",fontsize=14)
+    plt.ylabel("최고가 매매 가격(단위: 억 원)",fontproperties = "Malgun Gothic",fontsize=14)
     plt.xticks(fontproperties="Malgun Gothic", fontsize=10)  # X축 레이블 한글 적용
     plt.yticks(fontsize=10)  # Y축 숫자 크기 조정
     plt.grid(axis='y',linestyle='--',alpha=0.7)
@@ -529,49 +662,115 @@ def stream_graph():
     plt.savefig(image_path)
     plt.close()
 
+    session.clear()
+
     print(f"📌 [DEBUG] 그래프 저장 완료: {image_path}")
-    return jsonify({"image_url": f"http://localhost:5000/static/{image_id}.png"})
+    response_data = {
+    "image_url": f"http://localhost:7000/static/{image_id}.png",
+    "next_step": "stream_graph",
+    "response" : "해당 부동산의 2022~2024 최고가 매매 그래프입니다! 📊\n다른 궁금하신 게 있다면 요청해주세요"
+    }
+    print("📌 [DEBUG] 백엔드 응답 데이터:", response_data)  # ✅ 로그 추가
 
+    return jsonify(
+        response_data
+        )
+
+@app.route("/graph/deposit-saving", methods=["POST"])
+def generate_graph():
+    """예금 또는 적금 그래프 생성 후 이미지 파일을 반환 (세션 기반)"""
+
+    # ✅ 세션에서 필요한 데이터 가져오기
+    product_name = session.get("product_name")
+    deposit_amount = session.get("deposit_amount")
+    saving_amount = session.get("saving_amount")
+
+    if not product_name:
+        return jsonify({"error": "세션 데이터가 없습니다. 처음부터 다시 시뮬레이션을 시작하세요!"})
+
+    # ✅ 예금인지 적금인지 구분
+    if deposit_amount:
+        product_type = "deposit"
+        amount = deposit_amount
+        product_data = db.get_deposit_by_name(product_name)
+    elif saving_amount:
+        product_type = "saving"
+        amount = saving_amount
+        product_data = db.get_saving_by_name(product_name)
+    else:
+        return jsonify({"error": "세션 데이터가 부족합니다. 다시 시도해주세요!"})
+
+    if not product_data:
+        return jsonify({"error": f"'{product_name}' 상품을 찾을 수 없습니다."})
+
+    # ✅ 이율 및 기간 설정
+    interest_rate = (product_data["deposit_base_interest_rate"] + product_data["deposit_prime_interest_rate"]) / 100 if product_type == "deposit" else \
+                    (product_data["saving_base_interest_rate"] + product_data["saving_prime_interest_rate"]) / 100
+    period = product_data["deposit_maturity_period"] if product_type == "deposit" else product_data["saving_maturity_period"]
+
+    interest_type = product_data["deposit_interest_rate_type"] if product_type == "deposit" else product_data["saving_interest_rate_type"]
+
+    # ✅ 그래프 저장 디렉토리 생성
+    STATIC_FOLDER = "static"
+    if not os.path.exists(STATIC_FOLDER):
+        os.makedirs(STATIC_FOLDER)
+
+    # ✅ 그래프 데이터 생성
+    x = np.arange(0, period + 1, 3)
+    y = []
+
+    for m in x:
+        if product_type == "deposit":
+            if interest_type == "단리":
+                amount_at_maturity = db.calculate_deposit_maturity(amount, interest_rate, m / 12)  # 예금 단리
+            elif interest_type == "복리":
+                amount_at_maturity = db.calculate_deposit_maturity_compound(amount, interest_rate, m / 12, 12)  # 예금 복리 (월 복리)
+        elif product_type == "saving":
+            if interest_type == "단리":
+                amount_at_maturity = db.calculate_saving_maturity_simple(amount, interest_rate, m)  # 적금 단리
+            elif interest_type == "복리":
+                amount_at_maturity = db.calculate_saving_maturity(amount, interest_rate, m)  # 적금 복리 (월 복리)
+
+        y.append(amount_at_maturity / 10_000)  # 단위: 만원
+    
+    print(f"📌 [DEBUG] 복리 적금 계산 결과 (m={m}): {amount_at_maturity}")  # 🔍 복리 계산된 값 확인
+    print(f"📌 [DEBUG] interest_type: {interest_type}")  # 🔍 단리/복리 값 확인
+    print(f"📌 [DEBUG] interest_type: {interest_type}")  # 🔍 단리/복리 값 확인
+    print(f"📌 [DEBUG] Y축 데이터: {y}")
 
     
 
-    
 
-    # deposit_df = db.get_deposit_data()
-    # saving_df = db.get_saving_data()
-    # apartments_df = db.get_apartments_data()
-    # stocks_df = db.get_stock_data()
-    # fund_df = db.get_fund_data()
+    plt.figure(figsize=(8, 5))
+    plt.plot(x, y, marker='o', linestyle='-', color="blue" if product_type == "deposit" else "green")
+    plt.xlabel("개월",fontproperties = "Malgun Gothic",fontsize=14)
+    plt.ylabel("총 금액(기본 단위 만원)",fontproperties = "Malgun Gothic",fontsize=14)
+    plt.title(f"{product_name} {'예금' if product_type == 'deposit' else '적금'} 만기 금액",fontproperties = "Malgun Gothic",fontsize=14)
+    plt.legend()
+    plt.grid()
 
-    # if deposit_df is None and saving_df is None and apartments_df is None and stocks_df is None and fund_df is None:
-    #     return jsonify({"response": " 해당 상품에 대한 데이터를 찾을 수 없습니다."})
-    
-    # #데이터프레임을 불러옴 하나라도 None 이면 빈 데이터 프레임으로 대체
-    # if deposit_df is None:
-    #     deposit_df = pd.DataFrame()
-    # if saving_df is None:
-    #     saving_df = pd.DataFrame()
-    # if apartments_df is None:
-    #     saving_df = pd.DataFrame()
-    # if stocks_df is None:
-    #     stocks_df = pd.DataFrame()
-    # if fund_df is None:
-    #     fund_df = pd.DataFrame()
+    plt.xticks(np.arange(0,period + 1, 3))
 
-    # combined_df = pd.concat([deposit_df,saving_df,apartments_df,stocks_df,fund_df], ignore_index=True)
-    
+    # ✅ 그래프 이미지 저장
+    image_id = str(uuid.uuid4())
+    image_path = os.path.join(STATIC_FOLDER, f"{image_id}.png")
+    plt.savefig(image_path)
+    plt.close()
 
-    # os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
-    # agent = create_pandas_dataframe_agent(
-    #     ChatOpenAI(temperature=0, model='gpt-4o-mini'), 
-    #     combined_df,
-    #     agent_type='tool-calling',
-    #     allow_dangerous_code=True
-    # )
+    print(f"📌 [DEBUG] 그래프 저장 완료: {image_path}")
 
-    # response = agent.invoke({user_input})
+    session.clear()
 
-    # return jsonify({"response":response['output']})# 물어보는 형식이 다름 
+    return jsonify({
+    "image_url": f"http://localhost:7000/static/{image_id}.png",
+    "next_step": "deposit_saving_graph",
+    "response": "해당 상품의 만기 예상 그래프입니다!  📊\n다른 궁금하신 게 있다면 요청해주세요"
+    })
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
+
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=7000)
