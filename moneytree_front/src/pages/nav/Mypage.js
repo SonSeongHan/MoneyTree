@@ -128,8 +128,8 @@ const Mypage = () => {
 
     const handleNextSlide = () => {
         const accounts = activeTab === 'deposit' ? depositAccounts :
-          activeTab === 'savings' ? savingAccounts :
-            activeTab === 'stock' ? stockHoldings : [];
+            activeTab === 'savings' ? savingAccounts :
+                activeTab === 'stock' ? stockHoldings : [];
         const maxSlide = Math.ceil(accounts.length / 3) - 1;
         setCurrentSlide(prev => Math.min(prev + 1, maxSlide));
     };
@@ -154,9 +154,9 @@ const Mypage = () => {
         if (currentAccounts.length === 0) {
             return <p className="no-products">
                 {activeTab === 'deposit' ? '예금' :
-                  activeTab === 'savings' ? '적금' :
-                    activeTab === 'stock' ? '주식' :
-                      activeTab === 'fund' ? '펀드' : ''} 보유 내역이 없습니다.
+                    activeTab === 'savings' ? '적금' :
+                        activeTab === 'stock' ? '주식' :
+                            activeTab === 'fund' ? '펀드' : ''} 보유 내역이 없습니다.
             </p>;
         }
 
@@ -165,159 +165,159 @@ const Mypage = () => {
         };
 
         return (
-          <div className="products-slider-container">
-              <button
-                className="slider-button prev"
-                onClick={handlePrevSlide}
-                disabled={currentSlide === 0}
-              >
-                  ←
-              </button>
-              <div className="products-wrapper">
-                  <div className="products-slider" style={slideStyle}>
-                      {currentAccounts.map((item) => {
-                          if (activeTab === 'stock') {
-                              // 주식 카드 렌더링
-                              return (
-                                <div
-                                  key={item.stockHoldingId}
-                                  className="deposit-account-card"
-                                  onClick={() => {
-                                      setSelectedStock({
-                                          stockProductId: item.stockProductId,
-                                          stockProductName: item.stockProductName,
-                                          stockMarketCategory: item.stockMarketCategory || 'KOSPI',
-                                          stockClosingPrice: item.stockClosingPrice || 0,
-                                          stockFluctuationRate: item.stockFluctuationRate || 0,
-                                          stockPriceDifference: item.stockPriceDifference || 0
-                                      });
-                                      setIsStockModalOpen(true);
-                                  }}
-                                  style={{ cursor: 'pointer' }}
-                                >
-                                    <h3 className="deposit-account-name">
-                                        {item.stockProductName}
-                                    </h3>
-                                    <div className="deposit-account-details">
-                                        <p className="deposit-account-balance">
-                                            보유수량: {item.stockHoldingQuantity || 0}주
-                                        </p>
-                                        <p className="deposit-account-current-price">
-                                            현재가: {item.stockClosingPrice || 0}원
-                                        </p>
-                                        <p className={`deposit-account-rate ${
-                                          (item.stockFluctuationRate || 0) >= 0 ? 'text-green-500' : 'text-red-500'
-                                        }`}>
-                                            등락률: {(item.stockFluctuationRate || 0) >= 0 ? '+' : ''}
-                                            {item.stockFluctuationRate || 0}%
-                                        </p>
-                                        <p className="deposit-account-total-value">
-                                            평가금액: {(item.stockHoldingQuantity || 0) * (item.stockClosingPrice || 0)}원
-                                        </p>
+            <div className="products-slider-container">
+                <button
+                    className="slider-button prev"
+                    onClick={handlePrevSlide}
+                    disabled={currentSlide === 0}
+                >
+                    ←
+                </button>
+                <div className="products-wrapper">
+                    <div className="products-slider" style={slideStyle}>
+                        {currentAccounts.map((item) => {
+                            if (activeTab === 'stock') {
+                                // 주식 카드 렌더링
+                                return (
+                                    <div
+                                        key={item.stockHoldingId}
+                                        className="deposit-account-card"
+                                        onClick={() => {
+                                            setSelectedStock({
+                                                stockProductId: item.stockProductId,
+                                                stockProductName: item.stockProductName,
+                                                stockMarketCategory: item.stockMarketCategory || 'KOSPI',
+                                                stockClosingPrice: item.stockClosingPrice || 0,
+                                                stockFluctuationRate: item.stockFluctuationRate || 0,
+                                                stockPriceDifference: item.stockPriceDifference || 0
+                                            });
+                                            setIsStockModalOpen(true);
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <h3 className="deposit-account-name">
+                                            {item.stockProductName}
+                                        </h3>
+                                        <div className="deposit-account-details">
+                                            <p className="deposit-account-balance">
+                                                보유수량: {item.stockHoldingQuantity || 0}주
+                                            </p>
+                                            <p className="deposit-account-current-price">
+                                                현재가: {item.stockClosingPrice || 0}원
+                                            </p>
+                                            <p className={`deposit-account-rate ${
+                                                (item.stockFluctuationRate || 0) >= 0 ? 'text-green-500' : 'text-red-500'
+                                            }`}>
+                                                등락률: {(item.stockFluctuationRate || 0) >= 0 ? '+' : ''}
+                                                {item.stockFluctuationRate || 0}%
+                                            </p>
+                                            <p className="deposit-account-total-value">
+                                                평가금액: {(item.stockHoldingQuantity || 0) * (item.stockClosingPrice || 0)}원
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                              );
-                          } else if (activeTab === 'fund') {
-                              const product = currentProducts[item.fundProductId];
-                              return (
-                                <div
-                                  key={item.fundAccountNumber}
-                                  className="deposit-account-card"
-                                  onClick={() => {
-                                      setSelectedAccount(item);
-                                      setSelectedProduct(product);
-                                      setIsModalOpen(true);
-                                  }}
-                                >
-                                    <h3 className="deposit-account-name">
-                                        {product ? product.fundProductName : '펀드상품'}
-                                    </h3>
-                                    <div className="deposit-account-details">
-                                        <p className="deposit-account-number">
-                                            계좌번호: {item.fundAccountNumber}
-                                        </p>
-                                        <p className="deposit-account-balance">
-                                            투자금액: {item.fundInvestmentAmount?.toLocaleString()}원
-                                        </p>
-                                        <p className="deposit-account-start-date">
-                                            투자일: {new Date(item.fundInvestmentDate).toLocaleDateString()}
-                                        </p>
-                                        <p className="deposit-account-end-date">
-                                            만기일: {new Date(item.fundMaturityDate).toLocaleDateString()}
-                                        </p>
-                                        <p className="deposit-account-status">
-                                            상태: {item.fundStatus}
-                                        </p>
+                                );
+                            } else if (activeTab === 'fund') {
+                                const product = currentProducts[item.fundProductId];
+                                return (
+                                    <div
+                                        key={item.fundAccountNumber}
+                                        className="deposit-account-card"
+                                        onClick={() => {
+                                            setSelectedAccount(item);
+                                            setSelectedProduct(product);
+                                            setIsModalOpen(true);
+                                        }}
+                                    >
+                                        <h3 className="deposit-account-name">
+                                            {product ? product.fundProductName : '펀드상품'}
+                                        </h3>
+                                        <div className="deposit-account-details">
+                                            <p className="deposit-account-number">
+                                                계좌번호: {item.fundAccountNumber}
+                                            </p>
+                                            <p className="deposit-account-balance">
+                                                투자금액: {item.fundInvestmentAmount?.toLocaleString()}원
+                                            </p>
+                                            <p className="deposit-account-start-date">
+                                                투자일: {new Date(item.fundInvestmentDate).toLocaleDateString()}
+                                            </p>
+                                            <p className="deposit-account-end-date">
+                                                만기일: {new Date(item.fundMaturityDate).toLocaleDateString()}
+                                            </p>
+                                            <p className="deposit-account-status">
+                                                상태: {item.fundStatus}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                              );
-                          } else {
-                              // 예금/적금 카드 렌더링
-                              const product = currentProducts[activeTab === 'deposit'
-                                ? item.depositProductId
-                                : item.savingProductId];
+                                );
+                            } else {
+                                // 예금/적금 카드 렌더링
+                                const product = currentProducts[activeTab === 'deposit'
+                                    ? item.depositProductId
+                                    : item.savingProductId];
 
-                              return (
-                                <div
-                                  key={activeTab === 'deposit'
-                                    ? item.depositAccountNumber
-                                    : item.savingAccountNumber}
-                                  className="deposit-account-card"
-                                  onClick={() => {
-                                      setSelectedAccount(item);
-                                      setSelectedProduct(product);
-                                      setIsModalOpen(true);
-                                  }}
-                                >
-                                    <h3 className="deposit-account-name">
-                                        {product ? (activeTab === 'deposit'
-                                            ? product.depositProductName
-                                            : product.savingProductName)
-                                          : `${activeTab === 'deposit' ? '예금' : '적금'}상품`}
-                                    </h3>
-                                    <div className="deposit-account-details">
-                                        <p className="deposit-account-number">
-                                            계좌번호: {item.formattedAccountNumber ||
-                                          (activeTab === 'deposit'
+                                return (
+                                    <div
+                                        key={activeTab === 'deposit'
                                             ? item.depositAccountNumber
-                                            : item.savingAccountNumber)}
-                                        </p>
-                                        <p className="deposit-account-balance">
-                                            {activeTab === 'deposit' ? '예금액' : '적립액'}:
-                                            {activeTab === 'deposit'
-                                              ? item.depositAmount || 0
-                                              : item.savingDepositAmount || 0}원
-                                        </p>
-                                        <p className="deposit-account-start-date">
-                                            계좌 생성일: {new Date(activeTab === 'deposit'
-                                          ? item.depositStartDate
-                                          : item.savingStartDate).toLocaleDateString()}
-                                        </p>
-                                        <p className="deposit-account-end-date">
-                                            만기일: {new Date(activeTab === 'deposit'
-                                          ? item.depositEndDate
-                                          : item.savingEndDate).toLocaleDateString()}
-                                        </p>
-                                        {activeTab === 'savings' && item.savingRegularPaymentAmount && (
-                                          <p className="deposit-account-payment">
-                                              월 납입액: {item.savingRegularPaymentAmount || 0}원
-                                          </p>
-                                        )}
+                                            : item.savingAccountNumber}
+                                        className="deposit-account-card"
+                                        onClick={() => {
+                                            setSelectedAccount(item);
+                                            setSelectedProduct(product);
+                                            setIsModalOpen(true);
+                                        }}
+                                    >
+                                        <h3 className="deposit-account-name">
+                                            {product ? (activeTab === 'deposit'
+                                                    ? product.depositProductName
+                                                    : product.savingProductName)
+                                                : `${activeTab === 'deposit' ? '예금' : '적금'}상품`}
+                                        </h3>
+                                        <div className="deposit-account-details">
+                                            <p className="deposit-account-number">
+                                                계좌번호: {item.formattedAccountNumber ||
+                                                (activeTab === 'deposit'
+                                                    ? item.depositAccountNumber
+                                                    : item.savingAccountNumber)}
+                                            </p>
+                                            <p className="deposit-account-balance">
+                                                {activeTab === 'deposit' ? '예금액' : '적립액'}:
+                                                {activeTab === 'deposit'
+                                                    ? item.depositAmount || 0
+                                                    : item.savingDepositAmount || 0}원
+                                            </p>
+                                            <p className="deposit-account-start-date">
+                                                계좌 생성일: {new Date(activeTab === 'deposit'
+                                                ? item.depositStartDate
+                                                : item.savingStartDate).toLocaleDateString()}
+                                            </p>
+                                            <p className="deposit-account-end-date">
+                                                만기일: {new Date(activeTab === 'deposit'
+                                                ? item.depositEndDate
+                                                : item.savingEndDate).toLocaleDateString()}
+                                            </p>
+                                            {activeTab === 'savings' && item.savingRegularPaymentAmount && (
+                                                <p className="deposit-account-payment">
+                                                    월 납입액: {item.savingRegularPaymentAmount || 0}원
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                              );
-                          }
-                      })}
-                  </div>
-              </div>
-              <button
-                className="slider-button next"
-                onClick={handleNextSlide}
-                disabled={currentSlide >= Math.ceil(currentAccounts.length / 3) - 1}
-              >
-                  →
-              </button>
-          </div>
+                                );
+                            }
+                        })}
+                    </div>
+                </div>
+                <button
+                    className="slider-button next"
+                    onClick={handleNextSlide}
+                    disabled={currentSlide >= Math.ceil(currentAccounts.length / 3) - 1}
+                >
+                    →
+                </button>
+            </div>
         );
     };
 
@@ -325,121 +325,121 @@ const Mypage = () => {
     if (error) return <div className="mypage-error">{error}</div>;
 
     return (
-      <div className="mypage-container">
-          <h2 className="mypage-title">가입한 상품들</h2>
+        <div className="mypage-container">
+            <h2 className="mypage-title">가입한 상품들</h2>
 
-          <div className="product-tabs">
-              <button
-                className={`product-tab ${activeTab === 'deposit' ? 'active' : ''}`}
-                onClick={() => {
-                    setActiveTab('deposit');
-                    setCurrentSlide(0);
-                }}
-              >
-                  예금
-              </button>
-              <button
-                className={`product-tab ${activeTab === 'savings' ? 'active' : ''}`}
-                onClick={() => {
-                    setActiveTab('savings');
-                    setCurrentSlide(0);
-                }}
-              >
-                  적금
-              </button>
-              <button
-                className={`product-tab ${activeTab === 'fund' ? 'active' : ''}`}
-                onClick={() => {
-                    setActiveTab('fund');
-                    setCurrentSlide(0);
-                }}
-              >
-                  펀드
-              </button>
-              <button
-                className={`product-tab ${activeTab === 'stock' ? 'active' : ''}`}
-                onClick={() => {
-                    setActiveTab('stock');
-                    setCurrentSlide(0);
-                }}
-              >
-                  주식
-              </button>
-          </div>
+            <div className="product-tabs">
+                <button
+                    className={`product-tab ${activeTab === 'deposit' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('deposit');
+                        setCurrentSlide(0);
+                    }}
+                >
+                    예금
+                </button>
+                <button
+                    className={`product-tab ${activeTab === 'savings' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('savings');
+                        setCurrentSlide(0);
+                    }}
+                >
+                    적금
+                </button>
+                <button
+                    className={`product-tab ${activeTab === 'fund' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('fund');
+                        setCurrentSlide(0);
+                    }}
+                >
+                    펀드
+                </button>
+                <button
+                    className={`product-tab ${activeTab === 'stock' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('stock');
+                        setCurrentSlide(0);
+                    }}
+                >
+                    주식
+                </button>
+            </div>
 
-          <div className="products-container">
-              {(activeTab === 'deposit' || activeTab === 'savings' || activeTab === 'stock' || activeTab === 'fund') && renderProducts()}
-          </div>
+            <div className="products-container">
+                {(activeTab === 'deposit' || activeTab === 'savings' || activeTab === 'stock' || activeTab === 'fund') && renderProducts()}
+            </div>
 
-          {activeTab === 'deposit' && (
-            <MyDepositDetail
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              account={selectedAccount}
-              productDetails={selectedProduct}
-            />
-          )}
+            {activeTab === 'deposit' && (
+                <MyDepositDetail
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    account={selectedAccount}
+                    productDetails={selectedProduct}
+                />
+            )}
 
-          {activeTab === 'savings' && (
-            <MySavingDetail
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              account={selectedAccount}
-              productDetails={selectedProduct}
-            />
-          )}
+            {activeTab === 'savings' && (
+                <MySavingDetail
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    account={selectedAccount}
+                    productDetails={selectedProduct}
+                />
+            )}
 
-          {selectedStock && (
-            <StockTradeModal
-              isOpen={isStockModalOpen}
-              onClose={() => {
-                  setIsStockModalOpen(false);
-                  // 모달이 닫힐 때 주식 데이터 다시 가져오기
-                  const refetchStockData = async () => {
-                      const memberInfo = getCookie('member');
-                      if (memberInfo) {
-                          const dandwAcId = await StockAPI.getDandwacAccountNumber(memberInfo.memberId);
-                          if (dandwAcId) {
-                              const stockAccountInfo = await StockAPI.getStockAccount(dandwAcId);
-                              const holdingsInfo = await StockAPI.getStockHoldings(stockAccountInfo.stockAccountNumber);
+            {selectedStock && (
+                <StockTradeModal
+                    isOpen={isStockModalOpen}
+                    onClose={() => {
+                        setIsStockModalOpen(false);
+                        // 모달이 닫힐 때 주식 데이터 다시 가져오기
+                        const refetchStockData = async () => {
+                            const memberInfo = getCookie('member');
+                            if (memberInfo) {
+                                const dandwAcId = await StockAPI.getDandwacAccountNumber(memberInfo.memberId);
+                                if (dandwAcId) {
+                                    const stockAccountInfo = await StockAPI.getStockAccount(dandwAcId);
+                                    const holdingsInfo = await StockAPI.getStockHoldings(stockAccountInfo.stockAccountNumber);
 
-                              const processedHoldings = await Promise.all(holdingsInfo.map(async (holding) => {
-                                  try {
-                                      const stockDetails = await StockAPI.searchStockProductsByName(holding.stockProductName);
-                                      return {
-                                          ...holding,
-                                          ...stockDetails[0],
-                                          stockHoldingQuantity: holding.stockHoldingQuantity,
-                                          stockClosingPrice: holding.stockClosingPrice,
-                                          stockFluctuationRate: holding.stockFluctuationRate
-                                      };
-                                  } catch (error) {
-                                      console.error(`Error fetching details for ${holding.stockProductName}:`, error);
-                                      return holding;
-                                  }
-                              }));
+                                    const processedHoldings = await Promise.all(holdingsInfo.map(async (holding) => {
+                                        try {
+                                            const stockDetails = await StockAPI.searchStockProductsByName(holding.stockProductName);
+                                            return {
+                                                ...holding,
+                                                ...stockDetails[0],
+                                                stockHoldingQuantity: holding.stockHoldingQuantity,
+                                                stockClosingPrice: holding.stockClosingPrice,
+                                                stockFluctuationRate: holding.stockFluctuationRate
+                                            };
+                                        } catch (error) {
+                                            console.error(`Error fetching details for ${holding.stockProductName}:`, error);
+                                            return holding;
+                                        }
+                                    }));
 
-                              setStockHoldings(processedHoldings);
-                          }
-                      }
-                  };
+                                    setStockHoldings(processedHoldings);
+                                }
+                            }
+                        };
 
-                  refetchStockData();
-                  setSelectedStock(null);
-              }}
-              stockProduct={selectedStock}
-            />
-          )}
+                        refetchStockData();
+                        setSelectedStock(null);
+                    }}
+                    stockProduct={selectedStock}
+                />
+            )}
 
-          {activeTab === 'fund' && (
-            <MyFundDetail
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              account={selectedAccount}
-              productDetails={selectedProduct}
-            />
-          )}
-      </div>
+            {activeTab === 'fund' && (
+                <MyFundDetail
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    account={selectedAccount}
+                    productDetails={selectedProduct}
+                />
+            )}
+        </div>
     );
 };
 

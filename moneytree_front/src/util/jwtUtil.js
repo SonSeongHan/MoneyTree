@@ -21,6 +21,7 @@ jwtAxios.interceptors.request.use(
 
         if (parsedInfo.accessToken) {
           config.headers.Authorization = `Bearer ${parsedInfo.accessToken}`;
+          // console.log('Added token:', config.headers.Authorization); // 디버깅용
         } else {
           console.warn('No access token found in member info');
         }

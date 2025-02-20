@@ -33,9 +33,13 @@ public class TransactionHistory {
 
     // 거래 유형 (송금, 출금, 입금 등)
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type")
+    @Column(name = "dandwac_type")
     private DandwacType dandwacType;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type")
+    private TransactionHistoryType transactionHistoryType;
     // 거래 발생 시각
     @Column(name = "created_at")
     private LocalDateTime createdAt;

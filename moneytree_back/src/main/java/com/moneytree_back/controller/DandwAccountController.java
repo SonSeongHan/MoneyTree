@@ -88,9 +88,11 @@ public class DandwAccountController {
     public ResponseEntity<?> getTransactionHistory(@RequestParam String memberId,
                                                    @RequestParam(defaultValue = "1") int months) {
         try {
-            List<TransactionHistory> transactions =
+            // 서비스에서 이미 TransferHistoryDTO 리스트를 반환하므로 타입을 맞춰줍니다.
+            List<TransferHistoryDTO> transactions =
                     transactionHistoryService.getTransactionsForMember(memberId, months);
 
+            // 만약 추가로 DTO를 가공할 필요가 없다면, 아래 mapping 과정은 생략하고 바로 transactions를 반환해도 됩니다.
             List<TransferHistoryDTO> dtos = transactions.stream().map(tx -> {
                 // DB에 저장된 닉네임 필드를 그대로 사용
                 String fromName = tx.getFromMemberName();
@@ -98,10 +100,8 @@ public class DandwAccountController {
 
                 return TransferHistoryDTO.builder()
                         .id(tx.getId())
-                        .transactionType(tx.getDandwacType() != null
-                                ? tx.getDandwacType().toString()
-                                : null)
-                        .amount(tx.getAmount().doubleValue())
+                        .transactionType(tx.getTransactionType())  // 이미 DTO에 세팅되어 있음
+                        .amount(tx.getAmount())
                         .createdAt(tx.getCreatedAt())
                         .fromMemberName(fromName)
                         .toMemberName(toName)
