@@ -129,7 +129,8 @@ const Mypage = () => {
     const handleNextSlide = () => {
         const accounts = activeTab === 'deposit' ? depositAccounts :
           activeTab === 'savings' ? savingAccounts :
-            activeTab === 'stock' ? stockHoldings : [];
+            activeTab === 'stock' ? stockHoldings :
+              activeTab === 'fund' ? fundAccounts : [];
         const maxSlide = Math.ceil(accounts.length / 3) - 1;
         setCurrentSlide(prev => Math.min(prev + 1, maxSlide));
     };

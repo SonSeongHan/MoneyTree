@@ -31,19 +31,33 @@ function FundStock() {
     }
   };
 
-  const handleTabClick = (tab) => {
+  const handleTabClick = async (tab) => {
     if (tab === 'stock') {
-      checkStockAccount().then(() => {
-        if (!stockAccount) {
-          // 주식 계좌가 없으면 개설 페이지로 이동
+      try {
+        const memberCookie = getCookie('member');
+        if (!memberCookie) {
+          navigate('/loginpage');
+          return;
+        }
+
+        const dandwAcId = await StockAPI.getDandwacAccountNumber(memberCookie.memberId);
+        if (!dandwAcId) {
           navigate('/create-stock-account');
           return;
         }
-        // 주식 계좌가 있으면 탭 변경
+
+        const stockAccountInfo = await StockAPI.getStockAccount(dandwAcId);
+        if (!stockAccountInfo) {
+          navigate('/create-stock-account');
+          return;
+        }
+
+        setStockAccount(stockAccountInfo);
         setActiveTab(tab);
-      });
+      } catch (err) {
+        console.error('주식 계좌 확인 중 오류:', err);
+      }
     } else {
-      // 펀드 탭은 그대로 변경
       setActiveTab(tab);
     }
   };
