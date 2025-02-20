@@ -58,7 +58,7 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
         claims.put("member_name", memberName);
 
         // JWT 토큰 생성 (유효기간은 예시입니다)
-        String accessToken = JWTUtil.generateToken(claims, 1);        // 60분
+        String accessToken = JWTUtil.generateToken(claims, 60);        // 60분
         String refreshToken = JWTUtil.generateToken(claims, 60 * 24);    // 24시간
 
         log.info("AccessToken: {}", accessToken);

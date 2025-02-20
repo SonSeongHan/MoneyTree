@@ -57,7 +57,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         return false;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -186,9 +185,9 @@ public class JWTCheckFilter extends OncePerRequestFilter {
                     String newAccessToken = JWTUtil.generateAccessToken(memberId, memberName, membershipTypeStr);
                     log.info("Generated new access token: " + newAccessToken);
 
-                    // memberData 내의 accessToken 업데이트 및 refreshToken 삭제
+                    // 업데이트된 memberData 내에 accessToken 업데이트; **refreshToken은 그대로 유지**
                     memberData.put("accessToken", newAccessToken);
-                    memberData.remove("refreshToken");
+                    // memberData.remove("refreshToken"); // 제거하지 않음
 
                     // 업데이트된 memberData를 JSON 문자열로 변환 후 URL 인코딩
                     String updatedJson = gson.toJson(memberData);
@@ -235,10 +234,17 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             log.error("JWT Check Error..............", e);
             Gson gson = new Gson();
             String msg = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
-            response.setContentType("application/json");
-            PrintWriter printWriter = response.getWriter();
-            printWriter.println(msg);
-            printWriter.close();
+
+            // 응답이 이미 커밋되지 않았다면 응답을 초기화하고, getOutputStream()을 사용하여 작성
+            if (!response.isCommitted()) {
+                response.reset();
+                response.setContentType("application/json");
+                // getOutputStream() 사용
+                response.getOutputStream().println(msg);
+                response.getOutputStream().flush();
+                response.getOutputStream().close();
+            }
         }
     }
+
 }

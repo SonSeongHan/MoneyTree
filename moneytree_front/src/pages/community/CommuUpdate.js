@@ -1,140 +1,255 @@
-import React, { useState, useEffect } from "react";
-import { fetchGetCommunityById, fetchUpdateCommunity, fetchFile } from "../../api/CommunityApi";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { getCookie } from '../../util/cookieUtil';
+import LoginPage from '../member/LoginPage'; // 로그인 모달 컴포넌트 (경로에 맞게 수정)
+import "../../css/hobby/commuupdate.css"
+const HobbyCommunityComment = ({ postId, onCommentChange }) => {
+  // 상태 변수 선언
+  const [comments, setComments] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalResults, setTotalResults] = useState(0); // 전체 댓글 개수
+  const [newCommentText, setNewCommentText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingText, setEditingText] = useState('');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLoginTooltip, setShowLoginTooltip] = useState(false);
 
-const CommuUpdate = () => {
-  const { postId } = useParams();
-  const [postData, setPostData] = useState(null);
-  const [files, setFiles] = useState([]); // 새로 추가할 파일들
-  const [imageUrls, setImageUrls] = useState([]); // 기존 이미지 URL
-  const [deletedImages, setDeletedImages] = useState([]); // 삭제할 이미지 목록
-  const navigate = useNavigate();
+  // 한 블록에 보여줄 페이지 수
+  const blockSize = 10;
 
-  const loggedInUser = getCookie("member");
+  // 로그인한 사용자 정보
+  const loggedInUser = getCookie('member');
   const loggedInUserId = loggedInUser?.memberId;
 
-  if (!loggedInUserId) {
-    console.error("유효한 로그인 유저 정보를 찾을 수 없습니다.");
-    throw new Error("멤버 정보가 없습니다.");
-  }
+  // 댓글 목록 불러오기 (취미 커뮤니티 엔드포인트 예시)
+  const fetchComments = () => {
+    axios
+        .get(`http://localhost:8080/api/hobby-comments?postId=${postId}&page=${page}&size=10`)
+        .then((response) => {
+          if (response.data && response.data.content !== undefined) {
+            setComments(response.data.content);
+            setTotalPages(response.data.totalPages);
+            setTotalResults(response.data.totalElements);
+          } else {
+            console.error('알 수 없는 응답 구조:', response.data);
+          }
+        })
+        .catch((error) => console.error('댓글 불러오기 오류:', error));
+  };
 
+  // postId나 페이지가 변경될 때마다 댓글 목록을 불러옴
   useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const data = await fetchGetCommunityById(postId);
-        setPostData(data);
+    fetchComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId, page]);
 
-        if (data.imageUrls && data.imageUrls.length > 0) {
-          const imageUrlsFetched = await Promise.all(
-            data.imageUrls.map(async (fileName) => {
-              try {
-                return { fileName, url: await fetchFile(fileName) };
-              } catch (error) {
-                console.error("이미지를 불러오는 데 실패했습니다:", error);
-                return null;
-              }
-            })
-          );
-          setImageUrls(imageUrlsFetched.filter((img) => img !== null)); // 실패한 이미지 제외
-        }
-      } catch (error) {
-        console.error("글을 불러오는 데 실패했습니다:", error);
-        alert("글을 불러오는 데 실패했습니다.");
-      }
-    };
+  // 페이지네이션 계산
+  const currentBlock = Math.floor(page / blockSize);
+  const startPage = currentBlock * blockSize;
+  const endPage = Math.min(startPage + blockSize - 1, totalPages - 1);
 
-    fetchPost();
-  }, [postId]);
+  const handlePageClick = (pageNum) => setPage(pageNum);
+  const handlePrevBlock = () => setPage(Math.max(startPage - blockSize, 0));
+  const handleNextBlock = () => setPage(Math.min(startPage + blockSize, totalPages - 1));
+  const goFirst = () => setPage(0);
+  const goLast = () => setPage(totalPages - 1);
 
-  // 파일 선택 핸들러
-  const handleFileChange = (event) => {
-    setFiles([...event.target.files]);
+  // 새 댓글 작성 핸들러
+  const handleNewCommentSubmit = () => {
+    if (!loggedInUserId) {
+      alert('댓글 작성시 로그인이 필요합니다.');
+      setShowLoginTooltip(true);
+      setShowLoginModal(true);
+      setTimeout(() => setShowLoginTooltip(false), 3000);
+      return;
+    }
+    if (!newCommentText.trim()) return;
+
+    axios
+        .post(`http://localhost:8080/api/hobby-comments?postId=${postId}`, {
+          text: newCommentText,
+          author: loggedInUserId,
+        })
+        .then(() => {
+          setNewCommentText('');
+          fetchComments();
+          if (onCommentChange) onCommentChange();
+        })
+        .catch((error) => console.error('댓글 작성 오류:', error));
   };
 
-  // 기존 이미지 삭제 핸들러
-  const handleDeleteImage = (fileName) => {
-    setDeletedImages([...deletedImages, fileName]); // 삭제 목록에 추가
-    setImageUrls(imageUrls.filter((img) => img.fileName !== fileName)); // UI에서 삭제
+  // 댓글 수정 시작 핸들러
+  const handleStartEdit = (comment) => {
+    if (!loggedInUserId || String(comment.author) !== String(loggedInUserId)) {
+      alert('수정 권한이 없습니다.');
+      return;
+    }
+    setEditingCommentId(comment.id);
+    setEditingText(comment.text);
   };
 
-  // 수정 제출 핸들러
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  // 댓글 수정 저장 핸들러
+  const handleSaveEdit = (commentId) => {
+    if (!editingText.trim()) return;
 
-    const communityData = {
-      postId: postData.postId,
-      memberId: postData.memberId,
-      postType: postData.postType,
-      title: postData.title,
-      content: postData.content,
-      createdAt: postData.createdAt,
-      updatedAt: new Date().toISOString(),
-      deletedImages: deletedImages, // 삭제할 이미지 목록 추가
-    };
+    axios
+        .put(`http://localhost:8080/api/hobby-comments/${commentId}`, {
+          text: editingText,
+          author: loggedInUserId,
+        })
+        .then(() => {
+          setEditingCommentId(null);
+          setEditingText('');
+          fetchComments();
+          if (onCommentChange) onCommentChange();
+        })
+        .catch((error) => console.error('댓글 수정 오류:', error));
+  };
 
-    console.log("보내는 communityDTO:", communityData);
-
-    try {
-      const data = await fetchUpdateCommunity(postId, communityData, files,deletedImages);
-      console.log("CommuUpdate.js에서 api로 보내는 커뮤데이터:",data)
-      alert("글이 성공적으로 수정되었습니다.");
-      navigate(`/community/check/${postData.postId}`);
-    } catch (error) {
-      console.error("글 수정 중 오류 발생:", error);
-      alert("글 수정 중 오류가 발생했습니다.");
+  // 댓글 삭제 핸들러
+  const handleDeleteComment = (comment) => {
+    if (!loggedInUserId || String(comment.author) !== String(loggedInUserId)) {
+      alert('삭제 권한이 없습니다.');
+      return;
+    }
+    if (window.confirm('이 댓글을 삭제하시겠습니까?')) {
+      axios
+          .delete(`http://localhost:8080/api/hobby-comments/${comment.id}`)
+          .then(() => {
+            fetchComments();
+            if (onCommentChange) onCommentChange();
+          })
+          .catch((error) => console.error('댓글 삭제 오류:', error));
     }
   };
 
-  if (!postData) {
-    return <p>로딩 중...</p>;
-  }
+  // 모달 관련 핸들러
+  const closeModal = () => setShowLoginModal(false);
+  const handleLoginSuccess = () => setShowLoginModal(false);
 
   return (
-    <div>
-      <h1>글 수정</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>제목:</label>
-          <input
-            type="text"
-            value={postData.title}
-            onChange={(e) => setPostData({ ...postData, title: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label>내용:</label>
-          <textarea
-            value={postData.content}
-            onChange={(e) => setPostData({ ...postData, content: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label>기존 이미지:</label>
-          <div>
-            {imageUrls.length > 0 ? (
-              imageUrls.map((img, index) => (
-                <div key={index} style={{ display: "inline-block", marginRight: "10px" }}>
-                  <img src={img.url} alt="게시글 이미지" width="100" />
-                  <button type="button" onClick={() => handleDeleteImage(img.fileName)}>X</button>
-                </div>
-              ))
-            ) : (
-              <p>이미지가 없습니다.</p>
-            )}
+      <div className="comment-container">
+
+
+        {/* 댓글 작성 폼 */}
+        <div className="comment-create-form">
+        <textarea
+            placeholder="댓글을 입력하세요"
+            value={newCommentText}
+            onChange={(e) => setNewCommentText(e.target.value)}
+            className="create-textarea"
+        />
+          <div className="comment-create-button-container">
+            <button onClick={handleNewCommentSubmit} className="btn create-btn">
+              댓글 작성
+            </button>
+            {showLoginTooltip && <div className="login-tooltip">로그인이 필요합니다</div>}
           </div>
         </div>
-        <div>
-          <label>새로운 이미지:</label>
-          <input type="file" accept="image/*" multiple onChange={handleFileChange} />
+
+        {/* 댓글 목록 */}
+        {comments.length > 0 ? (
+            <ul className="comment-list">
+              {comments.slice().reverse().map((comment) => (
+                  <li key={comment.id} className="comment-item">
+                    {editingCommentId === comment.id ? (
+                        <div className="comment-edit-form">
+                          <input
+                              type="text"
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                              className="edit-input"
+                          />
+                          <div className="edit-buttons">
+                            <button onClick={() => handleSaveEdit(comment.id)} className="btn save-btn">
+                              저장
+                            </button>
+                            <button onClick={() => setEditingCommentId(null)} className="btn cancel-btn">
+                              취소
+                            </button>
+                          </div>
+                        </div>
+                    ) : (
+                        <>
+                          <p className="comment-meta">
+                            <strong>{comment.author}</strong> -{' '}
+                            {comment.createdAt
+                                ? new Date(comment.createdAt).toLocaleString()
+                                : 'N/A'}
+                            {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
+                                <span>
+                        {' '}
+                                  (수정: {new Date(comment.updatedAt).toLocaleString()})
+                      </span>
+                            )}
+                          </p>
+                          <p className="comment-text">{comment.text}</p>
+                          <div className="comment-actions">
+                            {loggedInUserId && String(comment.author) === String(loggedInUserId) && (
+                                <>
+                                    <button onClick={() => handleStartEdit(comment)}
+                                            className="btn estate-detail-edit-btn">
+                                        수정
+                                    </button>
+                                    <button onClick={() => handleDeleteComment(comment)}
+                                            className="btn estate-detail-delete-btn">
+                                        삭제
+                                    </button>
+
+                                </>
+                            )}
+                          </div>
+                        </>
+                    )}
+                  </li>
+              ))}
+            </ul>
+        ) : (
+            <p className="no-comment">댓글이 없습니다.</p>
+        )}
+
+        {/* 페이지네이션 */}
+        <div className="pagination">
+          <button onClick={goFirst} disabled={page === 0}>
+            처음
+          </button>
+          <button onClick={handlePrevBlock} disabled={startPage === 0}>
+            이전 구간
+          </button>
+          {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
+            const pageNum = startPage + idx;
+            return (
+                <button
+                    key={pageNum}
+                    onClick={() => handlePageClick(pageNum)}
+                    className={`page-button ${pageNum === page ? 'active' : ''}`}
+                >
+                  {pageNum + 1}
+                </button>
+            );
+          })}
+          <button onClick={handleNextBlock} disabled={endPage === totalPages - 1}>
+            다음 구간
+          </button>
+          <button onClick={goLast} disabled={page === totalPages - 1}>
+            끝
+          </button>
         </div>
-        <button type="submit">수정</button>
-      </form>
-      <button onClick={() => navigate(-1)}>뒤로 가기</button>
-    </div>
+
+        {/* 로그인 모달 (비로그인 시 댓글 작성/수정/삭제 시 표시) */}
+        {showLoginModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <button className="modal-close-button" onClick={closeModal}>
+                  &times;
+                </button>
+                <LoginPage onLoginSuccess={handleLoginSuccess} />
+              </div>
+            </div>
+        )}
+      </div>
   );
 };
 
-export default CommuUpdate;
+export default HobbyCommunityComment;

@@ -33,33 +33,20 @@ export const changeName = async (nameData) => {
   return memberAxios.post(`/changeName`, nameData);
 };
 
-// 로그인 API (첫 번째 방식: FormData 사용, email/pw 방식)
-// withCredentials 옵션을 추가하여 쿠키를 전송하도록 수정함
+/**
+ * 로그인 API: JSON 방식 전송
+ * 백엔드에서는 CustomLoginFilter에서 "memberId"와 "memberpassword" 파라미터를 읽습니다.
+ * 추가로, 정회원의 경우 residentRegistrationNumber 파라미터를 전달할 수 있습니다.
+ */
 export const loginPost = async (loginParam) => {
-  const header = {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    withCredentials: true, // 쿠키 전송 활성화
-  };
+  const header = { headers: { "Content-Type": "application/json" } };
 
-  const form = new FormData();
-  form.append("username", loginParam.email); // username에 이메일 추가
-  form.append("password", loginParam.pw); // password에 비밀번호 추가
-
-  const res = await axios.post(`${host}/login`, form, header);
+  // loginParam 객체에는 memberId, memberpassword, (옵션 residentRegistrationNumber) 가 포함되어야 합니다.
+  const res = await axios.post(`${host}/login`, loginParam, header);
   return res.data;
 };
 
-// 로그인 API (두 번째 방식: FormData 사용, member_id/member_password 방식)
-export const login = async (loginData) => {
-  const form = new FormData();
-  form.append("member_id", loginData.member_id);
-  form.append("member_password", loginData.member_password);
-  form.append("membershipType", loginData.membershipType);
-
-  const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } };
-  return memberAxios.post(`/login`, form, header);
-};
-
+// 만약 다른 로그인 방식이 필요하다면 별도의 함수를 추가할 수 있습니다.
 // 회원 탈퇴 API
 export const withdrawMember = async (memberId, withdrawalReason = "사용자탈퇴") => {
   return memberAxios.delete(`/${memberId}/withdraw`, { params: { withdrawalReason } });

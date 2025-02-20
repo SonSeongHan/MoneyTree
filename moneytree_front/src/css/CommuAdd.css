@@ -1,0 +1,99 @@
+/********************************
+  전체 컨테이너 (배경)
+*********************************/
+.commu-add-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fafafa; /* 연한 회색 배경 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/********************************
+  상단 헤더
+*********************************/
+.commu-add-header {
+    width: 100%;
+    max-width: 1400px; /* 최대 너비 1400px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.commu-add-header h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin: 0;
+}
+
+/* 등록 버튼 */
+.btn-submit {
+    padding: 10px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/********************************
+  본문 폼
+*********************************/
+.commu-add-body {
+    width: 100%;
+    max-width: 1400px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+    /* 수직으로 폼 요소를 배치 */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/********************************
+  폼 항목 (form-row)
+*********************************/
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 라벨 */
+.form-label {
+    font-weight: 600;
+    color: #555;
+}
+
+/* 입력/셀렉트/텍스트영역 공통 스타일 */
+.commu-add-body input[type="text"],
+.commu-add-body textarea,
+.commu-add-body select {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 텍스트영역 높이 */
+.commu-add-body textarea {
+    height: 120px;
+    resize: vertical; /* 필요 시 크기 조절 가능 */
+}

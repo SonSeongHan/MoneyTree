@@ -50,13 +50,18 @@ dependencies {
     //Json형식으로 LocalDateTime을 처리하기위한 설치
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+    implementation 'com.itextpdf:kernel:7.1.15'
+    implementation 'com.itextpdf:layout:7.1.15'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.27'
 
+    //itext 7
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     runtimeOnly	'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -74,3 +79,4 @@ tasks.named('test') {
 dependencies {
     implementation 'com.sun.mail:javax.mail:1.6.2'
 }
+
