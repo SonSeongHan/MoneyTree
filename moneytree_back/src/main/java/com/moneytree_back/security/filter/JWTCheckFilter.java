@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Log4j2
-@Component // Spring 빈으로 등록
+@Component
 public class JWTCheckFilter extends OncePerRequestFilter {
 
     @Override
@@ -70,29 +70,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (effectivePath.startsWith("/api/accounts")) return true;
         if (effectivePath.startsWith("/api/deposit-products")) return true;
 
-        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("PUT")) {
-            return false;
-        }
-        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("DELETE")) {
-            return false;
-        }
-
-        // /api/member/make-account는 필터링하지 않음
-        if (path.startsWith("/api/accounts")) {
-            return true;
-        }
-
-        if (path.startsWith("/api/deposit-products")) {
-            return true;
-        }
-
-        if (path.startsWith("/api/hobbies")) {
-            return true;
-        }
-
-
-
-        // 기본적으로 모든 요청은 필터링 처리
         return false;
     }
 
