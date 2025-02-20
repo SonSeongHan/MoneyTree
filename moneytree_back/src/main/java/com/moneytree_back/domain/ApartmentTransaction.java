@@ -3,7 +3,6 @@ package com.moneytree_back.domain;
 import com.moneytree_back.domain.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ApartmentTransaction {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
