@@ -36,7 +36,6 @@ const StockTransferModal = ({ isOpen, onClose }) => {
 
       // 입출금계좌로 주식계좌 조회 추가
       const stockAccount = await StockAPI.getStockAccount(accountNumber);
-      console.log(stockAccount.stockAccountNumber)
         setStockAccountNumber(stockAccount.stockAccountNumber);
         setStockBalance(stockAccount.stockAccountBalance);
 
@@ -61,15 +60,12 @@ const StockTransferModal = ({ isOpen, onClose }) => {
   // };
   const fetchStockBalance = async (accountNumber) => {
     try {
-      console.log("4. 주식계좌 잔액 조회 시작 - accountNumber:", accountNumber);
       // 입출금계좌번호로 주식계좌 조회
       const stockAccount = await StockAPI.getStockAccount(dandwAcId);  // stockAccountNumber 대신 dandwAcId 사용
-      console.log("4. 주식계좌 조회 결과:", stockAccount);
       if (stockAccount) {
         setStockBalance(stockAccount.stockAccountBalance);
       }
     } catch (error) {
-      console.error("4. 주식계좌 조회 에러:", error);
     }
   };
 
@@ -89,29 +85,6 @@ const StockTransferModal = ({ isOpen, onClose }) => {
       alert("주식 계좌 정보를 가져오는데 실패했습니다.");
       return;
     }
-
-    // try {
-    //   if (transferType === "deposit") {
-    //     await StockAPI.depositToStockAccount(
-    //       dandwAcId,
-    //       stockAccountNumber, // 명시적으로 숫자로 변환
-    //       amount // 명시적으로 숫자로 변환
-    //     );
-    //   } else {
-    //     await StockAPI.withdrawFromStockAccount(
-    //       stockAccountNumber,
-    //       dandwAcId,
-    //       amount
-    //     );
-    //   }
-    //   alert("송금이 완료되었습니다!");
-    //   setAmount("");
-    //   await fetchStockBalance(stockAccountNumber);
-    //   await fetchDandwacBalance(dandwAcId);
-    // } catch (error) {
-    //   console.error("송금 중 에러 발생:", error);
-    //   alert("송금 중 오류가 발생했습니다.");
-    // }
     try {
       if (transferType === "deposit") {
         await StockAPI.depositToStockAccount(

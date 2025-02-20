@@ -33,31 +33,6 @@ const CreateStockAccount = () => {
     }
   }, []);
 
-  // const handleCreateStockAccount = async () => {
-  //   if (!memberInfo.accountNumber) {
-  //     alert('입출금 계좌가 없습니다. 먼저 입출금 계좌를 개설해주세요.');
-  //     return;
-  //   }
-  //
-  //   setIsLoading(true);
-  //   try {
-  //     const stockAccount = await StockAPI.createStockAccount(memberInfo.accountNumber);
-  //
-  //     alert(`주식 계좌가 성공적으로 생성되었습니다.\n계좌번호: ${stockAccount.stockAccountNumber}`);
-  //
-  //     // 계좌 생성 후 상세 페이지나 메인 페이지로 이동
-  //     navigate('/stock-account-detail', {
-  //       state: {
-  //         stockAccount: stockAccount
-  //       }
-  //     });
-  //   } catch (error) {
-  //     console.error('주식 계좌 생성 중 오류:', error);
-  //     alert(error.response?.data?.message || '주식 계좌 생성 중 오류가 발생했습니다.');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   const handleCreateStockAccount = async () => {
     try {
       const stockAccount = await StockAPI.createStockAccount();

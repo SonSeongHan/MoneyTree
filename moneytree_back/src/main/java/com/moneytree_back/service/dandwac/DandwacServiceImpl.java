@@ -1,6 +1,7 @@
 package com.moneytree_back.service.dandwac;
 
 import com.moneytree_back.domain.Dandwac;
+import com.moneytree_back.domain.financialProduct.FundAccount;
 import com.moneytree_back.domain.financialProduct.StockAccount;
 import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.member.MembershipType;
@@ -9,6 +10,7 @@ import com.moneytree_back.dto.DandwacDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.repository.TransactionHistoryRepository;
+import com.moneytree_back.repository.financialProduct.FundAccountRepository;
 import com.moneytree_back.repository.financialProduct.StockAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class DandwacServiceImpl implements DandwacService {
     private final MemberRepository memberRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final StockAccountRepository stockAccountRepository;
+    private final FundAccountRepository fundAccountRepository;
 
     @Override
     public Dandwac createAccount(DandwacDTO dto) {
@@ -111,7 +114,8 @@ public class DandwacServiceImpl implements DandwacService {
                               BigDecimal amount,
                               String password,
                               String depositPurpose,
-                              String fromMemberNameParam, // 프론트에서 온 값(굳이 안 써도 됨)
+                              // String fromMemberNameParam,
+                              String fromMemberName,
                               String toMemberName)
     {
         // 1) 송금자 계좌 조회 (memberId → Dandwac → Member)
@@ -191,5 +195,25 @@ public class DandwacServiceImpl implements DandwacService {
                 .build();
 
         transactionHistoryRepository.save(history);
+    }
+    /**
+     * 대출 받은 금액을 계좌 잔액에 추가하는 메서드
+     * (추가 코드: 대출 받은 만큼 계좌 잔액을 증가시킵니다.)
+     */
+    @Transactional
+    @Override
+    public Dandwac addLoanAmountToBalance(String memberId, BigDecimal loanAmount) {
+    // 1) 회원의 계좌 조회
+        Dandwac account = dandwAccountRepository.findByMember_MemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원의 계좌를 찾을 수 없습니다."));
+
+    // 2) 현재 잔액이 null인 경우 0으로 초기화
+        BigDecimal currentBalance = account.getBalance() == null ? BigDecimal.ZERO : account.getBalance();
+
+    // 3) 대출 받은 금액만큼 잔액을 증가
+        account.setBalance(currentBalance.add(loanAmount));
+
+    // 4) 업데이트된 계좌 저장 및 반환 (추가 코드)
+        return dandwAccountRepository.save(account);
     }
 }

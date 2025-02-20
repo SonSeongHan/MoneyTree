@@ -1,121 +1,168 @@
-/* 전체 컨테이너 */
 .home-container {
-    font-family: sans-serif;
-    background-color: #f9f9f9;
+    width: 100%;
+
+    margin: 0 auto;
+    font-family: 'Noto Sans KR', sans-serif; /* 폰트는 예시입니다. */
     color: #333;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 헤더 */
-.home-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     background-color: #fff;
-    border-bottom: 1px solid #e5e5e5;
-    padding: 0 2rem;
-    height: 60px;
 }
 
-/* 로고 */
-.logo {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #369;
-}
 
-/* 메뉴 */
-.menu ul {
-    display: flex;
-    gap: 1rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
 
-.menu li {
-    cursor: pointer;
-    color: #555;
-    font-size: 0.95rem;
+.welcome-section {
+    margin-bottom: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+    margin-top: 30px ;
+    margin-bottom: 40px;
 }
-
-.menu li:hover {
-    color: #000;
-}
-
-/* 사용자 정보 영역 */
-.user-info {
-    font-size: 0.95rem;
-    color: #666;
-}
-
-.user-info a {
-    color: #666;
-    text-decoration: none;
-    margin: 0 0.3rem;
-}
-
-.user-info a:hover {
-    color: #000;
-}
-
-/* 메인 */
-main {
-    width: 90%;
-    max-width: 1200px;
-    margin: 1.5rem auto;
-    flex-grow: 1;
-}
-
-/* 공통 섹션 스타일 */
-section {
-    margin-bottom: 2rem;
-    background-color: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.03);
-}
-
-/* 섹션별 스타일 */
-/* 환영 섹션 */
 .welcome-section h2 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+.username {
+    color: #3e5eb8;
+    font-weight: bold;
 }
 
-/* 투자정보 박스 (회원 전용) */
-.investment-box {
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
+/* 안내 박스 (예: 가입된 예금/적금이 없을 때) */
+.placeholder-box {
+
+}
+
+/* ----------------------------------------------------
+   [3] 상단 슬라이더 (예금/적금)
+   - 버튼을 절대 위치로 잡아 카드 폭 100% 확보
+---------------------------------------------------- */
+.slider-container {
     position: relative;
+    width: 100%;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    /* overflow: hidden; // 필요하다면 사용 */
 }
 
-.investment-box h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+/* 슬라이더 버튼 - 좌우 */
+.slider_button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 10px;
+    color: #aaa;
+    transition: color 0.3s;
+    z-index: 2; /* 슬라이더 위로 */
+}
+.slider_button:hover {
+    color: #3e5eb8;
+}
+.slider_button:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+/* 왼쪽/오른쪽 버튼 위치 */
+.slider_button.prev {
+    left: 0;
+}
+.slider_button.next {
+    right: 0;
 }
 
-/* 도넛 차트 */
+/* 실제 슬라이더 영역 감싸는 래퍼 */
+.slider-wrapper {
+    width: 100%;
+
+    overflow: hidden; /* 한 화면에 하나씩만 보이도록 */
+}
+
+/* 슬라이드 전체(가로 배치) */
+.slider {
+    display: flex;
+    transition: transform 0.4s ease-in-out;
+}
+
+/* 한 아이템(카드)이 래퍼의 100% 폭을 차지 */
+.slider-item {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+
+    /* 카드 디자인 */
+    height: 340px;
+    background: #F1F3F8;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: 30px 40px;
+
+    /* 내부 레이아웃 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ----------------------------------------------------
+   [4] 예금/적금 카드 내부 (왼쪽 / 오른쪽)
+---------------------------------------------------- */
+/* 왼쪽(상품명, 정보) */
+.top-product-left {
+    flex: 1;
+    margin-right: 30px; /* 도넛 차트와 간격 */
+}
+.top-product-left .product-title {
+    font-size: 26px;
+    margin-bottom: 60px;
+    color: #333;
+    font-weight: 600;
+}
+
+.product-info-list {
+    display: flex;
+    flex-wrap: wrap;  /* 2줄 이상 넘어갈 때 줄바꿈 */
+    margin: 0;
+    padding: 0;
+}
+
+.product-info-list li {
+    width: 50%;       /* 2열로 나누기 */
+    box-sizing: border-box;
+    list-style: none;
+    margin-bottom: 10px; /* 각 항목 간 간격 */
+    padding: 10px 0px 10px 0px;
+}
+
+.product-info-list li strong {
+    display: inline-block;
+    width: 120px; /* 라벨 폭 고정 */
+    font-weight: 500;
+    color: #333;
+}
+
+/* 오른쪽(도넛 차트) */
+.top-product-right {
+    width: 180px; /* 도넛 차트 영역 폭 */
+    text-align: center;
+}
+
+/* 도넛 차트 컨테이너 */
 .donut-chart {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    background: conic-gradient(#48a 0% 50%, #ccc 50% 100%);
-    margin-top: 1rem;
+    margin: 0 auto 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    /* 배경 conic-gradient는 JS에서 inline-style */
 }
 
+/* 도넛 차트 안쪽(퍼센트 숫자) */
 .donut-inner {
-    position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 70%;
+    height: 70%;
     border-radius: 50%;
     background-color: #fff;
     display: flex;
@@ -125,181 +172,482 @@ section {
     color: #333;
 }
 
-/* 비회원 박스 */
-.non-member-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.non-member-box .placeholder {
-    width: 300px;
-    height: 150px;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-/* 소비내역 섹션 */
-.spending-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-}
-
-.spending-section h4 {
-    margin: 0.5rem 0;
-    font-weight: normal;
+/* 도넛 차트 하단 텍스트 */
+.donut-text {
+    font-size: 14px;
     color: #666;
 }
 
-.pie-chart {
-    width: 200px;
-    height: 200px;
-    background: conic-gradient(#fa6 0% 40%, #ccc 40% 100%);
-    border-radius: 50%;
-    margin: 1rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #333;
-    font-weight: bold;
+/* ----------------------------------------------------
+   [5] 이번달 소비내역
+---------------------------------------------------- */
+.spending-section {
+
+    max-width: 1300px;
+    margin: 0 auto;
+
+}
+.spending-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
-.spending-section ul {
+
+/* 소비내역 리스트 */
+.spending-list {
     list-style: none;
     margin: 0;
     padding: 0;
+    font-size: 14px;
+}
+.spending-list li {
+    margin-bottom: 5px;
+}
+/* 전체 지출 금액 강조 */
+.spending-amount {
+    font-weight: bold;
+    color: #3e5eb8;
+    margin-left: 5px;
 }
 
-.spending-section ul li {
-    margin: 0.3rem 0;
-    color: #666;
-}
-
-/* 추천 상품 섹션 */
+/* ----------------------------------------------------
+   [6] 추천 상품 섹션
+---------------------------------------------------- */
 .recommended-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.8rem;
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
+
+/* 추천 상품 카드 슬라이더 */
 .product-slider {
     display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding-bottom: 1rem;
+    gap: 20px;
+    overflow-x: auto; /* 가로 스크롤 */
+    padding-bottom: 10px;
+}
+.product-card {
+    flex: 0 0 220px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.product-name {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
+}
+.product-interest {
+    font-size: 14px;
+    color: #777;
+}
+
+/* ----------------------------------------------------
+   [7] 취미 섹션
+---------------------------------------------------- */
+.hobbies-preview-section {
+    margin-bottom: 60px;
+}
+.hobbies-preview-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.hobbies-preview-box {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+.hobbies-preview-box p {
+    margin-bottom: 20px;
+    color: #555;
+}
+.hobbies-link {
+    display: inline-block;
+    background-color: #3e5eb8;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+}
+.hobbies-link:hover {
+    background-color: #2c4a8c;
+}
+
+/* ----------------------------------------------------
+   [8] 푸터
+---------------------------------------------------- */
+.home-footer {
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+}
+.footer-links {
+    margin-bottom: 10px;
+    color: #999;
+}
+.footer-links span {
+    cursor: pointer;
+}
+.footer-links span:hover {
+    color: #666;
+}
+
+.home-container {
+
+    margin: 0 auto;
+    font-family: sans-serif;
+    color: #333;
+}
+
+.recommended-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.view-more-link {
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.recommended-content {
+
+    max-width: 1200px;
+}
+.recommended-manimg {
+    position: absolute;
+    right: 5%;
+    top: -10%;
+}
+.recommended-manimg img{
+    width: 60%;
+
+
+}
+.product-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    width: 100%;
 }
 
 .product-card {
-    flex: 0 0 150px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    color: #333;
-    background-color: #fafafa;
-    box-shadow: 0 0 5px rgba(0,0,0,0.05);
-}
-
-.product-card p:first-child {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-/* 뉴스 섹션 */
-.news-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.8rem;
-}
-
-.news-section ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.news-section li {
-    margin-bottom: 1rem;
-}
-
-.news-section strong {
-    display: block;
-    color: #333;
-    margin-bottom: 0.3rem;
-}
-
-/* 펀드/주식 섹션 */
-.fund-section h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.8rem;
-}
-
-/* 테이블 스타일 */
-.fund-section table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.fund-section th,
-.fund-section td {
-    border: 1px solid #eee;
-    padding: 0.8rem;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.fund-section thead {
-    background-color: #f1f1f1;
-}
-
-.fund-section tbody tr:hover {
-    background-color: #fafafa;
-}
-
-/* 푸터 */
-.home-footer {
     background-color: #fff;
-    border-top: 1px solid #e5e5e5;
+    border-radius: 12px;
     text-align: center;
-    padding: 1rem 2rem;
+    padding: 24px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.footer-links {
-    margin-bottom: 0.5rem;
+.product-name {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #333;
+    font-weight: 500;
+}
+
+.product-interest {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 추천 상품 섹션 배경, 제목 등은 기존과 동일하게 유지 */
+.recommended-section {
+
+    border-radius: 16px;
+    padding: 40px 24px;
+    margin: 40px 0;
+    position: relative;
+}
+.recommended-section.recommended-deposit-bg {
+    background-color: #F1F3F8;
+}
+
+.recommended-section.recommended-saving-bg {
+    background-color: #F3FFEE;
+}
+
+
+
+.recommended-header {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    margin-bottom: 20px;
+    margin-left: 360px;
+}
+
+.recommended-text {
+    width: 300px;
+    margin-bottom: 20px;
+}
+.recommended-back{
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.recommended-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.view-more-link {
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* 전체 감싸는 래퍼 */
+.recommended-content {
+    max-width: 1300px;
+    align-items: flex-start;
+
+}
+
+/* 4개 카드 레이아웃 */
+.product-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    width: 100%;
+    align-items: start; /* 카드들이 상단 정렬 */
+    position: relative;
+}
+
+/* 카드 하나의 스타일 */
+.product-card {
+    background-color: #fff;
+    border-radius: 12px;
+    text-align: center;
+    padding: 24px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+    /* 카드 높이를 통일하기 위한 핵심 */
+    display: flex;              /* 수직 배치 */
+    flex-direction: column;     /* 위: 상품명, 아래: 이율 */
+    justify-content: space-between;
+    min-height: 140px;          /* 원하는 최소 높이로 조절 */
+}
+
+/* 상품명 */
+.product-name {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 8px;
+
+    /* 여러 줄이 될 때 높이 확보 (예: 2줄까지) */
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 이율 */
+.product-interest {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: auto;  /* 위쪽 영역을 모두 사용 후, 아래쪽에 고정 */
+}
+/* 예: recommended-section의 하단 버튼(좌우 화살표 + 중앙 바 + 점들) */
+.recommended-pagination-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+/* 좌우 화살표 버튼 */
+.arrow-button {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.arrow-button:disabled {
+    color: #ccc; /* 비활성화일 때 색상 연하게 */
+    cursor: default;
+}
+
+.arrow-button:hover:not(:disabled) {
     color: #666;
 }
 
-.footer-links span {
-    font-size: 0.9rem;
+/* 가운데 영역 (긴 바 + 점들) */
+.slider-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* 반응형 간단 처리 예시 */
-@media (max-width: 768px) {
-    .home-header {
-        flex-direction: column;
-        height: auto;
-        padding: 1rem;
-    }
+/* 긴 바(슬라이더 바 느낌) */
+.slider-pill {
+    width: 80px;
+    height: 28px;
+    background: #ccc;
+    border-radius: 14px;
+}
 
-    .menu ul {
-        flex-wrap: wrap;
-    }
+/* 점 2개 */
+.slider-dots {
+    display: flex;
+    gap: 6px;
+}
 
-    main {
-        width: 95%;
-        margin: 1rem auto;
-    }
+/* 각 점의 기본 상태 */
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-    section {
-        padding: 1rem;
-    }
+/* 선택된 점 (active) 강조 */
+.dot.active {
+    background: #666;
+    transform: scale(1.2);
+}
+.stock-section {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 30px 0px  30px 0px;
+}
+.stock-fund-radio-group {
+    display: flex;
+    gap: 1rem; /* 라벨 간 간격 */
+    align-items: center;
+    margin-bottom: 1rem;
+}
 
-    .product-slider {
-        flex-wrap: nowrap; /* 모바일에서도 스크롤 유지 */
-    }
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+    /* 일반적인 라디오 스타일은 기본 브라우저 표현 사용,
+       필요하면 커스텀 라디오 UI 구현 가능 */
+    margin-right: 6px;
+    cursor: pointer;
+}
+.news-section {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+.stock-bg {
+    background-color: #F1F3F8;
+}
+.fund-add-bt {
+    display: inline-block;           /* 인라인 요소처럼 배치되도록 */
+    padding: 4px 10px;              /* 상하/좌우 여백 */
+    font-size: 12px;                /* 폰트 크기 */
+    line-height: 1.5;               /* 줄 간격 */
+    color: #666;                    /* 글자 색상 */
+    background-color: #fff;         /* 배경 색상 */
+    border: 1px solid #dcdcdc;      /* 테두리 */
+    border-radius: 3px;             /* 모서리 둥글게 */
+    cursor: pointer;                /* 마우스 커서 */
+    white-space: nowrap;            /* 버튼 안에서 텍스트가 줄바꿈되지 않도록 */
+    -webkit-appearance: none;       /* 브라우저 기본 버튼 스타일 제거 (옵션) */
+    -moz-appearance: none;
+    appearance: none;
+
+}
+
+.fund-add-bt:hover {
+    background-color: #f9f9f9;       /* 호버 시 배경 색상 살짝 변경 */
+}
+/* 취미 섹션 전체 컨테이너 */
+.hobbies-preview-section {
+    max-width: 1300px;   /* 최대 너비 1400px */
+    margin: 0 auto;      /* 화면 중앙 정렬 */
+    padding: 40px 20px;  /* 위아래/좌우 여백 */
+    box-sizing: border-box;
+}
+
+/* 섹션 제목 스타일 */
+.hobbies-preview-section h3 {
+    font-size: 24px;
+    margin-bottom: 24px;
+    font-weight: 600;
+    text-align: center;   /* 가운데 정렬 (원하시면 조정) */
+}
+
+/* 내용 박스 */
+.hobbies-preview-box {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;  /* 내부 텍스트와 버튼을 가운데 정렬 */
+
+    margin: 0 auto;      /* 박스를 가운데에 배치 */
+}
+
+/* 설명 텍스트 */
+.hobbies-preview-box p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* 취미 페이지 이동 버튼 */
+.hobbies-link {
+    display: inline-block;
+    background-color: #3e5eb8;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.hobbies-link:hover {
+    background-color: #2c4a8c;
+}
+/* 오버레이 예시 */
+.simple-overlay {
+    position: fixed;       /* or absolute, depending on layout */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5); /* 반투명 어둡게 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* 콘텐츠보다 위에 오도록 */
+}
+
+.simple-overlay-content {
+    color: #fff;
+    text-align: center;
+}
+
+.plus-box {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    /* 원하는 스타일로 + 아이콘 모양 꾸미기 */
 }

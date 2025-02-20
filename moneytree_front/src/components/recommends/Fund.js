@@ -1,245 +1,179 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { getCookie } from '../../util/cookieUtil';
 import FundAPI from '../../api/FundAPI';
+import FundTradeModal from '../FundTradeModal';
 import '../../css/recommends/Fund.css';
-import { useFund } from '../../FundContext';
 
 const Fund = () => {
-  const { selectedFundId, isChatbotRequest, setSelectedFundId, setIsChatbotRequest } = useFund();
-
-  //(승훈 추가) 챗봇
   const [allFunds, setAllFunds] = useState([]);
-  const [funds, setFunds] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [displayFunds, setDisplayFunds] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-  const [expandedFund, setExpandedFund] = useState(null);
-  const [fundDetail, setFundDetail] = useState(null);
-  const itemsPerPage = 10;
+  const [hasMore, setHasMore] = useState(true);
+  const [investedFunds, setInvestedFunds] = useState(new Set()); // 가입한 펀드 ID 세트
   const observer = useRef(null);
-  const [isChatbotLoading, setIsChatbotLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true); // 🔥 마지막 페이지 여부 확인
+  const itemsPerPage = 10;
 
-  // 필터링 상태
+  // 필터 상태
   const [minTotalAmount, setMinTotalAmount] = useState('');
   const [maxTotalAmount, setMaxTotalAmount] = useState('');
   const [minManagementFee, setMinManagementFee] = useState('');
   const [maxRedemptionFee, setMaxRedemptionFee] = useState('');
   const [fundYear, setFundYear] = useState('');
-  const [debouncedFilters, setDebouncedFilters] = useState({
-    minTotalAmount: '',
-    maxTotalAmount: '',
-    minManagementFee: '',
-    maxRedemptionFee: '',
-    fundYear: '',
-  });
+  const [filteredFunds, setFilteredFunds] = useState([]);
+  const [isFiltering, setIsFiltering] = useState(false);
 
-  // 필터 초기화 함수
-  const resetFilters = () => {
+  // 모달 상태
+  const [selectedFund, setSelectedFund] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 가입한 펀드 정보 가져오기
+  const fetchInvestedFunds = async () => {
+    try {
+      const memberCookie = getCookie('member');
+      if (!memberCookie) return;
+
+      const accountNumber = await FundAPI.getDandwacAccountNumber(memberCookie.memberId);
+      if (!accountNumber) return;
+
+      const fundAccounts = await FundAPI.getFundAccount(accountNumber);
+
+      // 가입한 펀드 ID들을 Set으로 저장
+      const investedFundIds = new Set(
+        fundAccounts.map(account => account.fundProductId)
+      );
+      setInvestedFunds(investedFundIds);
+    } catch (err) {
+      console.error('Error fetching invested funds:', err);
+    }
+  };
+
+  // 초기 데이터 불러오기
+  const fetchInitialFunds = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await FundAPI.getFundsByPage(1, 30);
+      const fundsData = Array.isArray(response) ? response : response?.content || [];
+      setAllFunds(fundsData);
+      setDisplayFunds(fundsData.slice(0, itemsPerPage));
+      setHasMore(true);
+
+      // 가입한 펀드 정보 가져오기
+      await fetchInvestedFunds();
+    } catch (err) {
+      console.error('Error fetching initial funds:', err);
+      setError('펀드 데이터를 가져오는 중 문제가 발생하였습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 필터 초기화
+  const resetFilters = useCallback(() => {
     setMinTotalAmount('');
     setMaxTotalAmount('');
     setMinManagementFee('');
     setMaxRedemptionFee('');
     setFundYear('');
-  };
+    setPage(1);
+    setFilteredFunds([]);
+    setIsFiltering(false);
+    setHasMore(true);
+    fetchInitialFunds();
+  }, [fetchInitialFunds]);
 
-  console.log('챗봇의 요청으로 인해 넘어온 데이터:', selectedFundId);
-
-  // (승훈) 추가 : 챗봇이 요청한 특정 상품을 찾고 화면 가운데로 스크롤하는 로직
   useEffect(() => {
-    if (selectedFundId && isChatbotRequest) {
-      // setIsChatbotLoading(true);
+    fetchInitialFunds();
+  }, [fetchInitialFunds]);
 
-      const findAndScrollToFund = () => {
-        const selectedElement = document.getElementById(`fund-${selectedFundId}`);
-        console.log('selectedElement값:', selectedElement);
-
-        if (selectedElement) {
-          console.log('선택된 상품이 렌더링됨,스크롤 이동 실행');
-
-          setTimeout(() => {
-            selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 1000);
-
-          setTimeout(() => {
-            const matchedFund = funds.find(
-              (fund) => String(fund.fundProductId) === String(selectedFundId),
-            );
-
-            if (matchedFund) {
-              console.log('✅ handleExpand 실행');
-              handleExpand(matchedFund.fundProductId, true);
-            }
-
-            console.log('✅ 챗봇 요청 완료, 무한 스크롤 재개');
-            setIsChatbotLoading(false); // 무한 스크롤 재개
-            setIsChatbotRequest(false); //챗봇 요청 컷
-          }, 1500);
-        } else {
-          console.log('선택된 상품이 아직 렌더링되지 않음, 추가 로딩 필요');
-
-          setTimeout(() => {
-            window.scrollBy(0, window.innerHeight);
-          }, 1200);
-        }
-      };
-
-      let attempts = 0;
-      const interval = setInterval(() => {
-        if (attempts >= 10) {
-          clearInterval(interval);
-          console.log('해당 상품을 찾을 수 없음');
-          setIsChatbotRequest(false);
-          setIsChatbotLoading(false);
-        }
-        findAndScrollToFund();
-        attempts++;
-      }, 700);
-
-      return () => clearInterval(interval);
-    }
-  }, [selectedFundId, isChatbotRequest, funds]);
-
-  // 디바운싱 적용
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedFilters({
-        minTotalAmount: minTotalAmount,
-        maxTotalAmount: maxTotalAmount,
-        minManagementFee: minManagementFee,
-        maxRedemptionFee: maxRedemptionFee,
-        fundYear: fundYear,
-      });
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [minTotalAmount, maxTotalAmount, minManagementFee, maxRedemptionFee, fundYear]);
-
-  // 필터링 로직
-  useEffect(() => {
-    const fetchFilteredFunds = async () => {
-      try {
-        setLoading(true);
-
-        if (
-          debouncedFilters.minTotalAmount ||
-          debouncedFilters.maxTotalAmount ||
-          debouncedFilters.minManagementFee ||
-          debouncedFilters.maxRedemptionFee ||
-          debouncedFilters.fundYear
-        ) {
-          const searchParams = {
-            minFundTotalAmount: debouncedFilters.minTotalAmount || undefined,
-            maxFundTotalAmount: debouncedFilters.maxTotalAmount || undefined,
-            minFundManagementFee: debouncedFilters.minManagementFee || undefined,
-            maxFundRedemptionFee: debouncedFilters.maxRedemptionFee || undefined,
-            fundProductYear: debouncedFilters.fundYear || undefined,
-          };
-
-          const data = await FundAPI.getFilteredFunds(searchParams);
-          setAllFunds(data);
-          setFunds(data.slice(0, itemsPerPage));
-        } else {
-          const data = await FundAPI.getAllFunds();
-          setAllFunds(data);
-          setFunds(data.slice(0, itemsPerPage));
-        }
-        setPage(1);
-      } catch (err) {
-        console.error('Error filtering funds:', err);
-        setError('데이터 필터링 중 문제가 발생했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFilteredFunds();
-  }, [debouncedFilters]);
-
-  const formatAmount = (amount) => {
-    const correctAmount = Math.floor((amount * 100) / 10000);
-    return `${correctAmount.toLocaleString()}`;
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  };
-
-  const formatPercentage = (decimal) => {
-    if (!decimal) return '-';
-    return decimal.toFixed(3) + '%'; //(승훈) 수정 이유: 프론트에서 각 수수료율이 수치가 상이해짐.
-  };
-
-  const lastFundElementRef = (node) => {
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !isChatbotLoading) {
-        console.log('🛑 유저가 스크롤을 내려서 추가 페이지 로딩');
-
-        setPage((prevPage) => {
-          const nextPage = prevPage + 1;
-          const startIndex = (nextPage - 1) * itemsPerPage;
-          const newFunds = allFunds.slice(startIndex, startIndex + itemsPerPage);
-
-          if (newFunds.length > 0) {
-            console.log('추가 펀드 로딩중');
-
-            setFunds((prevFunds) => {
-              const fundMap = new Map();
-              [...prevFunds, ...newFunds].forEach((fund) => {
-                fundMap.set(fund.fundProductId, fund);
-              });
-              return Array.from(fundMap.values());
-            });
-
-            return nextPage;
-          } else {
-            console.log('🚫 마지막 페이지 도달, 추가 로딩 중단');
-            setHasMore(false); // 🔥 더 이상 로드할 페이지가 없음
-            return prevPage;
-          }
-        });
-      }
-    });
-    if (node) observer.current.observe(node);
-  };
-
-  const handleExpand = async (fundId, forceExpand = false) => {
-    console.log(`🔍 handleExpand 실행됨: fundId=${fundId}, forceExpand=${forceExpand}`);
-    //승훈 수정 챗봇이 해당 상품을 요청했을 때 무조건 상세 정보 열기
-    if (!forceExpand && expandedFund === fundId) {
-      setExpandedFund(null);
-      setFundDetail(null);
+  // 필터링 적용
+  const applyFilters = useCallback(async () => {
+    if (!minTotalAmount && !maxTotalAmount && !minManagementFee &&
+      !maxRedemptionFee && !fundYear) {
+      setIsFiltering(false);
+      setFilteredFunds([]);
+      setDisplayFunds(allFunds.slice(0, page * itemsPerPage));
       return;
     }
 
-    console.log('넘어온 fundId:', fundId);
-    console.log('넘어온 forceExpand값:', forceExpand);
-
     try {
-      const detail = await FundAPI.getFundById(fundId);
-      setFundDetail(detail);
-      setExpandedFund(fundId);
-    } catch (err) {
-      console.error('Error fetching fund details:', err);
+      setLoading(true);
+      setIsFiltering(true);
+
+      const searchParams = {
+        minFundTotalAmount: minTotalAmount || undefined,
+        maxFundTotalAmount: maxTotalAmount || undefined,
+        minFundManagementFee: minManagementFee || undefined,
+        maxFundRedemptionFee: maxRedemptionFee || undefined,
+        fundProductYear: fundYear || undefined
+      };
+
+      const filteredData = await FundAPI.getFilteredFunds(searchParams);
+      setFilteredFunds(filteredData);
+      setHasMore(false);
+    } catch (error) {
+      console.error('Error applying filters:', error);
+      setError('필터 적용 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
+  }, [minTotalAmount, maxTotalAmount, minManagementFee, maxRedemptionFee, fundYear, allFunds, page]);
+
+  useEffect(() => {
+    const filterTimer = setTimeout(() => {
+      applyFilters();
+    }, 500);
+
+    return () => clearTimeout(filterTimer);
+  }, [applyFilters]);
+
+  useEffect(() => {
+    if (!isFiltering && allFunds.length > 0) {
+      const endIndex = page * itemsPerPage;
+      setDisplayFunds(allFunds.slice(0, endIndex));
+      setHasMore(endIndex < allFunds.length);
+    }
+  }, [page, isFiltering, allFunds]);
+
+  const lastFundElementRef = useCallback((node) => {
+    if (loading || !hasMore || isFiltering) return;
+
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1);
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore, isFiltering]);
+
+  const formatAmount = (amount) => {
+    return `${Math.floor((amount * 100) / 10000).toLocaleString()}`;
   };
 
-  const handleJoinClick = () => {
-    // navigate('/join');
+  // 펀드 클릭 핸들러
+  const handleFundClick = (fund) => {
+    setSelectedFund(fund);
+    setIsModalOpen(true);
   };
 
-  if (loading) return <p className="fund-loading-state">로딩 중입니다...</p>;
+  // 모달 닫기 핸들러
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedFund(null);
+    // 모달이 닫힐 때 가입 상태 새로고침
+    fetchInvestedFunds();
+  };
+
+  if (loading && displayFunds.length === 0) return <p className="fund-loading-state">로딩 중입니다...</p>;
   if (error) return <p className="fund-error-state">{error}</p>;
-  if (!funds || funds.length === 0) {
+  if (!displayFunds || displayFunds.length === 0) {
     return <p className="fund-empty-state">표시할 펀드 상품이 없습니다.</p>;
   }
+
+  const funds = filteredFunds.length > 0 ? filteredFunds : displayFunds;
 
   return (
     <div className="fund-container">
@@ -285,87 +219,48 @@ const Fund = () => {
       </div>
 
       <div className="fund-list">
+        <div className="fund-header">
+          <div className="fund-header-name">펀드명</div>
+          <div className="fund-header-manager">운용사</div>
+          <div className="fund-header-amount">펀드 규모</div>
+        </div>
         {funds.map((fund, index) => (
           <div
             key={fund.fundProductId}
-            className="fund-item-container"
-            id={`fund-${fund.fundProductId}`} //(승훈 추가) 챗봇에서 추천 상품 번호를 입력해서 페이지 이동 후 스크롤 이동을 위한 추가 로직
             ref={index === funds.length - 1 ? lastFundElementRef : null}
+            className="fund-item-container"
+            onClick={() => handleFundClick(fund)}
           >
             <div className="fund-item">
-              <div className="fund-item-left">
-                <div className="fund-item-icon">🏢</div>
-                <div className="fund-item-info">
-                  <div className="fund-item-title">{fund.fundProductName}</div>
-                  <div className="fund-item-subtitle">{fund.fundProductManager}</div>
-                </div>
+              <div className="fund-name-section">
+                <span className="fund-title">
+                  {fund.fundProductName}
+                  {investedFunds.has(fund.fundProductId) && (
+                    <span className="fund-invested-badge">가입중</span>
+                  )}
+                </span>
+                <span className="fund-type">{fund.fundProductType}</span>
               </div>
-              <div className="fund-item-right">
-                <div className="fund-item-chart">
-                  <div className="placeholder-chart"></div>
-                </div>
-                <div className="fund-item-numbers">
-                  <div className="fund-item-amount">
-                    {formatAmount(fund.fundProductTotalAmount)}억
-                  </div>
-                  <div className="fund-item-yield">+2.67%</div>
-                </div>
-                <button
-                  className={`fund-expand-button ${expandedFund === fund.fundProductId ? 'expanded' : ''}`}
-                  onClick={() => handleExpand(fund.fundProductId, true)}
-                >
-                  +
-                </button>
+              <div className="fund-manager">{fund.fundProductManager}</div>
+              <div className="fund-amount">
+                {formatAmount(fund.fundProductTotalAmount)}억원
               </div>
             </div>
-
-            {expandedFund === fund.fundProductId && fundDetail && (
-              <div className="fund-item-details">
-                <div className="details-section">
-                  <h3>펀드 상세 정보</h3>
-                  <div className="details-grid">
-                    <div className="details-item">
-                      <span className="details-label">펀드 유형</span>
-                      <span className="details-value">{fundDetail.fundProductType}</span>
-                    </div>
-                    <div className="details-item">
-                      <span className="details-label">설정 연도</span>
-                      <span className="details-value">{fundDetail.fundProductYear}</span>
-                    </div>
-                    <div className="details-item">
-                      <span className="details-label">만기일</span>
-                      <span className="details-value">
-                        {formatDate(fundDetail.fundProductExpiration)}
-                      </span>
-                    </div>
-                    <div className="details-item">
-                      <span className="details-label">총 펀드 규모</span>
-                      <span className="details-value">
-                        {formatAmount(fundDetail.fundProductTotalAmount)}억 원
-                      </span>
-                    </div>
-                    <div className="details-item">
-                      <span className="details-label">운용 보수</span>
-                      <span className="details-value">
-                        {formatPercentage(fundDetail.fundProductManagementFee)}
-                      </span>
-                    </div>
-                    <div className="details-item">
-                      <span className="details-label">환매 수수료</span>
-                      <span className="details-value">
-                        {formatPercentage(fundDetail.fundProductRedemptionFee)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <button className="join-button" onClick={handleJoinClick}>
-                  가입하기
-                </button>
-              </div>
-            )}
           </div>
         ))}
+
+        {loading && (
+          <div className="fund-loading-indicator">
+            <p>데이터를 불러오는 중...</p>
+          </div>
+        )}
       </div>
+
+      <FundTradeModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        fundProduct={selectedFund}
+      />
     </div>
   );
 };

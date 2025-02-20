@@ -1,0 +1,227 @@
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.deposit-detail-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.deposit-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.deposit-detail-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #1e40af;
+}
+
+.deposit-detail-tabs-list {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 2rem;
+    padding: 0;
+    list-style: none;
+}
+
+.deposit-detail-tab {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 1rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.deposit-detail-tab:hover {
+    color: #1e40af;
+}
+
+.deposit-detail-tab.active {
+    color: #1e40af;
+    font-weight: 500;
+}
+
+.deposit-detail-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #1e40af;
+}
+
+.deposit-summary-card,
+.deposit-interest-card,
+.deposit-regular-card,
+.deposit-maturity-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.deposit-summary-grid,
+.deposit-interest-grid,
+.deposit-regular-grid,
+.deposit-maturity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.deposit-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.deposit-info-label {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.deposit-info-value {
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.simulation-chart-container {
+    height: 400px;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.simulation-footnote {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.simulation-footnote p {
+    margin: 0.5rem 0;
+}
+
+.deposit-detail-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.terminate-button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.terminate-button[title] {
+    cursor: help;
+}
+
+.terminate-button:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.terminate-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.terminate-button:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem;
+    background-color: #1e293b;
+    color: white;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    margin-bottom: 0.5rem;
+    z-index: 10;
+}
+
+@media (max-width: 640px) {
+    .deposit-detail-modal {
+        width: 95%;
+        padding: 1rem;
+    }
+
+    .deposit-summary-grid,
+    .deposit-interest-grid,
+    .deposit-regular-grid,
+    .deposit-maturity-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .deposit-detail-tabs-list {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .simulation-chart-container {
+        height: 300px;
+    }
+}

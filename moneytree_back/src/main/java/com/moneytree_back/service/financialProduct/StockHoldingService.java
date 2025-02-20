@@ -1,6 +1,5 @@
 package com.moneytree_back.service.financialProduct;
 
-import com.moneytree_back.domain.financialProduct.StockAccount;
 import com.moneytree_back.dto.financialProduct.StockHoldingDTO;
 
 import java.math.BigDecimal;

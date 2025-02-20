@@ -1,6 +1,7 @@
 import axios from 'axios';
 import jwtAxios, { baseURL } from '../util/jwtUtil';
 
+
 const STOCK_API_BASE_URL = `${baseURL}/api/stock-products`;
 const STOCK_TRADING_API_BASE_URL = `${baseURL}/api/stock-controller`;
 const DANDWAC_API_BASE_URL = `${baseURL}/api/accounts`;
@@ -147,17 +148,13 @@ const StockAPI = {
   // 입출금계좌에서 주식계좌로 입금
   depositToStockAccount: async (dandwAcId, stockAccountNumber, amount) => {
     try {
-      const response = await axios.post(
-        `${STOCK_TRADING_API_BASE_URL}/dandwac-stock/deposit`,
-        null,
-        {
-          params: {
-            dandwAcId,
-            stockAccountNumber,
-            amount,
-          },
-        },
-      );
+      const response = await axios.post(`${STOCK_TRADING_API_BASE_URL}/dandwac-stock/deposit`, null, {
+        params: {
+          dandwAcId,
+          stockAccountNumber,
+          amount
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error depositing to stock account:', error);
@@ -168,17 +165,13 @@ const StockAPI = {
   // 주식계좌에서 입출금계좌로 출금
   withdrawFromStockAccount: async (stockAccountNumber, dandwAcId, amount) => {
     try {
-      const response = await axios.post(
-        `${STOCK_TRADING_API_BASE_URL}/stock-dandwac/withdraw`,
-        null,
-        {
-          params: {
-            stockAccountNumber,
-            dandwAcId,
-            amount,
-          },
-        },
-      );
+      const response = await axios.post(`${STOCK_TRADING_API_BASE_URL}/stock-dandwac/withdraw`, null, {
+        params: {
+          stockAccountNumber,
+          dandwAcId,
+          amount
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error withdrawing from stock account:', error);
@@ -191,8 +184,8 @@ const StockAPI = {
     try {
       // 입출금 계좌번호로 주식계좌 조회
       const response = await jwtAxios.get(`${STOCK_TRADING_API_BASE_URL}/account/${accountNumber}`);
-      console.log(accountNumber);
-      console.log(response.data);
+      // console.log(accountNumber)
+      // console.log(response.data)
       return response.data;
     } catch (error) {
       console.error('Error fetching stock account details:', error);
@@ -208,8 +201,8 @@ const StockAPI = {
           stockAccountNumber,
           stockProductId,
           quantity,
-          price,
-        },
+          price
+        }
       });
       return response.data;
     } catch (error) {
@@ -225,8 +218,8 @@ const StockAPI = {
         params: {
           stockAccountNumber,
           stockProductId,
-          quantity,
-        },
+          quantity
+        }
       });
       return response.data;
     } catch (error) {
@@ -244,6 +237,7 @@ const StockAPI = {
       console.error('Error fetching stock holdings:', error);
       throw error;
     }
-  },
+  }
+
 };
 export default StockAPI;
