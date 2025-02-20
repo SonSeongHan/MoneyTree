@@ -36,20 +36,28 @@ public class AdminController {
         Member member = memberService.getMemberById(memberId);
 
         // (2) memberId를 이용하여 송금 내역(거래 내역)을 조회 (예: 최근 6개월 간 내역)
-        // 반환 타입을 TransactionHistory가 아니라 TransferHistoryDTO로 받아야 합니다.
-        List<TransferHistoryDTO> histories = transactionHistoryService.getTransactionsForMember(memberId, 6);
+        List<TransactionHistory> histories = transactionHistoryService.getTransactionsForMember(memberId, 6);
 
-        // (3) 필요한 경우, TransferHistoryDTO를 기반으로 추가 가공을 할 수 있습니다.
-        // 예를 들어, DTO에 없는 필드를 보완하거나 다른 형식으로 변경할 수 있습니다.
-        // 여기서는 이미 DTO로 필요한 정보가 들어있으므로 별도의 매핑이 필요없습니다.
+        // (3) 조회된 TransactionHistory 엔티티를 TransferHistoryDTO로 변환
+        List<TransferHistoryDTO> transferHistoryDTOs = histories.stream()
+                .map(history -> TransferHistoryDTO.builder()
+                        .id(history.getId())
+                        .transactionType(history.getDandwacType().name())
+                        .amount(history.getAmount().doubleValue())
+                        .createdAt(history.getCreatedAt())
+                        .fromMemberName(history.getFromAccount().getMember().getMemberName())
+                        .toMemberName(history.getToAccount().getMember().getMemberName())
+                        .build())
+                .collect(Collectors.toList());
 
         // (4) 회원 상세 DTO 생성 (가입 상품, 취미 등은 실제 데이터에 맞게 수정)
         MemberDetailDTO detailDTO = new MemberDetailDTO();
         detailDTO.setMemberId(member.getMemberId());
-        detailDTO.setBalance(10000); // 예시 값
+        // 실제 잔액 정보는 회원의 계좌 정보를 통해 조회하는 것이 좋으나, 여기서는 예시로 10000으로 설정
+        detailDTO.setBalance(10000);
         detailDTO.setSubscribedProducts(Collections.emptyList());
         detailDTO.setHobbies(Collections.emptyList());
-        detailDTO.setTransferHistory(histories);  // 이제 histories는 List<TransferHistoryDTO>입니다.
+        detailDTO.setTransferHistory(transferHistoryDTOs);
 
         return ResponseEntity.ok(detailDTO);
     }

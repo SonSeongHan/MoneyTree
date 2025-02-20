@@ -20,8 +20,8 @@ import java.util.Map;
 @RequestMapping("/api/apartment-transactions")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000",
-        allowedHeaders = {"Content-Type", "Authorization", "memberId", "memberid"},
-        allowCredentials = "true")
+  allowedHeaders = {"Content-Type", "Authorization", "memberId", "memberid"},
+  allowCredentials = "true")
 public class ApartmentTransactionController {
 
   private final ApartmentTransactionService transactionService;
@@ -33,11 +33,11 @@ public class ApartmentTransactionController {
   @ResponseBody
   public ApartmentTransactionDTO createTransaction(@RequestBody ApartmentTransactionRequestDTO request) {
     ApartmentTransactionDTO dto = transactionService.createTransaction(
-            request.getBuyerId(),
-            request.getSellerId(),
-            request.getApartmentName(),
-            request.getPrice(),
-            request.getRemarks());
+      request.getBuyerId(),
+      request.getSellerId(),
+      request.getApartmentName(),
+      request.getPrice(),
+      request.getRemarks());
     return dto;
   }
 
@@ -136,12 +136,12 @@ public class ApartmentTransactionController {
   @PostMapping("/submit-seller-auth")
   @ResponseBody
   public ResponseEntity<?> submitSellerAuth(
-          @RequestParam("transactionId") Long transactionId,
-          @RequestParam("memberId") String memberId,         // 숨김 필드의 매도자 ID (실제 거래 대상)
-          @RequestParam("sellerIdInput") String sellerIdInput, // 사용자가 직접 입력한 매도자 ID
-          @RequestParam("password") String password,
-          @RequestParam("signature") String signature,
-          @RequestParam(value = "comments", required = false) String comments) {
+    @RequestParam("transactionId") Long transactionId,
+    @RequestParam("memberId") String memberId,         // 숨김 필드의 매도자 ID (실제 거래 대상)
+    @RequestParam("sellerIdInput") String sellerIdInput, // 사용자가 직접 입력한 매도자 ID
+    @RequestParam("password") String password,
+    @RequestParam("signature") String signature,
+    @RequestParam(value = "comments", required = false) String comments) {
 
     try {
       // 입력한 매도자 ID와 숨김 필드의 매도자 ID가 일치하는지 확인

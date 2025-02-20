@@ -1,66 +1,116 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { loginPostAsync } from "../../slices/loginSlice";
+import axios from "axios";
+import { setCookie } from "../../util/cookieUtil";
+// ---- 추가: 인증서 로그인용 컴포넌트 임포트 ----
 import CertificateLogin from "./CertificateLogin";
-import "../../css/loginpage.css";
 
 const LoginPage = () => {
+    // 로그인 컴포넌트 초기 state
     const [userType, setUserType] = useState("SimpleMember");
     const [userId, setUserId] = useState("");
     const [password, setPassword] = useState("");
     const [rrn, setRrn] = useState(""); // 주민등록번호 (정회원일 경우)
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-    // Redux store에 있는 로그인 상태를 가져올 수 있습니다.
-    const member = useSelector((state) => state.login);
 
     // 간편회원가입 & 정회원가입 버튼
     const handleSimpleSignUp = () => navigate("/member/simple/make");
     const handleFullSignUp = () => navigate("/member/full/make");
 
-    // 로그인 요청 핸들러
+    // 일반(간편/정회원) 로그인 요청
     const handleLogin = async (e) => {
         e.preventDefault();
         setErrorMessage("");
+        setSuccessMessage("");
 
-        // 파라미터 구성 (정회원이면 주민등록번호 추가)
-        const loginData = {
-            memberId: userId,
-            memberpassword: password,
-        };
-        if (userType === "FullMember") {
-            loginData.residentRegistrationNumber = rrn;
-        }
-
-        // Redux 액션 디스패치
         try {
-            const resultAction = await dispatch(loginPostAsync(loginData));
-            // 액션이 fulfilled 되었을 때의 처리 (예: navigate)
-            if (loginPostAsync.fulfilled.match(resultAction)) {
-                // 예시: 응답 payload에 active 필드가 있는 경우
-                if (!resultAction.payload.active) {
+            // (1) URLSearchParams를 사용하여 폼 파라미터 구성
+            const formData = new URLSearchParams();
+            formData.append("memberId", userId);
+            formData.append("memberpassword", password);
+
+            // 정회원(FullMember)일 경우에만 주민등록번호 파라미터 추가
+            if (userType === "FullMember") {
+                formData.append("residentRegistrationNumber", rrn);
+            }
+
+            // (2) axios로 x-www-form-urlencoded 요청 보내기
+            const response = await axios.post(
+              "http://localhost:8080/api/members/login",
+              formData,
+              {
+                  headers: {
+                      "Content-Type": "application/x-www-form-urlencoded",
+                  },
+              }
+            );
+
+            // (3) 응답 데이터 추출 (active 플래그 포함)
+            if (response && response.data) {
+                const {
+                    memberId,
+                    member_name,
+                    membershipType,
+                    active,
+                    accessToken,
+                    refreshToken,
+                    accountNumber
+                } = response.data;
+
+                // active가 false이면, 계정이 비활성화 상태이므로 쿠키에 회원 정보를 저장한 후 재활성화 페이지로 이동
+                if (!active) {
+                    setCookie(
+                        "member",
+                        JSON.stringify({
+                            memberId,
+                            member_name,
+                            membershipType,
+                            active,
+                            accessToken,
+                            refreshToken,
+                        }),
+                        1
+                    );
                     alert("계정이 비활성 상태입니다. 재활성화 페이지로 이동합니다.");
                     navigate("/reactivate-account");
-                } else {
-                    // 정상 로그인 시 홈 페이지로 이동
-                    navigate("/home");
+                    return;
                 }
-            } else {
-                // rejected 액션일 경우 에러 메시지 처리
-                setErrorMessage("로그인 중 오류가 발생했습니다.");
+
+                // 정상 로그인인 경우, 쿠키에 정보 저장 후 홈 페이지로 이동
+                setCookie(
+                    "member",
+                    JSON.stringify({
+                        memberId,
+                        member_name,
+                        membershipType,
+                        active,
+                        accessToken,
+                        refreshToken,
+                        accountNumber
+                    }),
+                    1
+                );
+
+                setSuccessMessage("로그인 성공!");
+                navigate("/home");
             }
         } catch (error) {
-            setErrorMessage("로그인 중 오류가 발생했습니다.");
+            // 에러 메시지 추출
+            const serverErrorMessage =
+              error.response?.data?.message ||
+              "로그인 중 오류가 발생했습니다.";
+
+            setErrorMessage(serverErrorMessage);
         }
     };
 
     return (
         <div className="login-page">
             <div className="login-container">
-                <h2 className="login-title">로그인</h2>
+                <h2>로그인</h2>
 
                 {/* 유저 타입(간편, 정회원, 인증서) 선택 */}
                 <div className="user-type-selection">
@@ -82,6 +132,7 @@ const LoginPage = () => {
                         />
                         정회원
                     </label>
+                    {/* ---- 추가: 인증서 회원 선택 ---- */}
                     <label>
                         <input
                             type="radio"
@@ -93,15 +144,18 @@ const LoginPage = () => {
                     </label>
                 </div>
 
-                {/* userType이 "Certificate"이면 <CertificateLogin> 렌더링 */}
+                {/**
+                 * userType이 "Certificate"이면 <CertificateLogin> 컴포넌트로 인증서 로그인 UI 제공
+                 * 그렇지 않으면 기존 아이디/비밀번호(주민번호) 폼 표시
+                 */}
                 {userType === "Certificate" ? (
                     <CertificateLogin
                         navigate={navigate}
                         setErrorMessage={setErrorMessage}
+                        setSuccessMessage={setSuccessMessage}
                     />
                 ) : (
-                    // 간편/정회원 로그인 폼
-                    <form onSubmit={handleLogin} className="login-form">
+                    <form onSubmit={handleLogin}>
                         <div className="form-group">
                             <label>아이디</label>
                             <input
@@ -111,7 +165,6 @@ const LoginPage = () => {
                                 required
                             />
                         </div>
-
                         {userType === "FullMember" && (
                             <div className="form-group">
                                 <label>주민등록번호 (13자리)</label>
@@ -125,7 +178,6 @@ const LoginPage = () => {
                                 />
                             </div>
                         )}
-
                         <div className="form-group">
                             <label>비밀번호</label>
                             <input
@@ -135,25 +187,18 @@ const LoginPage = () => {
                                 required
                             />
                         </div>
-
                         <button type="submit" className="login-button">
                             로그인
                         </button>
                     </form>
                 )}
 
-                {/* 회원가입 버튼들 */}
                 <div className="signup-buttons">
-                    <button onClick={handleSimpleSignUp} className="signup-btn">
-                        간편회원가입
-                    </button>
-                    <button onClick={handleFullSignUp} className="signup-btn">
-                        정회원가입
-                    </button>
+                    <button onClick={handleSimpleSignUp}>간편회원가입</button>
+                    <button onClick={handleFullSignUp}>정회원가입</button>
                 </div>
-
-                {/* 에러 메시지 */}
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
+                {successMessage && <p className="success-message">{successMessage}</p>}
             </div>
         </div>
     );

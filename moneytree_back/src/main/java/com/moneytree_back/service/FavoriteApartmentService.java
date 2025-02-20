@@ -1,6 +1,7 @@
 package com.moneytree_back.service;
 
 import com.moneytree_back.dto.FavoriteApartmentDTO;
+
 import java.util.List;
 
 public interface FavoriteApartmentService {

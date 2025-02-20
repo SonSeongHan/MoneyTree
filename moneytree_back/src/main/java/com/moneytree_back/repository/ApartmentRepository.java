@@ -3,6 +3,7 @@ package com.moneytree_back.repository;
 import com.moneytree_back.domain.Apartment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 

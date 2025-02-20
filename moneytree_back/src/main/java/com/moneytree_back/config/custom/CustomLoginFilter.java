@@ -1,19 +1,12 @@
 package com.moneytree_back.config.custom;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * 기본 UsernamePasswordAuthenticationFilter를 상속해서
@@ -25,45 +18,28 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        if (request.getContentType() != null && request.getContentType().contains("application/json")) {
-            try (InputStream is = request.getInputStream()) {
-                ObjectMapper mapper = new ObjectMapper();
-                Map<String, String> authRequest = mapper.readValue(is, new TypeReference<Map<String, String>>() {});
 
-                String memberId = authRequest.get("memberId");
-                String password = authRequest.get("memberpassword");
-                String rrn = authRequest.get("residentRegistrationNumber");
+        // 폼데이터 (x-www-form-urlencoded) 기준으로 파라미터 꺼내기
+        String memberId = request.getParameter("memberId");
+        String password = request.getParameter("memberpassword");
+        String rrn = request.getParameter("residentRegistrationNumber");
 
-                log.info("CustomLoginFilter >>> memberId={}, pw={}, rrn={}", memberId, password, rrn);
+        log.info("CustomLoginFilter >>> memberId={}, pw={}, rrn={}", memberId, password, rrn);
 
-                if (password == null) {
-                    password = "";
-                }
-
-                UsernamePasswordAuthenticationToken token =
-                        new UsernamePasswordAuthenticationToken(memberId, password);
-                token.setDetails(rrn);
-                return this.getAuthenticationManager().authenticate(token);
-            } catch (IOException e) {
-                throw new AuthenticationServiceException("로그인 요청 JSON 파싱 실패", e);
-            }
-        } else {
-            // 기존 폼데이터 방식 처리
-            String memberId = request.getParameter("memberId");
-            String password = request.getParameter("memberpassword");
-            String rrn = request.getParameter("residentRegistrationNumber");
-
-            log.info("CustomLoginFilter >>> memberId={}, pw={}, rrn={}", memberId, password, rrn);
-
-            if (password == null) {
-                password = "";
-            }
-
-            UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(memberId, password);
-            token.setDetails(rrn);
-            return this.getAuthenticationManager().authenticate(token);
+        // NPE 방지: password 혹은 rrn이 비어있다면 "" 또는 null 처리
+        // (원하는 대로 처리)
+        if (password == null) {
+            password = "";
         }
-    }
 
+        // UsernamePasswordAuthenticationToken의 principal=memberId, credentials=password
+        UsernamePasswordAuthenticationToken authRequest =
+                new UsernamePasswordAuthenticationToken(memberId, password);
+
+        // 주민등록번호 등 추가 정보는 "details"에 담아서 Provider가 꺼내 쓰도록
+        authRequest.setDetails(rrn);
+
+        // AuthenticationManager에게 위 토큰을 넘겨서 인증 진행
+        return this.getAuthenticationManager().authenticate(authRequest);
+    }
 }

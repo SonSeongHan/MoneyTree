@@ -1,77 +1,60 @@
-/* -------------------------------------
-   전체 배경 (그라데이션)
--------------------------------------- */
-.estate-detail-bg {
-  min-height: 100vh;
-  /*background: linear-gradient(120deg, #f0f4f7, #ffffff);*/
+/* 전체 상세 페이지 컨테이너 */
+.detail-container {
   padding: 20px;
-  box-sizing: border-box;
-}
-
-/* -------------------------------------
-   상세 컨테이너 (흰색 박스)
--------------------------------------- */
-.estate-detail-container {
-  padding: 30px 0px 40px 0px;
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
   font-family: 'Noto Sans KR', Arial, sans-serif;
   background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border-radius: 6px;
-  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); */
 }
 
-/* -------------------------------------
-   상세 페이지 헤더
--------------------------------------- */
-.estate-detail-header {
+/* 상세 페이지 헤더 */
+.detail-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 40px;
-  border-bottom: 1px solid ;
+  margin-bottom: 20px;
 }
 
-.estate-detail-header-left {
+.header-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.estate-detail-post-category {
+.post-category {
   font-size: 0.8em;
   color: #007aff;
   font-weight: bold;
   text-transform: uppercase;
 }
 
-.estate-detail-header-right {
+.header-right {
   text-align: right;
   font-size: 0.9em;
   color: #666;
 }
 
-.estate-detail-meta-line {
+.meta-line {
   margin: 2px 0;
 }
 
-/* -------------------------------------
-   게시글 제목, 내용, 이미지
--------------------------------------- */
-.estate-detail-post-title {
+/* 게시글 제목, 내용, 이미지, 메타 정보 */
+.post-title {
   font-size: 2.2em;
   margin: 0 0 10px;
   color: #333;
 }
 
-.estate-detail-post-content {
+.post-content {
   font-size: 1.1em;
   line-height: 1.6;
   margin-bottom: 20px;
   color: #444;
 }
 
-.estate-detail-post-image {
+.post-image {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
@@ -79,60 +62,51 @@
   border-radius: 4px;
 }
 
-.estate-detail-image-file-name {
+.image-file-name {
   font-size: 0.9em;
   color: #555;
   text-align: right;
 }
 
-/* -------------------------------------
-   버튼 영역
--------------------------------------- */
-.estate-detail-post-buttons {
+/* 버튼 스타일 */
+.post-buttons {
   margin-bottom: 25px;
-  border-bottom: 1px solid;
-  padding: 0px 0px 15px 0px;
-  /* 오른쪽 정렬 */
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
 }
 
-.estate-detail-btn {
+.btn {
   padding: 8px 16px;
   font-size: 0.95em;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-right: 10px;
   transition: background-color 0.3s;
 }
 
-/* 수정 버튼 (초록색) */
-.estate-detail-edit-btn {
-  background-color: #28a745; /* 원하는 색상으로 변경 가능 */
+.edit-btn {
+  background-color: #007aff;
   color: #fff;
 }
-.estate-detail-edit-btn:hover {
-  background-color: #218838; /* hover 시 */
+
+.edit-btn:hover {
+  background-color: #005bb5;
 }
 
-/* 삭제 버튼 (빨강) */
-.estate-detail-delete-btn {
+.delete-btn {
   background-color: #dc3545;
   color: #fff;
 }
-.estate-detail-delete-btn:hover {
+
+.delete-btn:hover {
   background-color: #c82333;
 }
 
-/* -------------------------------------
-   편집 모드 (수정하기 눌렀을 때)
--------------------------------------- */
-.estate-detail-edit-post-form {
+/* 편집 폼 */
+.edit-post-form {
   margin-bottom: 25px;
 }
 
-.estate-detail-edit-title {
+.edit-title {
   width: 100%;
   font-size: 2.2em;
   padding: 10px;
@@ -141,7 +115,7 @@
   border-radius: 4px;
 }
 
-.estate-detail-edit-content {
+.edit-content {
   width: 100%;
   font-size: 1.1em;
   padding: 10px;
@@ -152,28 +126,18 @@
   resize: vertical;
 }
 
-.estate-detail-edit-buttons {
+.edit-buttons {
   display: flex;
   gap: 10px;
 }
 
-/* (추가) 저장/취소 버튼 스타일을 따로 원하시면 여기에 지정해도 됩니다.
-   예:
-   .estate-detail-save-btn { background-color: #... }
-   .estate-detail-cancel-btn { background-color: #... }
-*/
-
-/* -------------------------------------
-   이미지 섹션
--------------------------------------- */
-.estate-detail-image-section {
+/* 이미지 섹션 */
+.image-section {
   margin-bottom: 20px;
 }
 
-/* -------------------------------------
-   댓글 수 배너 (필요 시)
--------------------------------------- */
-.estate-detail-comment-count-banner {
+/* 댓글 수 배너 (상단에 별도 표시) */
+.comment-count-banner {
   background-color: #f7f7f7;
   border: 1px solid #e1e1e1;
   padding: 10px 15px;

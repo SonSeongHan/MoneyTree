@@ -2,9 +2,11 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.dto.ApartmentTransactionDTO;
 import org.springframework.core.io.ByteArrayResource;
+
 import java.util.List;
 
 public interface ApartmentTransactionService {
+  // 기존 메서드들...
   ApartmentTransactionDTO createTransaction(String buyerId, String sellerId, String apartmentName, Integer price, String remarks);
   ApartmentTransactionDTO getTransaction(Long id);
   List<ApartmentTransactionDTO> getTransactionsByBuyer(String buyerId);

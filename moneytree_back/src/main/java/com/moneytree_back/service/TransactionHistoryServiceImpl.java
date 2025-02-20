@@ -1,11 +1,11 @@
 package com.moneytree_back.service;
 
+
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.TransactionHistory;
-import com.moneytree_back.domain.TransactionHistoryType;
-import com.moneytree_back.dto.TransferHistoryDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.TransactionHistoryRepository;
+import com.moneytree_back.service.TransactionHistoryService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,40 +25,31 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
     }
 
     @Override
-    public List<TransferHistoryDTO> getTransactionsForMember(String memberId, int months) {
-        // member_id로 입출금 계좌(Dandwac) 조회
+    public List<TransactionHistory> getTransactionsForMember(String memberId, int months) {
+        // member_id로 입출금 계좌 조회
         Dandwac account = dandwacRepository.findByMember_MemberId(memberId)
                 .orElseThrow(() -> new RuntimeException("입출금 계좌를 찾을 수 없습니다. member_id: " + memberId));
 
-        // 기준 날짜 계산: 현재 시각으로부터 months 개월 전
+        // 기준 날짜 계산: 현재 시각에서 'months' 개월 전
         LocalDateTime cutoffDate = LocalDateTime.now().minusMonths(months);
 
-        // 모든 거래 내역 중, 해당 계좌와 기준 날짜 이후의 내역 및 예금해지가 아닌 것만 필터링
-        List<TransactionHistory> filteredTransactions = transactionHistoryRepository.findAll().stream()
+        // 모든 거래 내역을 로드한 후, 해당 계좌 관련 및 기준 날짜 이후의 내역만 필터링하고,
+        // 각 거래 내역에 대해 송금한 회원과 돈받은 회원의 닉네임을 채워준다.
+        List<TransactionHistory> allTransactions = transactionHistoryRepository.findAll();
+        return allTransactions.stream()
                 .filter(tx -> (tx.getFromAccount().equals(account) || tx.getToAccount().equals(account))
-                        && tx.getCreatedAt().isAfter(cutoffDate)
-                        && tx.getTransactionHistoryType() != TransactionHistoryType.예금해지)
+                        && tx.getCreatedAt().isAfter(cutoffDate))
                 .peek(tx -> {
-                    // 연관된 계좌의 Member 이름 설정 (초기화)
+                    // 송금한 계좌가 존재하면, 해당 계좌의 소유자(Member)의 이름을 fromMemberNickname에 설정
                     if (tx.getFromAccount() != null && tx.getFromAccount().getMember() != null) {
                         tx.setFromMemberName(tx.getFromAccount().getMember().getMemberName());
                     }
+                    // 돈받은 계좌가 존재하면, 해당 계좌의 소유자(Member)의 이름을 toMemberNickname에 설정
                     if (tx.getToAccount() != null && tx.getToAccount().getMember() != null) {
                         tx.setToMemberName(tx.getToAccount().getMember().getMemberName());
                     }
                 })
                 .collect(Collectors.toList());
-
-        // 엔티티를 TransferHistoryDTO로 변환
-        return filteredTransactions.stream()
-                .map(tx -> TransferHistoryDTO.builder()
-                        .id(tx.getId())
-                        .transactionType(tx.getTransactionHistoryType().toString())
-                        .amount(tx.getAmount().doubleValue())
-                        .createdAt(tx.getCreatedAt())
-                        .fromMemberName(tx.getFromMemberName())
-                        .toMemberName(tx.getToMemberName())
-                        .build())
-                .collect(Collectors.toList());
     }
+
 }
