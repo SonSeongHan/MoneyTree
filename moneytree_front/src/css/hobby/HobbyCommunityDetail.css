@@ -1,0 +1,118 @@
+/* 전체 컨테이너 */
+.hobby-detail-container {
+    max-width: 1200px;          /* 원하는 최대 너비 설정 */
+    margin: 40px auto;         /* 화면 가운데 정렬 */
+    background-color: #fff;    /* 배경색 */
+
+}
+
+/* 로딩 문구 */
+.hobby-loading {
+    text-align: center;
+    margin: 100px 0;
+    font-size: 18px;
+}
+
+/* 상단 헤더 영역 */
+.hobby-detail-header {
+    border-bottom: 1px solid;
+    padding-bottom: 10px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.hobby-detail-title {
+    font-size: 2.2em;
+    margin: 0 0 10px;
+}
+
+/* 작성자, 작성일 등 메타 정보 */
+.hobby-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    font-size: 14px;
+    color: #555;
+}
+
+.hobby-detail-meta span {
+    line-height: 1.5;
+}
+
+/* 게시글 본문 영역 */
+.hobby-detail-content {
+    margin-bottom: 24px;
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #333;
+}
+.hobby-detail-content p {
+    font-size: 1.1em;
+}
+
+/* 이미지 섹션 */
+.hobby-detail-images {
+    margin-top: 20px;
+}
+
+.hobby-detail-images img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 12px; /* 이미지 간격 */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* 하단 버튼 영역 */
+.hobby-detail-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 30px;
+    justify-content: flex-end;
+}
+
+.hobby-detail-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.hobby-detail-buttons button:hover {
+
+}
+
+/* 댓글 영역 */
+.hobby-detail-comments {
+    border-top: 1px solid;
+    padding-top: 16px;
+}
+
+.estate-detail-edit-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.estate-detail-edit-btn:hover {
+    background-color: #218838;
+}
+
+.estate-detail-delete-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* 목록 버튼의 스타일은 원하시는대로 수정하세요 */
+.estate-detail-list-btn {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.estate-detail-list-btn:hover {
+    background-color: #0056b3;
+}

@@ -56,6 +56,9 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+
+    // 신규 추가: HTML 인증 문서를 위한 API 경로는 JWT 검증에서 제외합니다.
+    // (예: /api/apartment-transactions/buyer-auth-html/** 와 /seller-auth-html/**)
         if (uri.startsWith("/api/apartment-transactions/buyer-auth-html/") ||
                 uri.startsWith("/api/apartment-transactions/seller-auth-html/") ||
                 uri.startsWith("/api/apartment-transactions/submit-seller-auth")) {

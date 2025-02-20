@@ -4,12 +4,13 @@ import axios from "axios";
 import { setCookie } from "../../util/cookieUtil";
 import { PDFDocument, rgb } from "pdf-lib";
 import { saveAs } from "file-saver";
+import "../../css/certificatelogin.css";
 
 const CertificateLogin = () => {
     const navigate = useNavigate();
     const [fileContent, setFileContent] = useState(""); // Base64 인코딩된 PDF 데이터
     const [message, setMessage] = useState("");
-    const [pdfBlob, setPdfBlob] = useState(null); // 옵션: 생성된 PDF 미리보기용
+    const [pdfBlob, setPdfBlob] = useState(null); // 생성된 PDF 미리보기용
 
     // PDF 파일 업로드 시 처리 (Base64 문자열 변환)
     const handleFileChange = (e) => {
@@ -27,7 +28,7 @@ const CertificateLogin = () => {
         reader.readAsDataURL(file);
     };
 
-    // 옵션: 업로드한 PDF 정보를 기반으로 새 PDF를 생성 (필수 아님)
+    // 업로드한 PDF 정보를 기반으로 새 PDF를 생성 (옵션)
     const generatePDF = async () => {
         if (!fileContent) {
             setMessage("먼저 PDF 파일을 업로드하세요.");
@@ -61,13 +62,11 @@ const CertificateLogin = () => {
 
         try {
             const response = await axios.post(
-              "http://localhost:8080/api/members/certificateLogin",
-              {
-                  fileContent, // Base64 인코딩된 PDF 데이터 전송
-              }
+                "http://localhost:8080/api/members/certificateLogin",
+                { fileContent } // Base64 인코딩된 PDF 데이터 전송
             );
 
-            // 서버에서 PDF의 텍스트를 파싱해 발급 ID/이름과 member DB를 대조 후 로그인 처리 후 토큰을 반환한다고 가정합니다.
+            // 서버에서 토큰 및 회원 정보를 반환한다고 가정합니다.
             const {
                 accessToken,
                 refreshToken,
@@ -77,15 +76,15 @@ const CertificateLogin = () => {
             } = response.data;
 
             setCookie(
-              "member",
-              JSON.stringify({
-                  memberId,
-                  member_name,
-                  membershipType,
-                  accessToken,
-                  refreshToken,
-              }),
-              1
+                "member",
+                JSON.stringify({
+                    memberId,
+                    member_name,
+                    membershipType,
+                    accessToken,
+                    refreshToken,
+                }),
+                1
             );
 
             setMessage("인증서 로그인 성공! 홈으로 이동합니다.");
@@ -95,48 +94,49 @@ const CertificateLogin = () => {
         } catch (error) {
             console.error("인증서 로그인 에러:", error);
             const serverMessage =
-              error.response?.data?.message ||
-              "인증서 로그인 중 오류가 발생했습니다.";
+                error.response?.data?.message ||
+                "인증서 로그인 중 오류가 발생했습니다.";
             setMessage(serverMessage);
         }
     };
 
     return (
-      <div style={{ margin: "50px" }}>
-          <h2>인증서 로그인 (PDF 파일 업로드)</h2>
+        <div className="cert-login-page">
+            <div className="cert-login-container">
+                <h2 className="cert-login-title">인증서 로그인 (PDF 파일 업로드)</h2>
 
-          <div style={{ marginBottom: "20px" }}>
-              <label>인증서 PDF 파일 업로드: </label>
-              <input type="file" accept=".pdf" onChange={handleFileChange} />
-          </div>
+                <div className="cert-form-group">
+                    <label>인증서 PDF 파일 업로드:</label>
+                    <input type="file" accept=".pdf" onChange={handleFileChange} />
+                </div>
 
-          <button onClick={handleLogin}>인증서 로그인</button>
-          <button onClick={generatePDF} style={{ marginLeft: "10px" }}>
-              PDF 생성 (옵션)
-          </button>
+                <div className="cert-button-group">
+                    <button onClick={handleLogin} className="cert-login-button">
+                        인증서 로그인
+                    </button>
+                    {pdfBlob && (
+                        <button
+                            onClick={() => saveAs(pdfBlob, "certificate.pdf")}
+                            className="cert-login-button"
+                        >
+                            PDF 다운로드
+                        </button>
+                    )}
+                </div>
 
-          {pdfBlob && (
-            <button
-              onClick={() => {
-                  saveAs(pdfBlob, "certificate.pdf");
-              }}
-              style={{ marginLeft: "10px" }}
-            >
-                PDF 다운로드
-            </button>
-          )}
-
-          {message && (
-            <p
-              style={{
-                  marginTop: "20px",
-                  color: message.includes("성공") ? "green" : "red",
-              }}
-            >
-                {message}
-            </p>
-          )}
-      </div>
+                {message && (
+                    <p
+                        className={
+                            message.includes("성공")
+                                ? "cert-message-success"
+                                : "cert-message-error"
+                        }
+                    >
+                        {message}
+                    </p>
+                )}
+            </div>
+        </div>
     );
 };
 

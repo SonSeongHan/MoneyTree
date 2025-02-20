@@ -1,0 +1,309 @@
+/* 전체 컨테이너 (배경 그라디언트) */
+.hobby-list-container {
+    background: linear-gradient(120deg, #f7fcf5, #eef8ec);
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* 메인 콘텐츠 박스 */
+.hobby-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-height: 100vh;
+}
+
+/********************************
+  상단 배너
+*********************************/
+.hobby-banner {
+    max-width: 1200px;
+    margin: 0 auto 20px auto;
+    background: linear-gradient(135deg, #a8d5a6, #82b883);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 40px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.hobby-banner h2 {
+    font-size: 2.2em;
+    margin-bottom: 0.3em;
+    font-weight: 700;
+}
+
+.hobby-banner p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+/********************************
+  제목 스타일
+*********************************/
+.hobby-comment-header {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+    position: relative;
+}
+
+.hobby-comment-header::after {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 3px;
+    background-color: #82b883;
+    margin-top: 8px;
+}
+
+/********************************
+  카테고리 필터 버튼
+*********************************/
+.hobby-category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.hobby-category-filter button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.hobby-category-filter button:hover {
+    background-color: #edf5ec;
+}
+
+.hobby-category-filter button.active {
+    background-color: #82b883;
+    color: #fff;
+}
+
+/********************************
+  댓글 필터 버튼
+*********************************/
+.hobby-comment-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.hobby-comment-filter button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.hobby-comment-filter button:hover {
+    background-color: #edf5ec;
+}
+
+.hobby-comment-filter button.active {
+    background-color: #6da76c;
+    color: #fff;
+    border-color: #6da76c;
+}
+
+/********************************
+  검색 영역
+*********************************/
+.hobby-search-area {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.hobby-search-field {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95em;
+    background-color: #fff;
+}
+
+.hobby-search-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95em;
+    background-color: #fff;
+}
+
+.hobby-search-button {
+    padding: 8px 16px;
+    border: none;
+    background-color: #82b883;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.3s;
+}
+
+.hobby-search-button:hover {
+    background-color: #6da76c;
+}
+
+/********************************
+  결과 개수 표시
+*********************************/
+.hobby-result-count {
+    font-size: 1em;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/********************************
+  새 게시글 작성 버튼
+*********************************/
+.hobby-new-post-button-container {
+    margin-bottom: 20px;
+}
+
+.hobby-new-post-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    background-color: #82b883;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.hobby-new-post-button:hover {
+    background-color: #6da76c;
+}
+
+/********************************
+  게시글 목록
+*********************************/
+.hobby-list-community {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 각 게시글 아이템: 폭을 넓게, 높이를 좀 더 확보 */
+.hobby-list-item {
+    background-color: #f1faed;
+    border: 1px solid #dae9d7;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    /* 실질적으로 아이템을 더 길게 보이게 하려면 최소 높이를 늘리면 됩니다 */
+    min-height: 100px; /* 원하는 값으로 조정 가능 (예: 120, 150 등) */
+
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hobby-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 게시글 링크 스타일 제거 */
+.hobby-list-link {
+    text-decoration: none;
+    color: inherit;
+    display: block; /* 링크 전체를 클릭 가능 영역으로 */
+    width: 100%;
+    height: 100%;
+}
+
+/* 게시글 상단 헤더 (카테고리, 제목, 메타 정보) */
+.hobby-list-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.hobby-list-item-category-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 카테고리 태그 */
+.hobby-post-category {
+    background-color: #93cba4;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* 게시글 제목 */
+.hobby-post-title {
+    font-size: 1.2em;
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+/* 메타 정보 (작성자, 작성시간, 댓글 수 등) */
+.hobby-list-item-meta {
+    text-align: right;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.hobby-meta-line {
+    margin: 2px 0;
+}
+
+/********************************
+  페이지네이션
+*********************************/
+.hobby-pagination {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.hobby-pagination button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 0.95em;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.hobby-pagination button:hover {
+    background-color: #edf5ec;
+}
+
+.hobby-pagination .page-button.active {
+    background-color: #82b883;
+    color: #fff;
+    font-weight: bold;
+}
