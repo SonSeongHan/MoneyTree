@@ -14,7 +14,6 @@ const jwtAxios = axios.create({
 jwtAxios.interceptors.request.use(
   (config) => {
     const memberInfo = getCookie('member');
-    // console.log('Cookie data:', memberInfo); // 디버깅용
 
     if (memberInfo) {
       try {

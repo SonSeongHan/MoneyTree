@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>매수 인증 문서</title>
+	<style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      .form-group { margin-bottom: 15px; }
+      label { display: block; margin-bottom: 5px; }
+      input[type="text"], textarea { width: 100%; padding: 8px; }
+      button { padding: 10px 20px; }
+	</style>
+</head>
+<body>
+<h1>매수 인증 문서</h1>
+<p>아래 칸에 서명을 입력해 주세요.</p>
+<form action="/api/submit-auth" method="post">
+	<div class="form-group">
+		<label for="signature">서명:</label>
+		<input type="text" id="signature" name="signature" placeholder="여기에 서명 입력">
+	</div>
+	<div class="form-group">
+		<label for="comments">비고:</label>
+		<textarea id="comments" name="comments" rows="4" placeholder="비고를 입력하세요"></textarea>
+	</div>
+	<button type="submit">제출</button>
+</form>
+</body>
+</html>

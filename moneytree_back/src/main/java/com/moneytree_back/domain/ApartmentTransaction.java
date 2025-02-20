@@ -33,7 +33,17 @@ public class ApartmentTransaction {
   private LocalDateTime transactionDate;
   private String remarks;
 
-  // 추가 필드: 동의 여부, 상태 (예: "PENDING", "COMPLETED", "CANCELLED")
+  // 추가 필드
   private boolean consentGiven;
   private String status;
+
+  // 매도자 인증 관련 필드 추가
+  private String sellerSignature;
+  private String sellerComments;
+
+  // 거래 요청 시간과 거래 완료 시간 추가
+  private LocalDateTime requestTime;  // 거래 요청 시간
+  private LocalDateTime completionTime;  // 거래 완료 시간
+
+  // (매수 인증이 필요 없으므로 매수 관련 인증 필드는 생략)
 }

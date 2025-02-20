@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Log4j2
-@Component
+@Component // Spring 빈으로 등록
 public class JWTCheckFilter extends OncePerRequestFilter {
 
     @Override
@@ -39,11 +39,26 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         String contextPath = request.getContextPath();
         String effectivePath = requestURI.substring(contextPath.length());
         String method = request.getMethod();
+        String uri = request.getRequestURI();
+
         log.info("Effective Path: " + effectivePath);
+
+        // 정적 파일은 JWT 검증 없이 바로 처리 (기존 조건)
+        if (uri.endsWith(".html") || uri.endsWith(".css") ||
+                uri.endsWith(".js") || uri.endsWith(".ico") ||
+                uri.contains("/images/")) {
+            return true;
+        }
 
         // 리프레쉬 엔드포인트이면 필터 건너뛰기
         if (effectivePath.startsWith("/api/auth/refresh")) {
             log.info("Refresh endpoint detected; skipping JWTCheckFilter.");
+            return true;
+        }
+
+        if (uri.startsWith("/api/apartment-transactions/buyer-auth-html/") ||
+                uri.startsWith("/api/apartment-transactions/seller-auth-html/") ||
+                uri.startsWith("/api/apartment-transactions/submit-seller-auth")) {
             return true;
         }
 
@@ -55,8 +70,32 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (effectivePath.startsWith("/api/accounts")) return true;
         if (effectivePath.startsWith("/api/deposit-products")) return true;
 
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("PUT")) {
+            return false;
+        }
+        if (path.startsWith("/api/community/replies") && method.equalsIgnoreCase("DELETE")) {
+            return false;
+        }
+
+        // /api/member/make-account는 필터링하지 않음
+        if (path.startsWith("/api/accounts")) {
+            return true;
+        }
+
+        if (path.startsWith("/api/deposit-products")) {
+            return true;
+        }
+
+        if (path.startsWith("/api/hobbies")) {
+            return true;
+        }
+
+
+
+        // 기본적으로 모든 요청은 필터링 처리
         return false;
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -234,17 +273,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             log.error("JWT Check Error..............", e);
             Gson gson = new Gson();
             String msg = gson.toJson(Map.of("error", "ERROR_ACCESS_TOKEN"));
-
-            // 응답이 이미 커밋되지 않았다면 응답을 초기화하고, getOutputStream()을 사용하여 작성
-            if (!response.isCommitted()) {
-                response.reset();
-                response.setContentType("application/json");
-                // getOutputStream() 사용
-                response.getOutputStream().println(msg);
-                response.getOutputStream().flush();
-                response.getOutputStream().close();
-            }
+            response.setContentType("application/json");
+            PrintWriter printWriter = response.getWriter();
+            printWriter.println(msg);
+            printWriter.close();
         }
     }
-
 }

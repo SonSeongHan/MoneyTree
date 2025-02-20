@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 import java.util.Arrays;
 
@@ -86,20 +87,26 @@ public class MemberSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        // 기존에는 "Authorization", "Content-Type", "Accept"만 허용하고 있었으므로, 여기에 "memberId"와 "memberid"를 추가합니다.
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "memberId", "memberid"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
-        // 필요하다면 노출할 헤더도 추가
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Refresh-Token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
+//    // ─────────────────────────────────────────────────────
+//// 아래 WebSecurityCustomizer 빈은 기존 설정을 수정하지 않고 정적 리소스에 대해
+//// 보안 필터가 적용되지 않도록 추가하는 부분입니다.
+//// 절대 다른 부분을 수정하지 말고 추가만 해주세요.
 //    @Bean
-//    public JWTCheckFilter jwtCheckFilter() {
-//        return new JWTCheckFilter();
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                .requestMatchers("/**/*.html",
+//                        "/favicon.ico", "/css/**", "/js/**", "/images/**");
 //    }
+//// ─────────────────────────────────────────────────────
+
 
     /**
      * SecurityFilterChain 구성

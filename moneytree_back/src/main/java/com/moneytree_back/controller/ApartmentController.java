@@ -1,7 +1,7 @@
 package com.moneytree_back.controller;
 
-import com.moneytree_back.service.ApartmentService; // ✅ 추가 (자동 임포트 필요)
 import com.moneytree_back.domain.Apartment;
+import com.moneytree_back.service.ApartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

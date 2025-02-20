@@ -1,20 +1,22 @@
-// src/components/AllManagement.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getCookie } from "../../util/cookieUtil"; // 쿠키에서 회원 정보를 가져오는 유틸
-import { withdrawMember } from "../../api/MemberAPI"; // 백엔드와 연동된 회원 탈퇴 API 함수
+import { getCookie } from "../../util/cookieUtil";
+import { withdrawMember } from "../../api/MemberAPI";
+import StockAPI from '../../api/StockAPI';
+import StockTransferModal from "../../components/StockTransferModal";
 
 function AllManagement() {
-    // 회원 정보 상태 관리
     const [memberInfo, setMemberInfo] = useState({
         memberId: "",
         memberName: "",
         membershipType: "",
     });
 
+    const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+    const [stockAccountNumber, setStockAccountNumber] = useState(null);
+
     const navigate = useNavigate();
 
-    // 쿠키에서 회원 정보를 불러와 상태에 저장
     useEffect(() => {
         const memberCookie = getCookie("member");
         if (memberCookie) {
@@ -26,24 +28,18 @@ function AllManagement() {
         }
     }, []);
 
-    // 쿠키 삭제 함수 (지정한 이름의 쿠키를 삭제)
     const deleteCookie = (name) => {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     };
 
-    // 회원 탈퇴 API 호출 함수
     const handleWithdraw = async () => {
-        // 탈퇴 전 사용자 확인
         if (!window.confirm("정말로 회원 탈퇴하시겠습니까?")) {
             return;
         }
         try {
-            // 백엔드의 탈퇴 API 호출 (탈퇴 사유는 기본값 "사용자탈퇴"로 전달)
             await withdrawMember(memberInfo.memberId);
-            // 쿠키 삭제 (회원 정보를 담고 있는 "member" 쿠키 삭제)
             deleteCookie("member");
             alert("회원 탈퇴가 완료되었습니다.");
-            // 탈퇴 후 홈 페이지 또는 로그인 페이지로 이동 (원하는 페이지로 수정 가능)
             navigate("/");
         } catch (error) {
             console.error("회원 탈퇴 중 오류 발생:", error);
@@ -51,48 +47,70 @@ function AllManagement() {
         }
     };
 
-    return (
-        <div style={styles.container}>
-            {/* 상단 회원 정보 */}
-            <div style={styles.memberInfo}>
-                <h1>회원 정보</h1>
-                <p>
-                    <strong>아이디:</strong> {memberInfo.memberId}
-                </p>
-                <p>
-                    <strong>이름:</strong> {memberInfo.memberName}
-                </p>
-                <p>
-                    <strong>회원 유형:</strong> {memberInfo.membershipType}
-                </p>
-            </div>
+    const handleOpenStockTransferModal = async () => {
+        try {
+            const dandwAcId = await StockAPI.getDandwacAccountNumber(memberInfo.memberId);
+            if (!dandwAcId) {
+                throw new Error("입출금 계좌를 찾을 수 없습니다.");
+            }
 
-            {/* 메뉴 버튼 영역 */}
-            <div style={styles.menuContainer}>
-                <Link to="/change-password" style={styles.linkButton}>
-                    비밀번호 변경
-                </Link>
-                <Link to="/change-name" style={styles.linkButton}>
-                    이름 변경
-                </Link>
-                <Link to="/make-account" style={styles.linkButton}>
-                    계좌생성
-                </Link>
-                <Link to="/reissue-certificate" style={styles.linkButton}>
-                    인증서 발급
-                </Link>
-                {/* 회원 탈퇴 버튼 */}
-                <button onClick={handleWithdraw} style={styles.withdrawButton}>
-                    회원 탈퇴
-                </button>
-            </div>
-        </div>
+            const stockAccount = await StockAPI.getStockAccount(dandwAcId);
+            setStockAccountNumber(stockAccount.stockAccountNumber);
+            setIsStockModalOpen(true);
+        } catch (error) {
+            console.error("주식 계좌 조회 중 오류 발생:", error);
+            alert(error.message || "주식 계좌 정보를 불러올 수 없습니다.");
+        }
+    };
+
+    return (
+      <div style={styles.container}>
+          <div style={styles.memberInfo}>
+              <h1>회원 정보</h1>
+              <p>
+                  <strong>아이디:</strong> {memberInfo.memberId}
+              </p>
+              <p>
+                  <strong>이름:</strong> {memberInfo.memberName}
+              </p>
+              <p>
+                  <strong>회원 유형:</strong> {memberInfo.membershipType}
+              </p>
+          </div>
+
+          <div style={styles.menuContainer}>
+              <Link to="/change-password" style={styles.linkButton}>
+                  비밀번호 변경
+              </Link>
+              <Link to="/change-name" style={styles.linkButton}>
+                  이름 변경
+              </Link>
+              <Link to="/make-account" style={styles.linkButton}>
+                  계좌생성
+              </Link>
+              <Link to="/create-stock-account" style={styles.linkButton}>
+                  주식 계좌 생성
+              </Link>
+              <button onClick={handleOpenStockTransferModal} style={styles.linkButton}>
+                  주식 송금하기
+              </button>
+              <Link to="/reissue-certificate" style={styles.linkButton}>
+                  인증서 발급
+              </Link>
+              <button onClick={handleWithdraw} style={styles.withdrawButton}>
+                  회원 탈퇴
+              </button>
+          </div>
+
+          <StockTransferModal
+            isOpen={isStockModalOpen}
+            onClose={() => setIsStockModalOpen(false)}
+            stockAccountNumber={stockAccountNumber}
+          />
+      </div>
     );
 }
 
-export default AllManagement;
-
-// 컴포넌트 내 사용되는 스타일 객체
 const styles = {
     container: {
         padding: "40px",
@@ -138,3 +156,5 @@ const styles = {
         cursor: "pointer",
     },
 };
+
+export default AllManagement;
