@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.itextpdf:kernel:7.1.15'
     implementation 'com.itextpdf:layout:7.1.15'
     implementation 'org.apache.pdfbox:pdfbox:2.0.27'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     //itext 7
     compileOnly 'org.projectlombok:lombok'

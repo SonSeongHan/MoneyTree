@@ -4,6 +4,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import com.moneytree_back.domain.Apartment;
 import com.moneytree_back.domain.ApartmentTransaction;
 import com.moneytree_back.domain.Dandwac;
 import com.moneytree_back.domain.member.Member;
@@ -40,15 +41,15 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   @Transactional
   public ApartmentTransactionDTO createTransaction(String buyerId, String sellerId, String apartmentName, Integer price, String remarks) {
     log.info("createTransaction 시작: buyerId={}, sellerId={}, apartmentName={}, price={}, remarks={}",
-      buyerId, sellerId, apartmentName, price, remarks);
+            buyerId, sellerId, apartmentName, price, remarks);
 
     Member seller = memberRepository.findById(sellerId)
-      .orElseThrow(() -> new RuntimeException("매도자가 존재하지 않습니다."));
+            .orElseThrow(() -> new RuntimeException("매도자가 존재하지 않습니다."));
     Member buyer = memberRepository.findById(buyerId)
-      .orElseThrow(() -> new RuntimeException("매수자가 존재하지 않습니다."));
+            .orElseThrow(() -> new RuntimeException("매수자가 존재하지 않습니다."));
 
     var apartment = apartmentRepository.findByName(apartmentName)
-      .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
 
     BigDecimal transactionAmount = BigDecimal.valueOf(price).multiply(BigDecimal.valueOf(10000));
 
@@ -60,17 +61,20 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
     if (sellerAccount == null) {
       throw new RuntimeException("매도자의 계좌를 찾을 수 없습니다.");
     }
+    if (!apartment.getOwnerId().equals(sellerId)) {
+      throw new RuntimeException("매도자는 해당 아파트의 실제 소유자여야 합니다.");
+    }
 
     ApartmentTransaction transaction = ApartmentTransaction.builder()
-      .buyer(buyer)
-      .seller(seller)
-      .apartment(apartment)
-      .price(price)
-      .transactionDate(LocalDateTime.now())
-      .remarks(remarks)
-      .consentGiven(false)
-      .status("PENDING")
-      .build();
+            .buyer(buyer)
+            .seller(seller)
+            .apartment(apartment)
+            .price(price)
+            .transactionDate(LocalDateTime.now())
+            .remarks(remarks)
+            .consentGiven(false)
+            .status("PENDING")
+            .build();
 
     ApartmentTransaction savedTransaction = transactionRepository.save(transaction);
     log.info("거래 생성 완료, 거래 ID: {}", savedTransaction.getId());
@@ -81,7 +85,7 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   @Transactional
   public boolean submitSellerAuth(Long transactionId, String memberId, String signature, String comments) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
 
     // 매도자만 인증 문서를 제출할 수 있도록 확인
     if (!transaction.getSeller().getMemberId().equals(memberId)) {
@@ -103,16 +107,15 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   @Transactional
   public ApartmentTransactionDTO completeTransaction(String memberId, Long transactionId) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
 
-    // 매도자가 아닌 사용자가 거래를 완료할 수 없음
+    // 매도자 본인인지 확인
     if (!transaction.getSeller().getMemberId().equals(memberId)) {
       throw new RuntimeException("권한이 없습니다.");
     }
 
-    BigDecimal transactionAmount = BigDecimal.valueOf(transaction.getPrice())
-      .multiply(BigDecimal.valueOf(10000));
-
+    // 가격만큼 계좌 이체 등 처리
+    BigDecimal transactionAmount = BigDecimal.valueOf(transaction.getPrice()).multiply(BigDecimal.valueOf(10000));
     Dandwac buyerAccount = dandwacService.findAccountByMemberId(transaction.getBuyer().getMemberId());
     Dandwac sellerAccount = dandwacService.findAccountByMemberId(transaction.getSeller().getMemberId());
 
@@ -125,17 +128,24 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
     dandwacRepository.save(buyerAccount);
     dandwacRepository.save(sellerAccount);
 
+    // **거래 완료 상태로 변경**
     transaction.setStatus("COMPLETED");
     transactionRepository.save(transaction);
+
+    // **아파트 소유자(ownerId)를 매수자로 변경**
+    Apartment apt = transaction.getApartment();
+    apt.setOwnerId(transaction.getBuyer().getMemberId());
+    apartmentRepository.save(apt); // ← 소유주 변경 반영
 
     log.info("거래 완료: transactionId={}", transactionId);
     return convertToDto(transaction);
   }
 
+
   @Override
   public ByteArrayResource generateTransactionDocument(String memberId, Long transactionId) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
 
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -167,14 +177,14 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   public List<ApartmentTransactionDTO> getTransactionsByBuyer(String buyerId) {
     List<ApartmentTransaction> transactions = transactionRepository.findByBuyer_MemberId(buyerId);
     return transactions.stream()
-      .map(this::convertToDto)
-      .collect(Collectors.toList());
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
   }
   @Override
   @Transactional(readOnly = true)
   public ApartmentTransactionDTO getTransaction(Long transactionId) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
     return convertToDto(transaction);
   }
 
@@ -183,7 +193,7 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   @Transactional
   public void consentTransaction(String memberId, Long transactionId) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
 
     // 매도자가 아닌 사용자가 거래에 동의할 수 없음
     if (!transaction.getSeller().getMemberId().equals(memberId)) {
@@ -199,9 +209,9 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   @Transactional
   public void cancelTransaction(String memberId, Long transactionId) {
     ApartmentTransaction transaction = transactionRepository.findById(transactionId)
-      .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("거래를 찾을 수 없습니다."));
     if (!transaction.getBuyer().getMemberId().equals(memberId) &&
-      !transaction.getSeller().getMemberId().equals(memberId)) {
+            !transaction.getSeller().getMemberId().equals(memberId)) {
       throw new RuntimeException("취소할 권한이 없습니다.");
     }
     transactionRepository.delete(transaction);
@@ -213,24 +223,24 @@ public class ApartmentTransactionServiceImpl implements ApartmentTransactionServ
   public List<ApartmentTransactionDTO> getTransactionsBySeller(String sellerId) {
     List<ApartmentTransaction> transactions = transactionRepository.findBySeller_MemberId(sellerId);
     return transactions.stream()
-      .map(this::convertToDto)
-      .collect(Collectors.toList());
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
   }
 
   private ApartmentTransactionDTO convertToDto(ApartmentTransaction transaction) {
     return ApartmentTransactionDTO.builder()
-      .id(transaction.getId())
-      .buyerId(transaction.getBuyer().getMemberId())
-      .sellerId(transaction.getSeller().getMemberId())
-      .apartmentId(transaction.getApartment().getId())
-      .apartmentName(transaction.getApartment().getName())
-      .price(transaction.getPrice())
-      .requestTime(transaction.getRequestTime())      // 요청 시간
-      .completionTime(transaction.getCompletionTime()) // 완료 시간
-      .transactionDate(transaction.getTransactionDate()) // 기존 호환성 유지
-      .remarks(transaction.getRemarks())
-      .consentGiven(transaction.isConsentGiven())
-      .status(transaction.getStatus())
-      .build();
+            .id(transaction.getId())
+            .buyerId(transaction.getBuyer().getMemberId())
+            .sellerId(transaction.getSeller().getMemberId())
+            .apartmentId(transaction.getApartment().getId())
+            .apartmentName(transaction.getApartment().getName())
+            .price(transaction.getPrice())
+            .requestTime(transaction.getRequestTime())      // 요청 시간
+            .completionTime(transaction.getCompletionTime()) // 완료 시간
+            .transactionDate(transaction.getTransactionDate()) // 기존 호환성 유지
+            .remarks(transaction.getRemarks())
+            .consentGiven(transaction.isConsentGiven())
+            .status(transaction.getStatus())
+            .build();
   }
 }

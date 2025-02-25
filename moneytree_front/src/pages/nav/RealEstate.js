@@ -99,7 +99,6 @@ const RealEstate = () => {
                         <FaMoneyBillWave className="nav-icon"/> 대출 상품 추천
                     </Link>
                 </div>
-              )}
           </nav>
 
             {location.pathname === '/realestate' ? <KakaoMap/> : <Outlet/>}

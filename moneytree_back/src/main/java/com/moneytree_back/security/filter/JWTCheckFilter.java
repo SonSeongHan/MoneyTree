@@ -65,6 +65,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        // 새로 추가: HTML 뷰 전용 URL (/seller-auth-view) 제외
+        if (uri.startsWith("/seller-auth-view")) {
+            return true;
+        }
+
         // 기타 특정 경로/메서드 제외
         if (effectivePath.startsWith("/api/members/make")) return true;
         if (effectivePath.startsWith("/api/communities") && method.equalsIgnoreCase("GET")) return true;
