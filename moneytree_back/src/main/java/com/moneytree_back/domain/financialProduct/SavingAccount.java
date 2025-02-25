@@ -1,6 +1,5 @@
-package com.moneytree_back.domain.financialProduct;
+package com.moneytree_back.domain;
 
-import com.moneytree_back.domain.Dandwac;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;

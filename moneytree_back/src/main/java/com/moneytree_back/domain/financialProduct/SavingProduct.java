@@ -1,4 +1,4 @@
-package com.moneytree_back.domain.financialProduct;
+package com.moneytree_back.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

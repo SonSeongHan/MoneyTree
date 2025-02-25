@@ -1,4 +1,4 @@
-package com.moneytree_back.domain.financialProduct;
+package com.moneytree_back.domain;
 
 public enum SavingAccountStatus {
     SAVING_ACCOUNT_ACTIVE,    // 활성화

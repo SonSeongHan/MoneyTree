@@ -1,9 +1,7 @@
-package com.moneytree_back.domain.financialProduct;
+package com.moneytree_back.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
