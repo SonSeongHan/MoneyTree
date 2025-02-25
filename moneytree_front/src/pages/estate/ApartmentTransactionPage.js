@@ -294,94 +294,182 @@ const ApartmentTransactionPage = () => {
     if (error) return <p className="at-error">{error}</p>;
 
     return (
-        <div className="at-container">
-            <h1 className="at-title">내 부동산 거래 내역</h1>
-            {accountBalance !== null && (
-                <div className="account-balance">내 계좌 잔액: {accountBalance.toLocaleString()} 원</div>
-            )}
-            <div className="pending-header">
-                매수 대기중: {buyerTransactions.filter((tx) => tx.status === 'PENDING').length}개 | 매도
-                대기중: {sellerTransactions.filter((tx) => tx.status === 'PENDING').length}개
-            </div>
+        <div style={{
+            background: 'linear-gradient(120deg, #f0f4f7, #ffffff)',
+            height : '100vh'
+        }}>
+            <div className="at-container">
+                <h1 className="at-title">내 부동산 거래 내역</h1>
+                {accountBalance !== null && (
+                    <div className="account-balance">내 계좌 잔액: {accountBalance.toLocaleString()} 원</div>
+                )}
+                <div className="pending-header">
+                    매수 대기중: {buyerTransactions.filter((tx) => tx.status === 'PENDING').length}개 | 매도
+                    대기중: {sellerTransactions.filter((tx) => tx.status === 'PENDING').length}개
+                </div>
 
-            {/* 거래 요청 폼 */}
-            <section className="at-create-form">
-                <h2>새 거래 요청</h2>
-                <form onSubmit={handlePreCreateTransaction}>
-                    <div className="form-group">
-                        <label>매도자 ID:</label>
-                        <input
-                            type="text"
-                            value={sellerId}
-                            onChange={(e) => setSellerId(e.target.value)}
-                            required
-                        />
-                        <button type="button" onClick={checkSellerExists}>
-                            매도자 ID 확인
+                {/* 거래 요청 폼 */}
+                <section className="at-create-form">
+                    <h2>새 거래 요청</h2>
+                    <form onSubmit={handlePreCreateTransaction}>
+                        <div className="form-group">
+                            <label>매도자 ID:</label>
+                            <input
+                                type="text"
+                                value={sellerId}
+                                onChange={(e) => setSellerId(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={checkSellerExists}
+                                style={{
+                                    padding: '9px 17px',
+                                    backgroundColor: '#7AC142', // 기본 연한 초록색
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    outline: 'none',
+                                    transition: 'background-color 0.3s ease',
+                                    marginTop:'10px'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#5A9E30'} // 호버 시 조금 더 진한 초록색
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#7AC142'} // 원래 색상 복귀
+                            >
+                                매도자 ID 확인
+                            </button>
+
+                            {sellerExists === 'empty' && <p>아이디를 입력해주세요.</p>}
+                            {sellerExists === 'exists' && <p>해당 회원이 존재합니다.</p>}
+                            {sellerExists === 'not_exists' && <p>해당 회원이 존재하지 않습니다.</p>}
+                            {sellerExists === 'self' && <p>자신의 아이디를 사용할 수 없습니다.</p>}
+                        </div>
+                        <div className="form-group">
+                            <label>아파트 단지명:</label>
+                            <select value={apartmentName} onChange={handleApartmentChange} required>
+                                <option value="">선택하세요</option>
+                                {apartments.map((apt) => (
+                                    <option key={apt.id} value={apt.name}>
+                                        {apt.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {latestPrice !== null && <p>현재 가격: {latestPrice.toLocaleString()} 만원</p>}
+                        </div>
+                        <div className="form-group">
+                            <label>가격:</label>
+                            <input
+                                type="number"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>비고:</label>
+                            <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)}/>
+                        </div>
+                        <button type="submit" className="at-submit-btn">
+                            거래 요청 생성
                         </button>
-                        {sellerExists === 'empty' && <p>아이디를 입력해주세요.</p>}
-                        {sellerExists === 'exists' && <p>해당 회원이 존재합니다.</p>}
-                        {sellerExists === 'not_exists' && <p>해당 회원이 존재하지 않습니다.</p>}
-                        {sellerExists === 'self' && <p>자신의 아이디를 사용할 수 없습니다.</p>}
-                    </div>
-                    <div className="form-group">
-                        <label>아파트 단지명:</label>
-                        <select value={apartmentName} onChange={handleApartmentChange} required>
-                            <option value="">선택하세요</option>
-                            {apartments.map((apt) => (
-                                <option key={apt.id} value={apt.name}>
-                                    {apt.name}
-                                </option>
-                            ))}
-                        </select>
-                        {latestPrice !== null && <p>현재 가격: {latestPrice.toLocaleString()} 만원</p>}
-                    </div>
-                    <div className="form-group">
-                        <label>가격:</label>
-                        <input
-                            type="number"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>비고:</label>
-                        <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-                    </div>
-                    <button type="submit" className="at-submit-btn">
-                        거래 요청 생성
+                    </form>
+                    {successMessage && <p className="at-success">{successMessage}</p>}
+                </section>
+
+                {/* 거래 내역 탭 */}
+                <div className="transaction-tabs">
+                    <button
+                        className={viewRole === 'buyer' ? 'active' : ''}
+                        onClick={() => setViewRole('buyer')}
+                    >
+                        매수 거래 내역
                     </button>
-                </form>
-                {successMessage && <p className="at-success">{successMessage}</p>}
-            </section>
+                    <button
+                        className={viewRole === 'seller' ? 'active' : ''}
+                        onClick={() => setViewRole('seller')}
+                    >
+                        매도 거래 내역
+                    </button>
+                </div>
 
-            {/* 거래 내역 탭 */}
-            <div className="transaction-tabs">
-                <button
-                    className={viewRole === 'buyer' ? 'active' : ''}
-                    onClick={() => setViewRole('buyer')}
-                >
-                    매수 거래 내역
-                </button>
-                <button
-                    className={viewRole === 'seller' ? 'active' : ''}
-                    onClick={() => setViewRole('seller')}
-                >
-                    매도 거래 내역
-                </button>
-            </div>
-
-            {/* 거래 내역 목록 */}
-            <section className="at-list">
-                <h2>{viewRole === 'buyer' ? '내 거래 내역' : '거래 요청 목록'}</h2>
-                {viewRole === 'buyer' ? (
-                    paginatedBuyerTransactions.length === 0 ? (
-                        <p>거래 내역이 없습니다.</p>
+                {/* 거래 내역 목록 */}
+                <section className="at-list">
+                    <h2>{viewRole === 'buyer' ? '내 거래 내역' : '거래 요청 목록'}</h2>
+                    {viewRole === 'buyer' ? (
+                        paginatedBuyerTransactions.length === 0 ? (
+                            <p>거래 내역이 없습니다.</p>
+                        ) : (
+                            <>
+                                <ul>
+                                    {paginatedBuyerTransactions.map((tx) => (
+                                        <li key={tx.id}>
+                                            <p>
+                                                <strong>거래 ID:</strong> {tx.id}
+                                            </p>
+                                            <p>
+                                                <strong>매수자:</strong> {tx.buyerId}
+                                            </p>
+                                            <p>
+                                                <strong>매도자:</strong> {tx.sellerId}
+                                            </p>
+                                            <p>
+                                                <strong>아파트:</strong> {tx.apartmentName}
+                                                <button
+                                                    onClick={() =>
+                                                        (window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`)
+                                                    }
+                                                    style={{marginLeft: '10px'}}
+                                                >
+                                                    아파트 상세 조회
+                                                </button>
+                                            </p>
+                                            <p>
+                                                <strong>거래 가격:</strong> {tx.price} 만원
+                                            </p>
+                                            <p>
+                                                <strong>거래일자:</strong> {new Date(tx.transactionDate).toLocaleString()}
+                                            </p>
+                                            <p>
+                                                <strong>거래 상태:</strong>{' '}
+                                                <span
+                                                    className={tx.status === 'PENDING' ? 'status-pending' : 'status-completed'}
+                                                >
+                        {tx.status === 'PENDING' ? '매수대기중' : '매수완료'}
+                      </span>
+                                            </p>
+                                            <p>
+                                                <strong>비고:</strong> {tx.remarks || '없음'}
+                                            </p>
+                                            {tx.status === 'PENDING' && tx.buyerId === userId && (
+                                                <button className="cancel-btn"
+                                                        onClick={() => handleCancelTransaction(tx.id)}>
+                                                    거래 취소
+                                                </button>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="pagination">
+                                    <button onClick={handleBuyerPrevPage} disabled={buyerPage === 1}>
+                                        이전
+                                    </button>
+                                    <span>
+                  {buyerPage} / {buyerTotalPages}
+                </span>
+                                    <button onClick={handleBuyerNextPage} disabled={buyerPage === buyerTotalPages}>
+                                        다음
+                                    </button>
+                                </div>
+                            </>
+                        )
+                    ) : paginatedSellerTransactions.length === 0 ? (
+                        <p>매도 거래 내역이 없습니다.</p>
                     ) : (
                         <>
                             <ul>
-                                {paginatedBuyerTransactions.map((tx) => (
+                                {paginatedSellerTransactions.map((tx) => (
                                     <li key={tx.id}>
                                         <p>
                                             <strong>거래 ID:</strong> {tx.id}
@@ -395,10 +483,9 @@ const ApartmentTransactionPage = () => {
                                         <p>
                                             <strong>아파트:</strong> {tx.apartmentName}
                                             <button
-                                                onClick={() =>
-                                                    (window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`)
-                                                }
-                                                style={{ marginLeft: '10px' }}
+                                                onClick={() => {
+                                                    window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`;
+                                                }}
                                             >
                                                 아파트 상세 조회
                                             </button>
@@ -414,121 +501,59 @@ const ApartmentTransactionPage = () => {
                                             <span
                                                 className={tx.status === 'PENDING' ? 'status-pending' : 'status-completed'}
                                             >
-                        {tx.status === 'PENDING' ? '매수대기중' : '매수완료'}
-                      </span>
+                      {tx.status === 'PENDING' ? '매도대기중' : '매도완료'}
+                    </span>
                                         </p>
                                         <p>
                                             <strong>비고:</strong> {tx.remarks || '없음'}
                                         </p>
-                                        {tx.status === 'PENDING' && tx.buyerId === userId && (
-                                            <button className="cancel-btn" onClick={() => handleCancelTransaction(tx.id)}>
-                                                거래 취소
+                                        {tx.status === 'PENDING' && !tx.consentGiven && (
+                                            <button
+                                                onClick={() => {
+                                                    if (viewRole !== 'seller') {
+                                                        alert('매도자만 매도 인증 문서를 열 수 있습니다.');
+                                                        return;
+                                                    }
+                                                    // 매도 인증 문서를 새 창에서 열어서 서명을 진행하도록 합니다.
+                                                    const sellerAuthUrl = `http://localhost:8080/api/apartment-transactions/seller-auth-html/${tx.id}?memberId=${userId}`;
+                                                    window.open(sellerAuthUrl, '_blank');
+                                                }}
+                                            >
+                                                부동산 거래 계약서 서명
                                             </button>
+                                        )}
+                                        {tx.status === 'PENDING' && tx.consentGiven && (
+                                            <>
+                                                <button
+                                                    className="complete-btn"
+                                                    onClick={() => handleCompleteTransaction(tx.id)}
+                                                >
+                                                    거래 수락
+                                                </button>
+                                                <button className="cancel-btn"
+                                                        onClick={() => handleCancelTransaction(tx.id)}>
+                                                    거래 취소
+                                                </button>
+                                            </>
                                         )}
                                     </li>
                                 ))}
                             </ul>
                             <div className="pagination">
-                                <button onClick={handleBuyerPrevPage} disabled={buyerPage === 1}>
+                                <button onClick={handleSellerPrevPage} disabled={sellerPage === 1}>
                                     이전
                                 </button>
                                 <span>
-                  {buyerPage} / {buyerTotalPages}
-                </span>
-                                <button onClick={handleBuyerNextPage} disabled={buyerPage === buyerTotalPages}>
+                {sellerPage} / {sellerTotalPages}
+              </span>
+                                <button onClick={handleSellerNextPage} disabled={sellerPage === sellerTotalPages}>
                                     다음
                                 </button>
                             </div>
                         </>
-                    )
-                ) : paginatedSellerTransactions.length === 0 ? (
-                    <p>매도 거래 내역이 없습니다.</p>
-                ) : (
-                    <>
-                        <ul>
-                            {paginatedSellerTransactions.map((tx) => (
-                                <li key={tx.id}>
-                                    <p>
-                                        <strong>거래 ID:</strong> {tx.id}
-                                    </p>
-                                    <p>
-                                        <strong>매수자:</strong> {tx.buyerId}
-                                    </p>
-                                    <p>
-                                        <strong>매도자:</strong> {tx.sellerId}
-                                    </p>
-                                    <p>
-                                        <strong>아파트:</strong> {tx.apartmentName}
-                                        <button
-                                            onClick={() => {
-                                                window.location.href = `/realestate/details/${encodeURIComponent(tx.apartmentName)}`;
-                                            }}
-                                        >
-                                            아파트 상세 조회
-                                        </button>
-                                    </p>
-                                    <p>
-                                        <strong>거래 가격:</strong> {tx.price} 만원
-                                    </p>
-                                    <p>
-                                        <strong>거래일자:</strong> {new Date(tx.transactionDate).toLocaleString()}
-                                    </p>
-                                    <p>
-                                        <strong>거래 상태:</strong>{' '}
-                                        <span
-                                            className={tx.status === 'PENDING' ? 'status-pending' : 'status-completed'}
-                                        >
-                      {tx.status === 'PENDING' ? '매도대기중' : '매도완료'}
-                    </span>
-                                    </p>
-                                    <p>
-                                        <strong>비고:</strong> {tx.remarks || '없음'}
-                                    </p>
-                                    {tx.status === 'PENDING' && !tx.consentGiven && (
-                                        <button
-                                            onClick={() => {
-                                                if (viewRole !== 'seller') {
-                                                    alert('매도자만 매도 인증 문서를 열 수 있습니다.');
-                                                    return;
-                                                }
-                                                // 매도 인증 문서를 새 창에서 열어서 서명을 진행하도록 합니다.
-                                                const sellerAuthUrl = `http://localhost:8080/api/apartment-transactions/seller-auth-html/${tx.id}?memberId=${userId}`;
-                                                window.open(sellerAuthUrl, '_blank');
-                                            }}
-                                        >
-                                            부동산 거래 계약서 서명
-                                        </button>
-                                    )}
-                                    {tx.status === 'PENDING' && tx.consentGiven && (
-                                        <>
-                                            <button
-                                                className="complete-btn"
-                                                onClick={() => handleCompleteTransaction(tx.id)}
-                                            >
-                                                거래 수락
-                                            </button>
-                                            <button className="cancel-btn" onClick={() => handleCancelTransaction(tx.id)}>
-                                                거래 취소
-                                            </button>
-                                        </>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="pagination">
-                            <button onClick={handleSellerPrevPage} disabled={sellerPage === 1}>
-                                이전
-                            </button>
-                            <span>
-                {sellerPage} / {sellerTotalPages}
-              </span>
-                            <button onClick={handleSellerNextPage} disabled={sellerPage === sellerTotalPages}>
-                                다음
-                            </button>
-                        </div>
-                    </>
-                )}
-            </section>
+                    )}
+                </section>
+            </div>
         </div>
     );
 };

@@ -85,127 +85,141 @@ const EstateSearchResult = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>단지명 검색 결과</h1>
-      <p>총 {searchResults.length}개의 결과가 있습니다.</p>
+      <div style={{padding: '20px'}}>
+          <h1>단지명 검색 결과</h1>
+          <p style={{marginTop: '10px', marginBottom: '10px'}}>
+              총 {searchResults.length}개의 결과가 있습니다.
+          </p>
 
-      {/* 검색창 */}
-      <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-        <input
-          type="text"
-          placeholder="단지명을 입력하세요"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleKeyDown}
-          style={{ padding: '8px', width: '300px' }}
-        />
-        <button
-          onClick={handleSearch}
-          style={{
-            padding: '8px',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          검색
-        </button>
-      </div>
 
-      {/* 정렬 버튼 */}
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={() => handleSort('priceHigh')}
-          style={{
-            marginRight: '10px',
-            padding: '8px',
-            backgroundColor: sortType === 'priceHigh' ? '#007bff' : '#ddd',
-            color: sortType === 'priceHigh' ? '#fff' : '#000',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          가격 높은 순
-        </button>
-        <button
-          onClick={() => handleSort('priceLow')}
-          style={{
-            marginRight: '10px',
-            padding: '8px',
-            backgroundColor: sortType === 'priceLow' ? '#007bff' : '#ddd',
-            color: sortType === 'priceLow' ? '#fff' : '#000',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          가격 낮은 순
-        </button>
-        <button
-          onClick={() => handleSort('changeHigh')}
-          style={{
-            marginRight: '10px',
-            padding: '8px',
-            backgroundColor: sortType === 'changeHigh' ? '#007bff' : '#ddd',
-            color: sortType === 'changeHigh' ? '#fff' : '#000',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          변동률 높은 순
-        </button>
-        <button
-          onClick={() => handleSort('changeLow')}
-          style={{
-            marginRight: '10px',
-            padding: '8px',
-            backgroundColor: sortType === 'changeLow' ? '#007bff' : '#ddd',
-            color: sortType === 'changeLow' ? '#fff' : '#000',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          변동률 낮은 순
-        </button>
-      </div>
+          {/* 검색창 */}
+          <div style={{marginBottom: '20px', display: 'flex', gap: '10px'}}>
+              <input
+                  type="text"
+                  placeholder="단지명을 입력하세요"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  style={{padding: '9px', width: '300px', borderRadius: '4px', border: '1px solid #ccc'}}
+              />
+              <button
+                  onClick={handleSearch}
+                  style={{
+                      padding: '9px 17px', // 기존 버튼과 동일한 크기 조정
+                      backgroundColor: '#ddd', // 기본 회색
+                      color: '#000', // 글씨 색상 검은색
+                      border: '1px solid #000000',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      outline: 'none',
+                      transition: 'background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#bbb'} // 호버 시 조금 더 어두운 회색
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#ddd'} // 원래 색상 복귀
+              >
+                  검색
+              </button>
+          </div>
 
-      {/* 검색 결과 */}
-      <ul style={{ listStyle: 'none', padding: '0' }}>
-        {searchResults.map((item) => (
-          <li
-            key={item.id}
-            onClick={() => navigate(`/realestate/details/${encodeURIComponent(item.name)}`)}
-            style={{
-              cursor: 'pointer',
-              marginBottom: '10px',
-              padding: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '5px',
-            }}
-          >
-            <strong>{item.name}</strong>
-            <p>도로명: {item.roadAddress}</p>
-            <p>전용 면적: {item.area}㎡</p>
-            <p>최신 거래가: {(item.currentPrice / 10000).toFixed(2)}억</p>
-            <p>
-              변동률:{' '}
-              {item.changeRate !== null ? (
-                <span style={{ color: item.changeRate > 0 ? 'green' : 'red' }}>
+
+          {/* 정렬 버튼 */}
+          <div style={{marginBottom: '20px'}}>
+              <button
+                  onClick={() => handleSort('priceHigh')}
+                  style={{
+                      marginRight: '10px',
+                      padding: '9px 17px', // 기존보다 1px 증가
+                      backgroundColor: sortType === 'priceHigh' ? '#498AE6' : '#64B5F6',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px', // border-radius 4px 적용
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                  }}
+              >
+                  가격 높은 순
+              </button>
+              <button
+                  onClick={() => handleSort('priceLow')}
+                  style={{
+                      marginRight: '10px',
+                      padding: '9px 17px',
+                      backgroundColor: sortType === 'priceLow' ? '#498AE6' : '#64B5F6',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                  }}
+              >
+                  가격 낮은 순
+              </button>
+              <button
+                  onClick={() => handleSort('changeHigh')}
+                  style={{
+                      marginRight: '10px',
+                      padding: '9px 17px',
+                      backgroundColor: sortType === 'changeHigh' ? '#498AE6' : '#64B5F6',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                  }}
+              >
+                  변동률 높은 순
+              </button>
+              <button
+                  onClick={() => handleSort('changeLow')}
+                  style={{
+                      marginRight: '10px',
+                      padding: '9px 17px',
+                      backgroundColor: sortType === 'changeLow' ? '#498AE6' : '#64B5F6',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                  }}
+              >
+                  변동률 낮은 순
+              </button>
+          </div>
+
+
+          {/* 검색 결과 */}
+          <ul style={{listStyle: 'none', padding: '0'}}>
+              {searchResults.map((item) => (
+                  <li
+                      key={item.id}
+                      onClick={() => navigate(`/realestate/details/${encodeURIComponent(item.name)}`)}
+                      style={{
+                          cursor: 'pointer',
+                          marginBottom: '10px',
+                          padding: '10px',
+                          border: '1px solid #ddd',
+                          borderRadius: '5px',
+                      }}
+                  >
+                      <strong>{item.name}</strong>
+                      <p>도로명: {item.roadAddress}</p>
+                      <p>전용 면적: {item.area}㎡</p>
+                      <p>최신 거래가: {(item.currentPrice / 10000).toFixed(2)}억</p>
+                      <p>
+                          변동률:{' '}
+                          {item.changeRate !== null ? (
+                              <span style={{color: item.changeRate > 0 ? 'green' : 'red'}}>
                   {item.changeRate}%
                 </span>
-              ) : (
-                '정보 없음'
-              )}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </div>
+                          ) : (
+                              '정보 없음'
+                          )}
+                      </p>
+                  </li>
+              ))}
+          </ul>
+      </div>
   );
 };
 

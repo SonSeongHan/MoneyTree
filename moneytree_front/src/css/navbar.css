@@ -5,13 +5,12 @@
   border-bottom: 1px solid #ddd;
 }
 .navbar {
-  width: 90%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   background-color: #ffffff;
   padding: 0.5rem 1rem;
-
+  border-bottom: 1px solid #b3b3b3;
   margin: 0 auto;
   }
 
