@@ -2,7 +2,7 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    margin-top: 100px;
 }
 
 /* Header Section */
@@ -14,8 +14,8 @@
 .depsav-main-title {
     color: #333;
     margin-bottom: 10px;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight:bold;
 }
 
 .depsav-subtitle {

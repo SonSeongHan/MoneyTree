@@ -203,140 +203,152 @@ const KakaoMap = () => {
   };
 
   return (
-    <div>
       <div>
-        <select
-          value={searchType}
-          onChange={(e) => setSearchType(e.target.value)}
-          style={{ marginRight: '10px', padding: '8px' }}
-        >
-          <option value="단지명">단지명 검색</option>
-          <option value="도로명">도로명 검색</option>
-        </select>
-        <input
-          type="text"
-          placeholder={`검색할 ${searchType}을 입력하세요`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleKeyDown}
-          style={{ marginBottom: '10px', padding: '8px', width: '300px' }}
-        />
-        <button onClick={handleSearch} style={{ padding: '8px 16px' }}>
-          검색
-        </button>
-      </div>
-      <div style={{ marginBottom: '10px' }}>
-        <button
-          onClick={() => {
-            setFilter('all'); //  모든 데이터 표시
-            handleShowAll(); //  모든 마커 다시 표시
-          }}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'all' ? '#007bff' : '#fff', //  파란색 활성화
-            color: filter === 'all' ? '#fff' : '#000', //  활성화 시 글씨 흰색
-            border: '1px solid #000', //  테두리 유지
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontWeight: 'bold', //  버튼 글씨 두껍게
-          }}
-        >
-          모두 보기(초기화)
-        </button>
-        <button
-          onClick={() => setFilter('highRise')}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'highRise' ? '#007bff' : '#ddd',
-            color: filter === 'highRise' ? '#fff' : '#000',
-          }}
-        >
-          급격히 상승 (81~100%)
-        </button>
-        <button
-          onClick={() => setFilter('rise')}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'rise' ? '#007bff' : '#ddd',
-            color: filter === 'rise' ? '#fff' : '#000',
-          }}
-        >
-          변동률 상위 (51~80%)
-        </button>
-        <button
-          onClick={() => setFilter('noChange')}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'noChange' ? '#007bff' : '#ddd',
-            color: filter === 'noChange' ? '#fff' : '#000',
-          }}
-        >
-          변동 없음 (0%)
-        </button>
-        <button
-          onClick={() => setFilter('fall')}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'fall' ? '#007bff' : '#ddd',
-            color: filter === 'fall' ? '#fff' : '#000',
-          }}
-        >
-          변동률 하위 (30~50%)
-        </button>
-        <button
-          onClick={() => setFilter('highFall')}
-          style={{
-            padding: '8px 16px',
-            marginRight: '5px',
-            backgroundColor: filter === 'highFall' ? '#007bff' : '#ddd',
-            color: filter === 'highFall' ? '#fff' : '#000',
-          }}
-        >
-          급격히 하락 (0~29%)
-        </button>
-      </div>
-      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center' }}>
-        <label style={{ marginRight: '10px' }}>가격 범위 (억):</label>
-        <input
-          type="number"
-          value={priceRange[0]}
-          onChange={(e) => handlePriceRangeChange(Number(e.target.value), priceRange[1])}
-          style={{ width: '80px', marginRight: '10px', padding: '5px' }}
-        />
-        ~
-        <input
-          type="number"
-          value={priceRange[1]}
-          onChange={(e) => handlePriceRangeChange(priceRange[0], Number(e.target.value))}
-          style={{ width: '80px', marginLeft: '10px', padding: '5px' }}
-        />
-      </div>
-      {modalMessage && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'white',
-            padding: '20px',
-            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-            zIndex: 1000,
-          }}
-        >
-          <p>{modalMessage}</p>
-          <button onClick={closeModal} style={{ marginTop: '10px', padding: '8px 16px' }}>
-            확인
+        <div>
+          <select
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+              style={{marginRight: '10px', padding: '8px'}}
+          >
+            <option value="단지명">단지명 검색</option>
+            <option value="도로명">도로명 검색</option>
+          </select>
+          <input
+              type="text"
+              placeholder={`검색할 ${searchType}을 입력하세요`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
+              style={{marginBottom: '10px', padding: '8px', width: '300px'}}
+          />
+          <button onClick={handleSearch} style={{padding: '6px 12px', marginLeft: '10px'}}>
+            검색
+          </button>
+
+        </div>
+        <div style={{marginBottom: '10px'}}>
+          <button
+              onClick={() => {
+                setFilter('all');
+                handleShowAll();
+              }}
+              style={{
+                padding: '9px 17px', // 기존 8px 16px에서 1px 증가
+                marginRight: '5px',
+                backgroundColor: filter === 'all' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px', // border-radius 4px 적용
+                cursor: 'pointer',
+                fontWeight: 'bold',
+              }}
+          >
+            모두 보기(초기화)
+          </button>
+          <button
+              onClick={() => setFilter('highRise')}
+              style={{
+                padding: '9px 17px',
+                marginRight: '5px',
+                backgroundColor: filter === 'highRise' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+              }}
+          >
+            급격히 상승 (81~100%)
+          </button>
+          <button
+              onClick={() => setFilter('rise')}
+              style={{
+                padding: '9px 17px',
+                marginRight: '5px',
+                backgroundColor: filter === 'rise' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+              }}
+          >
+            변동률 상위 (51~80%)
+          </button>
+          <button
+              onClick={() => setFilter('noChange')}
+              style={{
+                padding: '9px 17px',
+                marginRight: '5px',
+                backgroundColor: filter === 'noChange' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+              }}
+          >
+            변동 없음 (0%)
+          </button>
+          <button
+              onClick={() => setFilter('fall')}
+              style={{
+                padding: '9px 17px',
+                marginRight: '5px',
+                backgroundColor: filter === 'fall' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+              }}
+          >
+            변동률 하위 (30~50%)
+          </button>
+          <button
+              onClick={() => setFilter('highFall')}
+              style={{
+                padding: '9px 17px',
+                marginRight: '5px',
+                backgroundColor: filter === 'highFall' ? '#498AE6' : '#64B5F6',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+              }}
+          >
+            급격히 하락 (0~29%)
           </button>
         </div>
-      )}
-      <div id="map" style={{ width: '100%', height: '500px', marginBottom: '20px' }}></div>
-    </div>
+
+        <div style={{marginBottom: '20px', display: 'flex', alignItems: 'center'}}>
+          <label style={{marginRight: '10px'}}>가격 범위 (억):</label>
+          <input
+              type="number"
+              value={priceRange[0]}
+              onChange={(e) => handlePriceRangeChange(Number(e.target.value), priceRange[1])}
+              style={{width: '80px', marginRight: '10px', padding: '5px'}}
+          />
+          ~
+          <input
+              type="number"
+              value={priceRange[1]}
+              onChange={(e) => handlePriceRangeChange(priceRange[0], Number(e.target.value))}
+              style={{width: '80px', marginLeft: '10px', padding: '5px'}}
+          />
+        </div>
+        {modalMessage && (
+            <div
+                style={{
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'white',
+                  padding: '20px',
+                  boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                  zIndex: 1000,
+                }}
+            >
+              <p>{modalMessage}</p>
+              <button onClick={closeModal} style={{marginTop: '10px', padding: '8px 16px'}}>
+                확인
+              </button>
+            </div>
+        )}
+        <div id="map" style={{width: '100%', height: '700px'}}></div>
+      </div>
   );
 };
 

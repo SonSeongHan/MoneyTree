@@ -24,7 +24,7 @@
 .at-list h2 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #007bff;
+  color: #64B5F6;
 }
 
 .transaction-tabs {
@@ -48,7 +48,7 @@
 }
 
 .transaction-tabs button.active {
-  background: #007bff;
+  background: #64B5F6;
   color: #fff;
 }
 
@@ -90,7 +90,7 @@
   display: block;
   width: 100%;
   padding: 10px;
-  background-color: #28a745;
+  background-color: #64B5F6;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -100,7 +100,7 @@
 }
 
 .at-submit-btn:hover {
-  background-color: #218838;
+  background-color: #498AE6;
 }
 
 .at-success {
@@ -135,13 +135,13 @@
   font-weight: bold;
 }
 .status-completed {
-  color: blue;
+  color: #64B5F6;
   font-weight: bold;
 }
 
 /* 거래 수락 버튼 스타일 */
 .complete-btn {
-  background-color: #007bff;
+  background-color: #64B5F6;
   color: #fff;
   border: none;
   padding: 5px 10px;
@@ -151,7 +151,7 @@
   transition: background-color 0.3s;
 }
 .complete-btn:hover {
-  background-color: #0056b3;
+  background-color: #498AE6;
 }
 
 /* 아파트 조회 버튼 스타일 */
@@ -238,12 +238,16 @@
   padding: 5px 10px;
   margin: 0 5px;
   border: none;
-  background-color: #007bff;
+  background-color: #64B5F6;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+  background-color: #498AE6;
 }
 
 .pagination button:disabled {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SavingAPI from '../../api/SavingAPI';
 import '../../css/recommends/Saving.css';
 
-const Saving = () => {
+const Saving = ({ searchQuery }) => {
     const [savings, setSavings] = useState([]);
     const [filteredSavings, setFilteredSavings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -113,6 +113,13 @@ const Saving = () => {
     const startIndex = currentPage * itemsPerPage;
     const currentItems = filteredSavings.slice(startIndex, startIndex + itemsPerPage);
 
+    // 부모 컴포넌트에서 전달받은 searchQuery를 기준으로 이름 필터링 (실제 검색 버튼 클릭 시 적용된 값)
+    const displayedItems = searchQuery
+        ? currentItems.filter((saving) =>
+            saving.savingProductName.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : currentItems;
+
     return (
         <div className="saving-container">
             <div className="filter-container">
@@ -173,7 +180,7 @@ const Saving = () => {
             </div>
 
             <div className="saving-product-grid">
-                {currentItems.map((saving) => {
+                {displayedItems.map((saving) => {
                     const isJoined = joinedProducts.includes(saving.savingProductId);
 
                     return (

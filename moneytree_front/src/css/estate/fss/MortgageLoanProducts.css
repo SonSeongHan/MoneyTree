@@ -1,114 +1,146 @@
-/* MortgageLoanProducts.css */
-
 /* 전체 컨테이너 */
-.products-container {
-    width: 90%;
+.mortgage-products-container {
     max-width: 1200px;
-    margin: 40px auto;
-    font-family: 'Arial', sans-serif;
-}
-
-/* 필터 버튼들이 들어가는 영역 */
-.filter-bar {
-    display: flex;
-    flex-wrap: nowrap; /* 한 줄에 표시 */
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center; /* 가운데 정렬 */
-}
-
-/* 필터 버튼 스타일 */
-.filter-bar button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #ccc;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.filter-bar button:hover {
-    background-color: #aaa;
-}
-
-.filter-bar button.active {
-    background-color: #ff9800; /* 활성화된 버튼 색상 */
-    color: #fff;
-}
-
-/* 상품 목록 전체 래퍼 */
-.products-list {
-    display: flex; /* 세로로 나열하고 싶다면 flex + column */
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* 개별 상품 카드 */
-.product-card {
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    margin: 0 auto;
     padding: 20px;
-    background-color: #fff;
-    transition: box-shadow 0.3s;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background-color: #f8f9fa;
 }
 
-.product-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+/* 내부 콘텐츠 영역 */
+.mortgage-products-inner {
+    padding: 0 10px;
 }
 
-/* 상품 카드 안의 링크(제목 등) */
-.product-link {
-    text-decoration: none;
-    color: inherit;
-}
-
-.product-link h2 {
-    margin: 0 0 10px;
-    font-size: 1.2rem;
+/* 페이지 제목 */
+.mortgage-products-container h1 {
+    text-align: center;
     color: #333;
+    margin-bottom: 30px;
 }
 
-/* 대출 금액 선택 영역 */
-.loan-selection {
-    margin-top: 10px;
+/* 필터 바 */
+.mortgage-filter-bar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.mortgage-filter-bar button {
+    padding: 7px 14px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+.mortgage-filter-bar button:hover {
+    background-color: #ccc;
+}
+.mortgage-filter-bar button.active {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+/* 상품 목록 */
+.mortgage-products-list {
+    width: 100%;
+}
+
+/* 상품 카드 */
+.mortgage-product-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px 20px 20px 20px;
+    margin-bottom: 30px;
+}
+
+/* 상품 링크 영역 */
+.mortgage-product-link {
+    display: block;
+    padding: 20px;
+    text-decoration: none;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.mortgage-product-link h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #007BFF;
+    font-size: 1.5em;
+}
+
+.mortgage-product-link p {
+    margin: 14px 0;
+    color: #555;
+}
+
+/* 대출 금액 선택 및 가입 버튼 영역 */
+.mortgage-loan-selection {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
-.loan-selection label {
+.mortgage-loan-selection label {
     font-weight: bold;
-    margin-bottom: 4px;
+    margin-right: 8px;
+    color: #333;
+    display: flex;
+    align-items: center;
 }
 
-.loan-selection select {
+.mortgage-loan-selection select {
     padding: 6px;
-    border-radius: 4px;
     border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
-/* 버튼 */
-.product-card button {
-    margin-top: 10px;
-    padding: 10px 16px;
+/* 가입하기 버튼 */
+.mortgage-loan-selection button {
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
-    background-color: #2196f3;
+    background-color: #28a745;
     color: #fff;
+    font-size: 0.95em;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
 }
 
-.product-card button:hover {
-    background-color: #1976d2;
+.mortgage-loan-selection button:hover {
+    background-color: #218838;
 }
 
-/* 로딩, 에러, 데이터 없음 표시 */
-.loading,
-.error,
-.no-data {
+.mortgage-loan-selection button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* 에러, 로딩, 데이터 없음 메시지 */
+.mortgage-error,
+.mortgage-loading,
+.mortgage-no-data {
     text-align: center;
-    margin-top: 20px;
-    font-weight: bold;
-    color: #ff5722;
+    margin: 20px 0;
+    font-size: 1.1em;
+    color: #d9534f;
+}
+
+/* 반응형 스타일 (모바일) */
+@media (max-width: 768px) {
+    .mortgage-loan-selection {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .mortgage-loan-selection button {
+        align-self: flex-end;
+    }
 }
