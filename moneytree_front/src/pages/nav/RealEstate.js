@@ -35,23 +35,23 @@ const RealEstate = () => {
         };
         Promise.all([
             axios.get(
-                `http://localhost:8080/api/apartment-transactions/buyer/${encodeURIComponent(String(userId))}`,
-                { headers },
+              `http://localhost:8080/api/apartment-transactions/buyer/${encodeURIComponent(String(userId))}`,
+              { headers },
             ),
             axios.get(
-                `http://localhost:8080/api/apartment-transactions/seller/${encodeURIComponent(String(userId))}`,
-                { headers },
+              `http://localhost:8080/api/apartment-transactions/seller/${encodeURIComponent(String(userId))}`,
+              { headers },
             ),
         ])
-            .then(([buyerRes, sellerRes]) => {
-                const buyerCount = buyerRes.data.filter((tx) => tx.status === 'PENDING').length;
-                const sellerCount = sellerRes.data.filter((tx) => tx.status === 'PENDING').length;
-                setBuyerPendingCount(buyerCount);
-                setSellerPendingCount(sellerCount);
-            })
-            .catch((err) => {
-                console.error('Pending 거래 건수 조회 오류:', err);
-            });
+          .then(([buyerRes, sellerRes]) => {
+              const buyerCount = buyerRes.data.filter((tx) => tx.status === 'PENDING').length;
+              const sellerCount = sellerRes.data.filter((tx) => tx.status === 'PENDING').length;
+              setBuyerPendingCount(buyerCount);
+              setSellerPendingCount(sellerCount);
+          })
+          .catch((err) => {
+              console.error('Pending 거래 건수 조회 오류:', err);
+          });
     }, [userId, loggedInUser]);
 
     // "관심 매물" 클릭 시 로그인 여부 확인 후 처리
@@ -99,14 +99,8 @@ const RealEstate = () => {
                         <FaMoneyBillWave className="nav-icon"/> 대출 상품 추천
                     </Link>
                 </div>
-                {/* 로그인한 경우에만 우측에 pending 건수 표시 */}
-                {loggedInUser && (
-                    <div className="nav-pending-indicator">
-                        매수 대기중: <span className="pending-count">{buyerPendingCount}</span>건 | 매도 대기중:{' '}
-                        <span className="pending-count">{sellerPendingCount}</span>건
-                    </div>
-                )}
-            </nav>
+              )}
+          </nav>
 
             {location.pathname === '/realestate' ? <KakaoMap/> : <Outlet/>}
 
@@ -114,6 +108,7 @@ const RealEstate = () => {
                 <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}/>
             )}
         </div>
+
     );
 };
 

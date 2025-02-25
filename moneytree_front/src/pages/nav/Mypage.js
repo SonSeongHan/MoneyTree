@@ -264,6 +264,7 @@ const Mypage = () => {
     };
 
     const handleNextSlide = () => {
+
         let accounts = [];
         if (activeTab === 'deposit') accounts = depositAccounts;
         else if (activeTab === 'savings') accounts = savingAccounts;
@@ -311,6 +312,7 @@ const Mypage = () => {
         };
 
         return (
+
             <div className="products-slider-container">
                 <button
                     className="slider-button prev"
@@ -356,39 +358,39 @@ const Mypage = () => {
                                             </p>
                                         </div>
                                     </div>
-                                );
-                            } else if (activeTab === 'fund') {
-                                const product = currentProducts[item.fundProductId];
-                                return (
-                                    <div
-                                        key={item.fundAccountNumber}
-                                        className="deposit-account-card"
-                                        onClick={() => {
-                                            setSelectedAccount(item);
-                                            setSelectedProduct(product);
-                                            setIsModalOpen(true);
-                                        }}
-                                    >
-                                        <h3 className="deposit-account-name">
-                                            {product ? product.fundProductName : '펀드상품'}
-                                        </h3>
-                                        <div className="deposit-account-details">
-                                            <p className="deposit-account-number">
-                                                계좌번호: {item.fundAccountNumber}
-                                            </p>
-                                            <p className="deposit-account-balance">
-                                                투자금액: {item.fundInvestmentAmount?.toLocaleString()}원
-                                            </p>
-                                            <p className="deposit-account-start-date">
-                                                투자일: {new Date(item.fundInvestmentDate).toLocaleDateString()}
-                                            </p>
-                                            <p className="deposit-account-end-date">
-                                                만기일: {new Date(item.fundMaturityDate).toLocaleDateString()}
-                                            </p>
-                                            <p className="deposit-account-status">
-                                                상태: {item.fundStatus}
-                                            </p>
-                                        </div>
+                                </div>
+                              );
+                          } else if (activeTab === 'fund') {
+                              const product = currentProducts[item.fundProductId];
+                              return (
+                                <div
+                                  key={item.fundAccountNumber}
+                                  className="deposit-account-card"
+                                  onClick={() => {
+                                      setSelectedAccount(item);
+                                      setSelectedProduct(product);
+                                      setIsModalOpen(true);
+                                  }}
+                                >
+                                    <h3 className="deposit-account-name">
+                                        {product ? product.fundProductName : '펀드상품'}
+                                    </h3>
+                                    <div className="deposit-account-details">
+                                        <p className="deposit-account-number">
+                                            계좌번호: {item.fundAccountNumber}
+                                        </p>
+                                        <p className="deposit-account-balance">
+                                            투자금액: {item.fundInvestmentAmount?.toLocaleString()}원
+                                        </p>
+                                        <p className="deposit-account-start-date">
+                                            투자일: {new Date(item.fundInvestmentDate).toLocaleDateString()}
+                                        </p>
+                                        <p className="deposit-account-end-date">
+                                            만기일: {new Date(item.fundMaturityDate).toLocaleDateString()}
+                                        </p>
+                                        <p className="deposit-account-status">
+                                            상태: {item.fundStatus}
+                                        </p>
                                     </div>
                                 );
                             } else {
@@ -448,19 +450,20 @@ const Mypage = () => {
                                             )}
                                         </div>
                                     </div>
-                                );
-                            }
-                        })}
-                    </div>
-                </div>
-                <button
-                    className="slider-button next"
-                    onClick={handleNextSlide}
-                    disabled={currentSlide >= Math.ceil(currentAccounts.length / 3) - 1}
-                >
-                    →
-                </button>
-            </div>
+                                </div>
+                              );
+                          }
+                      })}
+                  </div>
+              </div>
+              <button
+                className="slider-button next"
+                onClick={handleNextSlide}
+                disabled={currentSlide >= Math.ceil(currentAccounts.length / 3) - 1}
+              >
+                  →
+              </button>
+          </div>
         );
     };
 
