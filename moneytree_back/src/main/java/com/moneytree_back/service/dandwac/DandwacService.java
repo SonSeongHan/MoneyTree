@@ -57,4 +57,3 @@ public interface DandwacService {
      */
     Dandwac addLoanAmountToBalance(String memberId, BigDecimal loanAmount);
 }
-

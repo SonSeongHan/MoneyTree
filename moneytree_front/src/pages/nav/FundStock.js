@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getCookie } from '../../util/cookieUtil';
 import StockAPI from '../../api/StockAPI';
 import Fund from '../../components/recommends/Fund';
@@ -13,6 +13,15 @@ function FundStock() {
   const [searchInput, setSearchInput] = useState(''); // 입력 중인 값
   const [searchQuery, setSearchQuery] = useState(''); // 실제 검색에 사용되는 값
   const [isCheckingAccount, setIsCheckingAccount] = useState(false);
+  const [searchParams] = useSearchParams(); // URL에서 파라미터 가져오기
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl === 'stock' || tabFromUrl === 'fund');
+    {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   // 주식 계좌 확인 함수
   const checkStockAccount = async () => {

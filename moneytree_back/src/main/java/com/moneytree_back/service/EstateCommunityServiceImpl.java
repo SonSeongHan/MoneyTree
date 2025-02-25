@@ -53,17 +53,17 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
     dto.setCategory(post.getCategory());
     if (post.getComments() != null) {
       List<CommentDTO> commentDTOs = post.getComments().stream()
-        .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
-        .map(comment -> {
-          CommentDTO cDto = new CommentDTO();
-          cDto.setId(comment.getId());
-          cDto.setText(comment.getText());
-          cDto.setAuthor(comment.getAuthor());
-          cDto.setCreatedAt(comment.getCreatedAt());
-          cDto.setUpdatedAt(comment.getUpdatedAt());
-          return cDto;
-        })
-        .collect(Collectors.toList());
+              .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
+              .map(comment -> {
+                CommentDTO cDto = new CommentDTO();
+                cDto.setId(comment.getId());
+                cDto.setText(comment.getText());
+                cDto.setAuthor(comment.getAuthor());
+                cDto.setCreatedAt(comment.getCreatedAt());
+                cDto.setUpdatedAt(comment.getUpdatedAt());
+                return cDto;
+              })
+              .collect(Collectors.toList());
       dto.setComments(commentDTOs);
     }
     return dto;
@@ -108,27 +108,27 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
       } else {
         // 둘 다 조건이 있는 경우: 카테고리 필터 후 in‑memory 검색 필터링
         List<EstateCommunityPost> tempList = postRepository.findByCategory(category, pageable)
-          .getContent().stream().filter(post -> {
-            switch (searchField) {
-              case "title":
-                return post.getTitle() != null && post.getTitle().contains(search);
-              case "content":
-                return post.getContent() != null && post.getContent().contains(search);
-              case "titleContent":
-                return (post.getTitle() != null && post.getTitle().contains(search)) ||
-                  (post.getContent() != null && post.getContent().contains(search));
-              case "author":
-                return post.getMember() != null && post.getMember().getMemberId().contains(search);
-              default:
-                return true;
-            }
-          }).collect(Collectors.toList());
+                .getContent().stream().filter(post -> {
+                  switch (searchField) {
+                    case "title":
+                      return post.getTitle() != null && post.getTitle().contains(search);
+                    case "content":
+                      return post.getContent() != null && post.getContent().contains(search);
+                    case "titleContent":
+                      return (post.getTitle() != null && post.getTitle().contains(search)) ||
+                              (post.getContent() != null && post.getContent().contains(search));
+                    case "author":
+                      return post.getMember() != null && post.getMember().getMemberId().contains(search);
+                    default:
+                      return true;
+                  }
+                }).collect(Collectors.toList());
         postPage = new PageImpl<>(tempList, pageable, tempList.size());
       }
       postPage.forEach(post -> post.getComments().size());
       List<EstateCommunityPostDTO> dtoList = postPage.stream()
-        .map(this::convertToDTO)
-        .collect(Collectors.toList());
+              .map(this::convertToDTO)
+              .collect(Collectors.toList());
       return new PageImpl<>(dtoList, pageable, postPage.getTotalElements());
     }
     // commentFilter가 있는 경우: 전체 결과를 in‑memory로 가져온 후 필터링 및 정렬, 그 다음 수동 페이지네이션 진행
@@ -171,7 +171,7 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
               return post.getContent() != null && post.getContent().contains(search);
             case "titleContent":
               return (post.getTitle() != null && post.getTitle().contains(search)) ||
-                (post.getContent() != null && post.getContent().contains(search));
+                      (post.getContent() != null && post.getContent().contains(search));
             case "author":
               return post.getMember() != null && post.getMember().getMemberId().contains(search);
             default:
@@ -183,16 +183,16 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
       // 댓글 필터 처리
       if (commentFilter.equals("few")) {
         allPosts = allPosts.stream()
-          .sorted((p1, p2) -> Integer.compare(p1.getComments().size(), p2.getComments().size()))
-          .collect(Collectors.toList());
+                .sorted((p1, p2) -> Integer.compare(p1.getComments().size(), p2.getComments().size()))
+                .collect(Collectors.toList());
       } else if (commentFilter.equals("many")) {
         allPosts = allPosts.stream()
-          .sorted((p1, p2) -> Integer.compare(p2.getComments().size(), p1.getComments().size()))
-          .collect(Collectors.toList());
+                .sorted((p1, p2) -> Integer.compare(p2.getComments().size(), p1.getComments().size()))
+                .collect(Collectors.toList());
       } else if (commentFilter.equals("none")) {
         allPosts = allPosts.stream()
-          .filter(post -> post.getComments().isEmpty())
-          .collect(Collectors.toList());
+                .filter(post -> post.getComments().isEmpty())
+                .collect(Collectors.toList());
       }
 
       // 전체 결과 수
@@ -203,8 +203,8 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
       List<EstateCommunityPost> paginatedPosts = allPosts.subList(start, end);
 
       List<EstateCommunityPostDTO> dtoList = paginatedPosts.stream()
-        .map(this::convertToDTO)
-        .collect(Collectors.toList());
+              .map(this::convertToDTO)
+              .collect(Collectors.toList());
 
       return new PageImpl<>(dtoList, PageRequest.of(page, size), total);
     }
@@ -214,7 +214,7 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
   @Transactional
   public EstateCommunityPostDTO getPost(Long id) {
     EstateCommunityPost post = postRepository.findById(id)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
     post.getComments().size();
     return convertToDTO(post);
   }
@@ -226,7 +226,7 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
     post.setContent(content);
 
     Member member = memberRepository.findById(memberId)
-      .orElseThrow(() -> new RuntimeException("Member not found: " + memberId));
+            .orElseThrow(() -> new RuntimeException("Member not found: " + memberId));
     post.setMember(member);
     post.setCategory(category);
 
@@ -260,7 +260,7 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
   @Override
   public EstateCommunityPostDTO updatePost(Long id, EstateCommunityPostDTO postDTO) {
     EstateCommunityPost existingPost = postRepository.findById(id)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
     existingPost.setTitle(postDTO.getTitle());
     existingPost.setContent(postDTO.getContent());
     existingPost.setUpdatedAt(LocalDateTime.now());
@@ -271,7 +271,7 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
   @Override
   public EstateCommunityPostDTO updatePostWithFile(Long id, String title, String content, MultipartFile image) {
     EstateCommunityPost existingPost = postRepository.findById(id)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
     existingPost.setTitle(title);
     existingPost.setContent(content);
     if (image != null && !image.isEmpty()) {
@@ -300,13 +300,13 @@ public class EstateCommunityServiceImpl implements EstateCommunityService {
   @Override
   public void deletePost(Long id) {
     EstateCommunityPost post = postRepository.findById(id)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + id));
     postRepository.delete(post);
   }
 
   public CommentDTO addComment(Long postId, CommentDTO commentDTO) {
     EstateCommunityPost post = postRepository.findById(postId)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + postId));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + postId));
     Comment comment = new Comment();
     comment.setText(commentDTO.getText());
     comment.setAuthor(commentDTO.getAuthor());

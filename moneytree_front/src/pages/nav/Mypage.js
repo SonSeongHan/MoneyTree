@@ -32,12 +32,12 @@ const Mypage = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const memberInfo = getCookie('member');
-        if (!memberInfo) {
-            navigate('/loginpage');
-            return;
-        }
+  useEffect(() => {
+    const memberInfo = getCookie('member');
+    if (!memberInfo) {
+      navigate('/loginpage');
+      return;
+    }
 
         const fetchData = async () => {
             try {
@@ -56,21 +56,21 @@ const Mypage = () => {
                     FundAPI.getAllFunds(),
                 ]);
 
-                // 예금 데이터 설정
-                setDepositAccounts(depositAccountsResponse.accounts || []);
-                const depositProductsMap = {};
-                depositProductsResponse.forEach(product => {
-                    depositProductsMap[product.depositProductId] = product;
-                });
-                setDepositProducts(depositProductsMap);
+        // 예금 데이터 설정
+        setDepositAccounts(depositAccountsResponse.accounts || []);
+        const depositProductsMap = {};
+        depositProductsResponse.forEach((product) => {
+          depositProductsMap[product.depositProductId] = product;
+        });
+        setDepositProducts(depositProductsMap);
 
-                // 적금 데이터 설정
-                setSavingAccounts(savingAccountsResponse.accounts || []);
-                const savingProductsMap = {};
-                savingProductsResponse.forEach(product => {
-                    savingProductsMap[product.savingProductId] = product;
-                });
-                setSavingProducts(savingProductsMap);
+        // 적금 데이터 설정
+        setSavingAccounts(savingAccountsResponse.accounts || []);
+        const savingProductsMap = {};
+        savingProductsResponse.forEach((product) => {
+          savingProductsMap[product.savingProductId] = product;
+        });
+        setSavingProducts(savingProductsMap);
 
                 // 주식 계좌 정보 조회
                 const dandwAcId = await StockAPI.getDandwacAccountNumber(memberInfo.memberId);
@@ -120,12 +120,12 @@ const Mypage = () => {
             }
         };
 
-        fetchData();
-    }, [navigate]);
+    fetchData();
+  }, [navigate]);
 
-    const handlePrevSlide = () => {
-        setCurrentSlide(prev => Math.max(prev - 1, 0));
-    };
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => Math.max(prev - 1, 0));
+  };
 
     const handleNextSlide = () => {
         const accounts = activeTab === 'deposit' ? depositAccounts :
@@ -162,9 +162,9 @@ const Mypage = () => {
             </p>;
         }
 
-        const slideStyle = {
-            transform: `translateX(-${currentSlide * 100}%)`,
-        };
+    const slideStyle = {
+      transform: `translateX(-${currentSlide * 100}%)`,
+    };
 
         return (
           <div className="products-slider-container">
@@ -323,12 +323,12 @@ const Mypage = () => {
         );
     };
 
-    if (loading) return <div className="mypage-loading">로딩중...</div>;
-    if (error) return <div className="mypage-error">{error}</div>;
+  if (loading) return <div className="mypage-loading">로딩중...</div>;
+  if (error) return <div className="mypage-error">{error}</div>;
 
-    return (
-      <div className="mypage-container">
-          <h2 className="mypage-title">가입한 상품들</h2>
+  return (
+    <div className="mypage-container">
+      <h2 className="mypage-title">가입한 상품들</h2>
 
           <div className="product-tabs">
               <button
@@ -373,14 +373,14 @@ const Mypage = () => {
               {(activeTab === 'deposit' || activeTab === 'savings' || activeTab === 'stock' || activeTab === 'fund') && renderProducts()}
           </div>
 
-          {activeTab === 'deposit' && (
-            <MyDepositDetail
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              account={selectedAccount}
-              productDetails={selectedProduct}
-            />
-          )}
+      {activeTab === 'deposit' && (
+        <MyDepositDetail
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          account={selectedAccount}
+          productDetails={selectedProduct}
+        />
+      )}
 
           {activeTab === 'savings' && (
             <MySavingDetail

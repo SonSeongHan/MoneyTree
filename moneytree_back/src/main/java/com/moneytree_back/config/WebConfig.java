@@ -24,10 +24,10 @@ public class WebConfig implements WebMvcConfigurer {
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     // 현재 프로젝트의 절대 경로 + 업로드 폴더 경로를 구성합니다.
     String absolutePath = "file:" + System.getProperty("user.dir")
-      + File.separator + uploadPath + File.separator;
+            + File.separator + uploadPath + File.separator;
     System.out.println("정적 리소스 경로: " + absolutePath);
     // URL 패턴 /uploads/** 에 대해 해당 절대 경로의 리소스를 제공하도록 매핑합니다.
     registry.addResourceHandler("/" + uploadPath + "/**")
-      .addResourceLocations(absolutePath);
+            .addResourceLocations(absolutePath);
   }
 }

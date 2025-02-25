@@ -12,9 +12,9 @@ import lombok.*;
 @Builder
 public class MortgageLoanProductEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
   @Column(name = "dcls_month", length = 10)
   private String dclsMonth;

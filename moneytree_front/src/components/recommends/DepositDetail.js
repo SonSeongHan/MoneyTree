@@ -20,16 +20,17 @@ const DepositDetail = () => {
         // 상품 상세 정보와 가입한 상품 목록을 동시에 조회
         const [depositData, myAccountsResponse] = await Promise.all([
           DepositAPI.getDepositById(depositProductId),
-          DepositAPI.getMyDepositAccounts()
+          DepositAPI.getMyDepositAccounts(),
         ]);
 
         setDeposit(depositData);
 
         // 가입 여부 확인
-        const joinedProductIds = myAccountsResponse.accounts.map(account => account.depositProductId);
+        const joinedProductIds = myAccountsResponse.accounts.map(
+          (account) => account.depositProductId,
+        );
         setJoinedProducts(joinedProductIds);
         setIsJoined(joinedProductIds.includes(Number(depositProductId)));
-
       } catch (err) {
         console.error('Error fetching data: ', err);
         setError('데이터를 가져오지 못하였습니다.');
@@ -47,11 +48,7 @@ const DepositDetail = () => {
 
   return (
     <div className="deposit-detail">
-      {isJoined && (
-        <div className="deposit-detail-joined-badge">
-          가입완료
-        </div>
-      )}
+      {isJoined && <div className="deposit-detail-joined-badge">가입완료</div>}
 
       <h2>{deposit.depositProductName}</h2>
       <p>은행 이름: {deposit.bankName}</p>

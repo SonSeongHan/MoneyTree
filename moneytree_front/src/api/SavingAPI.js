@@ -73,7 +73,7 @@ const SavingAPI = {
       const response = await axios.get(`${SAVING_PRODUCT_API_URL}/base-interest-rate-range`, {
         params: {
           minSavingBaseInterestRate: minRate,
-          maxSavingBaseInterestRate: maxRate
+          maxSavingBaseInterestRate: maxRate,
         },
       });
       return response.data;
@@ -103,12 +103,16 @@ const SavingAPI = {
         params: {
           bankName: searchParams.bankName,
           savingMinAmount: searchParams.minAmount,
-          savingInterestRateType: searchParams.savingType === 'simple' ? '단리' :
-            searchParams.savingType === 'compound' ? '복리' : undefined,
+          savingInterestRateType:
+            searchParams.savingType === 'simple'
+              ? '단리'
+              : searchParams.savingType === 'compound'
+                ? '복리'
+                : undefined,
           minSavingBaseInterestRate: searchParams.minInterestRate,
           maxSavingBaseInterestRate: searchParams.maxInterestRate,
-          minSavingPrimeInterestRate: searchParams.primeRate
-        }
+          minSavingPrimeInterestRate: searchParams.primeRate,
+        },
       });
       return response.data;
     } catch (error) {
@@ -142,10 +146,9 @@ const SavingAPI = {
   // 적금 계좌 해지
   terminateSavingAccount: async (accountNumber, reason) => {
     try {
-      const response = await jwtAxios.post(
-        `${SAVING_ACCOUNT_API_URL}/${accountNumber}/terminate`,
-        { reason }
-      );
+      const response = await jwtAxios.post(`${SAVING_ACCOUNT_API_URL}/${accountNumber}/terminate`, {
+        reason,
+      });
       return response.data;
     } catch (error) {
       console.error('Error terminating saving account:', error);
@@ -173,7 +176,7 @@ const SavingAPI = {
       console.error('Error fetching termination by account number:', error);
       throw error;
     }
-  }
+  },
 };
 
 export default SavingAPI;

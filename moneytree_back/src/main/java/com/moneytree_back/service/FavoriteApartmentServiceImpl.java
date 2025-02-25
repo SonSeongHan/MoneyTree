@@ -28,14 +28,14 @@ public class FavoriteApartmentServiceImpl implements FavoriteApartmentService {
   private FavoriteApartmentDTO convertToDto(FavoriteApartment favoriteApartment) {
     Apartment apt = favoriteApartment.getApartment();
     return FavoriteApartmentDTO.builder()
-      .id(favoriteApartment.getId())
-      .memberId(favoriteApartment.getMember().getMemberId())
-      .apartmentId(favoriteApartment.getApartment().getId())
-      .apartmentName(apt.getName())        // DB에 저장된 아파트 단지명
-      .area(apt.getArea())                   // 전용면적
-      .currentPrice(apt.getCurrentPrice())   // 최신 거래가
-      .createdAt(favoriteApartment.getCreatedAt())
-      .build();
+            .id(favoriteApartment.getId())
+            .memberId(favoriteApartment.getMember().getMemberId())
+            .apartmentId(favoriteApartment.getApartment().getId())
+            .apartmentName(apt.getName())        // DB에 저장된 아파트 단지명
+            .area(apt.getArea())                   // 전용면적
+            .currentPrice(apt.getCurrentPrice())   // 최신 거래가
+            .createdAt(favoriteApartment.getCreatedAt())
+            .build();
   }
 
   @Override
@@ -44,18 +44,18 @@ public class FavoriteApartmentServiceImpl implements FavoriteApartmentService {
     // 전달받은 memberId를 디코딩 (예: "간편회원1" -> "간편회원1")
     String decodedMemberId = URLDecoder.decode(memberId, StandardCharsets.UTF_8);
     Member member = memberRepository.findByMemberId(decodedMemberId)
-      .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
     Apartment apartment = apartmentRepository.findByName(apartmentName)
-      .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
 
     if (favoriteApartmentRepository.existsByMemberAndApartment(member, apartment)) {
       throw new RuntimeException("이미 관심 매물에 등록된 아파트입니다.");
     }
 
     FavoriteApartment favoriteApartment = FavoriteApartment.builder()
-      .member(member)
-      .apartment(apartment)
-      .build();
+            .member(member)
+            .apartment(apartment)
+            .build();
 
     FavoriteApartment savedFavorite = favoriteApartmentRepository.save(favoriteApartment);
     return convertToDto(savedFavorite);
@@ -66,9 +66,9 @@ public class FavoriteApartmentServiceImpl implements FavoriteApartmentService {
   public void removeFavoriteApartment(String memberId, String apartmentName) {
     String decodedMemberId = URLDecoder.decode(memberId, StandardCharsets.UTF_8);
     Member member = memberRepository.findByMemberId(decodedMemberId)
-      .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
     Apartment apartment = apartmentRepository.findByName(apartmentName)
-      .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("아파트를 찾을 수 없습니다."));
 
     favoriteApartmentRepository.deleteByMemberAndApartment(member, apartment);
   }
@@ -77,10 +77,10 @@ public class FavoriteApartmentServiceImpl implements FavoriteApartmentService {
   public List<FavoriteApartmentDTO> getFavoriteApartmentsByMember(String memberId) {
     String decodedMemberId = URLDecoder.decode(memberId, StandardCharsets.UTF_8);
     Member member = memberRepository.findByMemberId(decodedMemberId)
-      .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
     List<FavoriteApartment> favorites = favoriteApartmentRepository.findByMember(member);
     return favorites.stream()
-      .map(this::convertToDto)
-      .collect(Collectors.toList());
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
   }
 }

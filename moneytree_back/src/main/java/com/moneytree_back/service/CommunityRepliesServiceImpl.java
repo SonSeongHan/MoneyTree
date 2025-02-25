@@ -56,16 +56,16 @@ public class CommunityRepliesServiceImpl implements CommunityRepliesService {
     //커뮤 답글 페이지 형식으로 불러오기
     @Override
     public Page<CommunityRepliesDTO> getRepliesByPostId(Long postId,Pageable pageable) {
-         return communityRepliesRepository.findByCommunityPostId(postId, pageable)
-                 .map(reply -> CommunityRepliesDTO.builder()
-                         .replyId((long) reply.getReplyId())
-                         .postId(reply.getCommunity().getPostId())
-                         .memberId(reply.getMember().getMemberId())
-                         .membershipType(reply.getMember().getMembershipType().name()) // 추가: 실제 회원 등급 설정
-                         .content(reply.getContent())
-                         .created_at(reply.getCreatedAt())
-                         .updated_at(reply.getUpdateAt())
-                         .build());
+        return communityRepliesRepository.findByCommunityPostId(postId, pageable)
+                .map(reply -> CommunityRepliesDTO.builder()
+                        .replyId((long) reply.getReplyId())
+                        .postId(reply.getCommunity().getPostId())
+                        .memberId(reply.getMember().getMemberId())
+                        .membershipType(reply.getMember().getMembershipType().name()) // 추가: 실제 회원 등급 설정
+                        .content(reply.getContent())
+                        .created_at(reply.getCreatedAt())
+                        .updated_at(reply.getUpdateAt())
+                        .build());
     }
 
     @Override
@@ -93,11 +93,11 @@ public class CommunityRepliesServiceImpl implements CommunityRepliesService {
 
     @Override
     public void deleteCommunityRepliesById(Long replyId) {
-         CommunityReplies reply =communityRepliesRepository.findById(replyId)
-                 .orElseThrow(() -> new RuntimeException("Reply not found"));
+        CommunityReplies reply =communityRepliesRepository.findById(replyId)
+                .orElseThrow(() -> new RuntimeException("Reply not found"));
 
-         log.info("지우려는 replyId: {}", reply.getReplyId());
+        log.info("지우려는 replyId: {}", reply.getReplyId());
 
-         communityRepliesRepository.deleteById(replyId);
+        communityRepliesRepository.deleteById(replyId);
     }
 }

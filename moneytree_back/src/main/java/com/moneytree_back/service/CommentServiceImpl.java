@@ -45,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
   public CommentDTO addComment(Long postId, CommentDTO commentDTO) {
     // 게시글 ID를 통해 해당 게시글을 조회합니다.
     EstateCommunityPost post = postRepository.findById(postId)
-      .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + postId));
+            .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id: " + postId));
 
     // 댓글 엔티티 생성 후, 입력받은 정보를 설정합니다.
     Comment comment = new Comment();
@@ -67,7 +67,7 @@ public class CommentServiceImpl implements CommentService {
   public CommentDTO updateComment(Long commentId, CommentDTO commentDTO) {
     // 댓글 ID로 댓글 엔티티 조회
     Comment comment = commentRepository.findById(commentId)
-      .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다. id: " + commentId));
+            .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다. id: " + commentId));
     // 댓글 정보를 업데이트합니다.
     comment.setText(commentDTO.getText());
     comment.setAuthor(commentDTO.getAuthor());
@@ -83,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
   @Override
   public void deleteComment(Long commentId) {
     Comment comment = commentRepository.findById(commentId)
-      .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다. id: " + commentId));
+            .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다. id: " + commentId));
     commentRepository.delete(comment);
   }
 
@@ -102,8 +102,8 @@ public class CommentServiceImpl implements CommentService {
     Page<Comment> commentPage = commentRepository.findByPostId(postId, pageable);
     // 댓글 엔티티들을 DTO로 변환합니다.
     List<CommentDTO> commentDTOs = commentPage.stream()
-      .map(this::convertToDTO)
-      .collect(Collectors.toList());
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
     return new PageImpl<>(commentDTOs, pageable, commentPage.getTotalElements());
   }
 
