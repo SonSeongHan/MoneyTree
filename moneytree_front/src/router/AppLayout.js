@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Chatbot from '../components/Chatbot';
-import { FundProvider } from '../FundContext';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -11,13 +10,11 @@ const AppLayout = () => {
   const isLoginPage = location.pathname === '/' || location.pathname === '/login';
 
   return (
-    <FundProvider>
       <div>
         {!isLoginPage && <Navbar />}
         <Chatbot />
         <Outlet />
       </div>
-    </FundProvider>
   );
 };
 

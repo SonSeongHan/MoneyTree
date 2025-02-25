@@ -10,6 +10,7 @@ import uuid
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import textwrap
 
 from matplotlib import rc
 import numpy as np
@@ -20,6 +21,8 @@ from langchain_openai import ChatOpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from db import get_apartments_data
 from flask import send_from_directory
+import sys
+sys.stdout.reconfigure(encoding='utf-8')  # 콘솔 출력을 UTF-8로 변경
 
 from langchain_openai import ChatOpenAI
 
@@ -59,16 +62,20 @@ if OPENAI_API_KEY is None:
 
 @app.route('/welcome', methods=['GET'])
 def welcome():
+    chatbot_response = textwrap.dedent("""\
+            안녕하세요! 😊 저는 고객님의 MoneyTree 도우미 챗봇입니다. 궁금한 점이 있으면 질문해 주세요!\n
+            예) '매매 정보','예금 추천','적금 추천','펀드 추천'\n
+            예)'전체 적금 상품 보기','전체 예금 상품 보기','전체 펀드 상품 보기','전체 주식 상품 보기'\n
+            아! 그리고 혹시 예금이나 적금을 어떤 상품을 가입하려 할 때 만기 했을 때 얼마나 이득을 보는지 궁금하시다면 '예금 시뮬레이션' 또는 '적금 시뮬레이션'이라고 입력해주세요!\n
+            혹시 음성으로 저와 대화를 하신다면 '전체 적금','전체 예금','전체 펀드','전체 주식' 이 포함된 얘기를 해주시면 바로 이동시켜드릴게요!\n
+            또한 음성으로 하시면 '취미 추천'도 받으실 수 있습니다!\n
+            챗봇이 고객님의 요구 사항을 해결해드릴게요!\n
+            """
+            )
     return jsonify({
         "response": {
             "type": "text",
-            "content": ("안녕하세요! 😊 저는 고객님의 MoneyTree 도우미 챗봇입니다. 궁금한 점이 있으면 질문해 주세요!"
-            "예) '매매 정보','예금 추천','적금 추천','펀드 추천'"
-            "예)'전체 적금 상품 보기','전체 예금 상품 보기','전체 펀드 상품 보기','전체 주식 상품 보기'"
-            "등이 있습니다!"
-            "아! 그리고 혹시 예금이나 적금을 어떤 상품을 가입하려 할 때 만기 했을 때 얼마나 이득을 보는지 궁금하시다면 '예금 시뮬레이션' 또는 '적금 시뮬레이션'이라고 입력해주세요!"
-            "챗봇이 고객님의 궁금점을 해결해드릴게요!"
-            )
+            "content": chatbot_response
          }
     })
 
@@ -209,7 +216,7 @@ def chat():
             "step": session["step"]
         })
     
-    elif "전체 예금 상품 보기" in user_input:
+    elif "전체 예금 상품 보기" in user_input :
         chatbot_response = "전체 예금 상품 페이지로 이동하셨습니다. 혹시 이동이 안되셨다면 아래 링크를 아래 링크를 클릭해주세요:\n"
         chatbot_response += "➡ [예금 상품 페이지로 이동](http://localhost3000/products/deposit-saving?tab=deposit)"
         return jsonify({"response": chatbot_response})
@@ -508,68 +515,157 @@ def info():
     #사용자의 질문
     user_input = request.json.get("message")
     print(f"user_input /info 사용자 입력:{user_input}") #사용자의 질문 확인 -> 리액트와 python의 통신에 문제 없음 
-
     
+    user_input = user_input.strip()
+    print(f" 받은 사용자의 입력 값: '{user_input}'")
+
+
+    voice_redirect_urls = {
+        "전체 주식": "/products/fund-stock?tab=stock",
+        "전체 펀드": "/products/fund-stock?tab=fund",
+        "전체 예금": "/products/deposit-saving?tab=deposit",
+        "전체 적금": "/products/deposit-saving?tab=saving" 
+    }
+
+    for keyword, url in voice_redirect_urls.items():
+        if keyword in user_input:
+            print(f"🔍 [DEBUG] 비교 중: '{keyword}' in '{user_input}' ?")  # 🔍 비교되는 값 확인
+            if keyword in user_input:
+                print(f"✅ [DEBUG] '{keyword}'이(가) 감지됨! URL: {url}")  # ✅ URL 정상 감지됨
+                response_data = {
+                    "response" : f"{keyword} 상품 페이지로 이동하겠습니다!",                
+                    "voice_redirect_urls": url
+                }
+                print(f"📌 for문에서 반환 데이터: {response_data}")  # ✅ 응답 데이터 출력
+                return jsonify({
+                    "response":response_data
+                    })
+            
+    if "취미 추천" in user_input:
+        return({
+            "response": "사용자 예산 및 관심사에 맞춰 적절한 취미 활동을 추천해드리겠습니다!",
+            "voice_redirect_urls":""
+        })
+        
+    # ✅ 사용자가 "매매 정보"를 말한 후 부동산 이름을 입력해야 하는 상태인지 확인
+    if session.get("waiting_for_building"):
+        session["waiting_for_building"] = False  # 상태 초기화
+        print(f"🏠 부동산 이름 입력됨: {user_input}")
+
+    try:
+        deposit_products = list(db.get_deposit_data()["deposit_product_name"].astype(str))
+        saving_products = list(db.get_saving_data()["saving_product_name"].astype(str))
+        fund_products = list(db.get_fund_data()["fund_product_name"].astype(str))
+        stock_products = list(db.get_stock_data()["stock_product_name"].astype(str))
+        apartments = list(db.get_apartments_data()["name"].astype(str))
+        hobbies = list(db.get_hobby_data()["hobby_name"].astype(str))
+    except Exception as e:
+        print(f"❌ 데이터베이스 오류: {str(e)}")
+        return jsonify({"response": "서버에서 데이터를 불러오는 중 오류가 발생했습니다."})
+        
 
 
     os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY #openai.api_key = OPENAI_API_KEY
     #python f포맷 -> ''' ''' 여러 줄의 문자가 입력되어도 한 묶음으로 인식할 수 있게 하는 역할.
-    prompt_info = f'''너는 이 사이트를 관리하는 챗봇이야. 우리 사이트의 기능은 아래의 기능과 같아.
+    prompt_info = f'''먼저 너는 이 사이트를 관리하는 챗봇이야. 그리고 사용자가 "{user_input}이라고 말했어. 
+        
+        우리 사이트의 기능은 아래의 기능과 같아.
+
+
 
 
         기능 :
-        1.금융상품 상세 추천 : 상품유형(예금, 적금, 펀드, 주식), 사용자 조건(예치 기간, 투자 성향, 금리) 등에 맞추어 사용자의 조건에 맞는 금융 상품을 추천함
-        2.부동산 상세 추천 (대출 상품 연동) : 매물 유형(매매, 전세, 월세), 예산 범위, 대출 가능 금액 및 조건 등을 고려하여 사용자가 원하는 조건에 맞는 부동산 매물을 추천하고, 필요 시 대출 상품과 연계하여 최적의 선택지를 제공함
-        3.라이프 스타일 상세 추천 : 취미 유형(영화, 음악, 운동, 악기, 게임, 여행, 콘서트, 자전거, 낚시, 골프 등), 사용자 예산 및 관심사에 맞춰 적절한 취미 활동을 추천함
-        4.상품 가입 페이지 이동 (네비게이션 기능) : 추천된 금융 상품, 부동산 매물, 취미 활동 등에 대한 세부 정보를 확인할 수 있도록 해당 페이지로 이동하는 기능을 제공함
+        1.금융상품 상세 추천 : 상품유형(예금, 적금, 펀드, 주식), 사용자 조건(예치 기간, 투자 성향, 금리) 등에 맞추어 사용자의 조건에 맞는 금융 상품을 추천해야해.
+        2.만약 사용자가 "예금 추천","적금 추천","펀드 추천" 같은 말을 했다면 해당하는 금융 상품을 추천하는데 @app.route('/chat', methods=['POST'])의 "예금 추천"과 "펀드 추천"과 "적금 추천"과 "주식 추천"은 추천 방식을 그대로 사용해줘.
+        3.부동산 상세 추천 (대출 상품 연동) : 매물 유형(매매, 전세, 월세), 예산 범위, 대출 가능 금액 및 조건 등을 고려하여 사용자가 원하는 조건에 맞는 부동산 매물을 추천하고, 필요 시 대출 상품과 연계하여 최적의 선택지를 제공해야해.
+        4.사용자가 "매매 정보" 또는 "부동산 시세" 를 묻는 다면 해당 하는 부동산의 이름을 입력해주세요 라고 말하고 이름을 말하면 해당하는 이름의 맞는 부동산 데이터베이스를 찾고 2022~2024의 매매 가격을 막대 그래프로 출력해줘.
+        5.상품 가입 페이지 이동 (네비게이션 기능) : 추천된 금융 상품, 부동산 매물, 취미 활동 등에 대한 세부 정보를 확인할 수 있도록 해당 페이지로 이동하는 기능을 제공함
         
-        
+        다음은 현재 제공하는 금융 상품 목록이야:
+        {", ".join(deposit_products + saving_products + fund_products + stock_products)}
 
+        다음은 현재 데이터베이스에 존재하는 부동산 목록이야.
+        {", ".join(apartments)}
+
+        다음은 현재 데이터베이스에 존재하는 취미 목록이야.
+        {", ".join(hobbies)}
+
+        이제 사용자가 취미 추천을 요청했고, 추가로"{user_input}"이라는 예산과 성향을 말했어.
+        너는 사용자가 선호하는 예산과 성향을 고려하여 위의 취미 목록에서 적절한 취미 3개를 추천해줘.
+         
+        **취미 추천 방식:**
+        1.**돈이 안들면서 라는 뜻은 예산을 0원으로 생각하고 추천해줘**.
+        2.**사용자가 "내외"라는 표현을 사용하면, 이는 **입력된 금액의 ±10% 범위를 의미해**.
+        3.만약 **해당하는 예산의 내외의 범위에 존재하는 취미 중에서 성향에 맞는 적절한 취미가 없다면**,**±20% 범위로 확장해서 찾는다**.
+        4.그래도 없으면, **예산을 유지하면서 성향과 비슷한 활동을 추천**해.
+        5.여전히 없으면, **예산을 무시하고 성향에 맞는 취미 3개를 추천**해.
+        6.이렇게까지 했는데 없으면, `"말씀하신 예산과 성향으로는 알맞는 취미를 찾을 수 없습니다. 더 간결하게 말씀해 주세요!"`라고 사용자에게 요청해.
+        
 
         너는 사용자의 {user_input} 이라는 질문이 위의 기능 중 어디에 해당하는지를 알아야 해.
-        {user_input}이 주어지면, 위의 기능 1, 2, 3, 4 중 어디에 해당하는지 알려줘.
+        {user_input}이 주어지면, 위의 기능 1, 2, 3, 4, 5, 6 중 어디에 해당하는지 알려줘.
         그리고
 
 
-        기능의 번호를 먼저 말해.
-        정확하게 기능에 대해 언급하고 있지 않더라도, 기능의 핵심 키워드를 말하면 이 사이트에서 제공 가능한 서비스를 대답해.
-       
-        만약 사용자의 질문에 제공하는 기능이 있으면
-        1번. 상품유형(예금, 적금, 펀드, 주식), 사용자 조건(예치 기간, 투자 성향, 금리) 등에 맞추어 조건에 맞는 금융 상품을 추천드리겠습니다!
-        라고 얘기해
+        **사용자의 질문이 기능 중 어디에 해당하는지 판단해야 해.**
+        "{user_input}"이 주어지면 위의 기능 1~6 중 해당하는 기능 번호를 먼저 말해.  
+        명확한 기능 키워드가 없어도 관련된 서비스를 제공할 수 있도록 안내해야 해.  
+
+        예시 응답:  
+        - "예금, 적금, 펀드, 주식 등의 금융 상품을 추천해 드리겠습니다!"
+        - "해당 부동산의 매매 가격 데이터를 분석하여 그래프로 제공해 드리겠습니다!"
+        - "고객님의 예산과 성향을 고려하여 적절한 취미를 추천해 드리겠습니다! 
+        - "예산: 20만 원 성향: 활동적인 것 추천 취미: 
+          1.드론 레이싱 : 드론 레이싱은 스릴 넘치는 재미와 기술적인 성장, 그리고 활발한 커뮤니티 활동을 모두 누릴 수 있는 매력적인 취미입니다.취미 생활을 통해 재미와 발전, 그리고 새로운 사람들과의 교류까지 원하는 분들에게 적극 추천할 만한 활동입니다.
+          2.오토바이 라이딩 : 자유로운 해방감과 스릴, 개성을 표현할 수 있는 다양한 스타일, 커뮤니티 활동 등으로 인해 매우 매력적인 취미가 될 수 있습니다. 다만, 안전에 대한 철저한 대비와 준비가 필수이니 이를 잊지 않는다면 오랫동안 즐길 수 있는 훌륭한 취미가 될 것입니다. 
+          3. 전기 자전거 : 전기 자전거는 부담 없는 라이딩, 적절한 운동량, 넓은 활동 범위라는 매력 덕분에 취미로 삼기에 제격입니다.특히 다른 취미(사진, 캠핑, 여행 등)와 결합해 시너지를 낼 수도 있으니, 취미 영역을 확장하는 데도 훌륭한 선택이 될 것입니다.안전 수칙만 잘 지키면 오래도록 즐길 수 있는, 건강하고 친환경적인 취미 생활을 시작해보세요! 
+          이 취미들은 활동적이며, 예산 내외로 즐길 수 있느 활동들입니다! 좋은 취미를 찾으시길 바래요!" 
+        
+        
+
+         **취미 추천에서 해당하는 취미가 없을 때**
+         해당하는 취미가 없다면"말씀하신 예산과 성향으로는 알맞는 취미를 찾을 수 없습니다. 더 간결하게 말씀해 주세요!"라고 대답해.
+         
+         **해당 하는 답변이 없을 때**
+         만약 제공하는 기능이 없다면 `"죄송합니다. 해당 기능은 제공하지 않습니다."`라고 대답해.
+         
+        '''
 
 
-        만약 위의 기능에 해당하는 것이 나오지 않으면 '죄송합니다. 말씀하신 기능은 제공하지 않습니다' 라고 대답해.
-    '''
-
-
-    Chat = ChatOpenAI(temperature=0.3, model='gpt-4o-mini')
+    Chat = ChatOpenAI(temperature=0.3, model='gpt-4o')
     messages = [
         ('system', prompt_info),
         ('human', user_input)
     ]
 
-
-    response = Chat.invoke(messages)
-    return jsonify({"response":response.content})
+    try:
+        response = Chat.invoke(messages)
+        return jsonify({
+            "response": response.content,  # ✅ OpenAI 응답 포함
+            "voice_redirect_urls": url if url else ""  # ✅ URL 없음 명시적으로 전달
+        })
+    except Exception as e:
+        print(f"❌ OpenAI API 오류: {str(e)}")
+        return jsonify({
+            "response": "AI 서버와의 통신 중 오류가 발생했습니다. 다시 시도해 주세요.",
+            "voice_redirect_urls": url if url else ""  # ✅ URL 없음 전달
+        })
 
 # ✅ 음성 인식 기능 (OpenAI 최신 API & 2초 대기 적용)
 @app.route('/voice-chat', methods=['POST'])
 def voice_chat():
-    """ 음성으로 입력된 질문을 기존 챗봇과 데이터 조회 기능에 연결 """
-    audio_text = request.json.get("text") 
+    """ 음성 인식을 통해 받은 텍스트를 `/info`로 전달 """
+    audio_text = request.json.get("message")
 
     if not audio_text or audio_text.strip() == "":
         return jsonify({"response": "❌ 음성을 인식하지 못했습니다. 다시 시도해주세요."})
 
-    print("🎤 음성 입력 감지됨. 2초 대기 후 처리 시작...")
-    time.sleep(2)
+    print(f"🎤 음성 입력 감지됨: {audio_text}")
 
-    response_text = filter_data_internal(audio_text)
-    if response_text == "❌ 해당 조건에 맞는 데이터가 없습니다.":
-        return jsonify({"response": "🔄 다시 말씀해주세요!"})
-    
-    return jsonify({"response": response_text})
+    # ✅ OpenAI를 사용하여 텍스트 분석 후 적절한 기능으로 이동
+    response = requests.post("http://localhost:7000/info", json={"message": audio_text})
+    response_data = response.json()
+    return jsonify({"response": response_data.get("response", "응답 없음")})
 
 
 # 자료 합산 및 계산, 자료 추천, 특정한 키워드가 들어간 글을 셋업하며 전달
@@ -687,7 +783,8 @@ def generate_graph():
 
     if not product_name:
         return jsonify({"error": "세션 데이터가 없습니다. 처음부터 다시 시뮬레이션을 시작하세요!"})
-
+    print("전 단계에서 가져온 예금 입력 값:",deposit_amount)
+    print("전 단계에서 가져온 적금 입력 값:",saving_amount)
     # ✅ 예금인지 적금인지 구분
     if deposit_amount:
         product_type = "deposit"
@@ -722,20 +819,24 @@ def generate_graph():
     for m in x:
         if product_type == "deposit":
             if interest_type == "단리":
-                amount_at_maturity = db.calculate_deposit_maturity(amount, interest_rate, m / 12)  # 예금 단리
+                print("예금의 단리가 선택됬네요")
+                amount_at_maturity = db.calculate_deposit_maturity(amount, interest_rate, m )
+                print("db 예금 각 계산:",db.calculate_deposit_maturity(amount, interest_rate, m ))# 예금 단리
+                print("예금의 단리가 선택됬네요")
             elif interest_type == "복리":
-                amount_at_maturity = db.calculate_deposit_maturity_compound(amount, interest_rate, m / 12, 12)  # 예금 복리 (월 복리)
+                print("예금의 복리가 선택됬네요")
+                amount_at_maturity = db.calculate_deposit_maturity_compound(amount, interest_rate, m, 12)  # 예금 복리 (월 복리)
         elif product_type == "saving":
             if interest_type == "단리":
+                print("적금의 단리가 선택됬네요")
                 amount_at_maturity = db.calculate_saving_maturity_simple(amount, interest_rate, m)  # 적금 단리
             elif interest_type == "복리":
+                print("적금의 복리가 선택됬네요")
                 amount_at_maturity = db.calculate_saving_maturity(amount, interest_rate, m)  # 적금 복리 (월 복리)
 
-        y.append(amount_at_maturity / 10_000)  # 단위: 만원
+        y.append(amount_at_maturity/10000)   # 단위: 만원
     
-    print(f"📌 [DEBUG] 복리 적금 계산 결과 (m={m}): {amount_at_maturity}")  # 🔍 복리 계산된 값 확인
-    print(f"📌 [DEBUG] interest_type: {interest_type}")  # 🔍 단리/복리 값 확인
-    print(f"📌 [DEBUG] interest_type: {interest_type}")  # 🔍 단리/복리 값 확인
+    print(f"📌 [DEBUG] 복리 또는 단리 , 적금 또는 예금 계산 결과 (m={m}): {amount_at_maturity}")  # 🔍 복리 계산된 값 확인
     print(f"📌 [DEBUG] Y축 데이터: {y}")
 
     
@@ -766,11 +867,6 @@ def generate_graph():
     "next_step": "deposit_saving_graph",
     "response": "해당 상품의 만기 예상 그래프입니다!  📊\n다른 궁금하신 게 있다면 요청해주세요"
     })
-
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    return send_from_directory('static', filename)
-
 
 if __name__ == '__main__':
     app.run(port=7000)

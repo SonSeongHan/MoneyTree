@@ -54,6 +54,44 @@ def get_deposit_data():
         if conn is not None:
             conn.close()
 
+def get_hobby_data():
+    conn = None
+    try:
+        conn = mariadb.connect(**DB_CONFIG)
+        cur = conn.cursor()
+
+        cur.execute("SHOW TABLES LIKE 'hobby'")
+        if not cur.fetchone():
+            print(" 오류: 'hobby' 테이블이 존재하지 않습니다.")
+            return None
+        
+        cur.execute("SELECT * FROM hobby")
+        rows = cur.fetchall()
+
+        if not rows:
+            print(" 'hobby' 테이블에 데이터가 없습니다.")
+            return None
+        
+        if cur.description is None:
+            print(" 오류: 'hobby' 테이블에 컬럼이 없습니다.")
+            return None
+        
+        columns = [desc[0] for desc in cur.description]
+
+        df = pd.DataFrame(rows, columns=columns)
+
+        cur.close()
+        return df
+    except mariadb.Error as e:
+        print(f" 데이터베이스 오류: {e}")
+        return None
+    
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+
 def get_deposit_by_name(product_name):
     """예금 상품명을 기준으로 조회하는 함수(LIKE 검색 적용)"""    
     conn = None
@@ -333,7 +371,7 @@ def calculate_deposit_maturity(initail_amount,interest_rate,months):
     """
     return float(initail_amount) * (1 + float(interest_rate) * float((months)/12))
 
-def calculate_deposit_maturity_compound(initall_amount, final_interest_rate, months , compounds_per_year=1):
+def calculate_deposit_maturity_compound(initall_amount, final_interest_rate, months , compounds_per_year=12):
     """
     예금 복리 계산
     :param principal: 예치 금액 (원금)
@@ -372,7 +410,7 @@ def calculate_saving_maturity_simple(monthly_saving, interest_rate, months):
     """
     total_principal = float(monthly_saving * months)
     total_interest = float(total_principal) * float(interest_rate/12) * float(months + 1) / 2
-    return round(total_principal + total_interest, 2)
+    return round(total_principal + total_interest, 2)    
   
 # 실행 예제
 if __name__ == "__main__":
@@ -381,6 +419,7 @@ if __name__ == "__main__":
     apartments_data = get_apartments_data()
     stock_data = get_stock_data()
     fund_data = get_fund_data()
+    hobby_data = get_hobby_data()
     
 
     if deposit_data is not None:
@@ -397,3 +436,6 @@ if __name__ == "__main__":
 
     if fund_data is not None:
         print(fund_data)
+
+    if hobby_data is not None:
+        print(hobby_data)
