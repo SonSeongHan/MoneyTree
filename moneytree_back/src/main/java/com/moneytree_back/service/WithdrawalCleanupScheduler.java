@@ -2,12 +2,10 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.member.WithdrawnMember;
-import com.moneytree_back.domain.member.WithdrawnMember;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.repository.WithdrawnMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
