@@ -4,11 +4,15 @@ import { getCookie } from '../../util/cookieUtil';
 import StockAPI from '../../api/StockAPI';
 import Fund from '../../components/recommends/Fund';
 import Stock from '../../components/recommends/Stock';
+import stockman from  '../../image/stockman.png';
 
 function FundStock() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('fund');
   const [stockAccount, setStockAccount] = useState(null);
+  const [searchInput, setSearchInput] = useState(''); // 입력 중인 값
+  const [searchQuery, setSearchQuery] = useState(''); // 실제 검색에 사용되는 값
+  const [isCheckingAccount, setIsCheckingAccount] = useState(false);
   const [searchParams] = useSearchParams(); // URL에서 파라미터 가져오기
 
   useEffect(() => {
@@ -19,55 +23,65 @@ function FundStock() {
     }
   }, [searchParams]);
 
-  // 주식 계좌 확인 함수 추가
+  // 주식 계좌 확인 함수
   const checkStockAccount = async () => {
     try {
+      setIsCheckingAccount(true);
       const memberCookie = getCookie('member');
       if (!memberCookie) {
         navigate('/loginpage');
-        return;
+        return false;
       }
 
       const dandwAcId = await StockAPI.getDandwacAccountNumber(memberCookie.memberId);
       if (!dandwAcId) {
         setStockAccount(null);
+        return false;
       } else {
         const stockAccountInfo = await StockAPI.getStockAccount(dandwAcId);
         setStockAccount(stockAccountInfo);
+        return true;
       }
     } catch (err) {
       console.error('주식 계좌 확인 중 오류:', err);
+      return false;
+    } finally {
+      setIsCheckingAccount(false);
     }
   };
 
+  // 컴포넌트 마운트 시 계좌 확인
+  useEffect(() => {
+    if (activeTab === 'stock') {
+      checkStockAccount();
+    }
+  }, [activeTab]);
+
   const handleTabClick = async (tab) => {
     if (tab === 'stock') {
-      try {
-        const memberCookie = getCookie('member');
-        if (!memberCookie) {
-          navigate('/loginpage');
-          return;
-        }
+      setIsCheckingAccount(true);
+      const hasAccount = await checkStockAccount();
 
-        const dandwAcId = await StockAPI.getDandwacAccountNumber(memberCookie.memberId);
-        if (!dandwAcId) {
-          navigate('/create-stock-account');
-          return;
-        }
-
-        const stockAccountInfo = await StockAPI.getStockAccount(dandwAcId);
-        if (!stockAccountInfo) {
-          navigate('/create-stock-account');
-          return;
-        }
-
-        setStockAccount(stockAccountInfo);
-        setActiveTab(tab);
-      } catch (err) {
-        console.error('주식 계좌 확인 중 오류:', err);
+      if (!hasAccount) {
+        navigate('/create-stock-account');
+        return;
       }
+      setActiveTab(tab);
+    } else {
+      setActiveTab(tab);
     }
-    navigate(`?tab=${tab}`);
+  };
+
+  // 검색 버튼 클릭 시 검색어 상태 업데이트
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+  };
+
+  // 엔터키 입력 처리
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   return (
@@ -78,8 +92,29 @@ function FundStock() {
       </div>
 
       <div className="fundstock-search-wrap">
-        <input type="text" placeholder="펀드를 검색하세요" className="fundstock-search-input" />
-        <button className="fundstock-search-btn">검색</button>
+        <input
+          type="text"
+          placeholder="펀드를 검색하세요"
+          className="fundstock-search-input"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <button className="fundstock-search-btn" onClick={handleSearch}>
+          검색
+        </button>
+        <img
+          src={stockman}
+          alt="설명"
+          style={{
+            position: 'absolute',
+            width: '360px',
+            left: '65%',
+            top: '170px',
+            zIndex:'-100'
+          }}
+        />
+
       </div>
 
       <div className="fundstock-tabs-container">
@@ -91,16 +126,18 @@ function FundStock() {
         </button>
         <button
           onClick={() => handleTabClick('stock')}
-          className={`fundstock-tab-btn ${
-            activeTab === 'stock' ? 'fundstock-tab-btn--active' : ''
-          }`}
+          className={`fundstock-tab-btn ${activeTab === 'stock' ? 'fundstock-tab-btn--active' : ''}`}
+          disabled={isCheckingAccount}
         >
           주식
         </button>
       </div>
 
-      <div className="fundstock-content-area">{activeTab === 'fund' ? <Fund /> : <Stock />}</div>
+      <div className="fundstock-content-area">
+        {activeTab === 'fund' ? <Fund searchQuery={searchQuery}/> : <Stock/>}
+      </div>
     </div>
+
   );
 }
 

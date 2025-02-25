@@ -2,7 +2,7 @@
 .fundstock-page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    margin-top: 100px;
 }
 
 .fundstock-header {
@@ -70,7 +70,6 @@
 
 /* Fund 컴포넌트 스타일 - Stock과 유사하게 수정 */
 .fund-container {
-    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -82,6 +81,7 @@
     background: #f8f9fa;
     border-radius: 4px;
     flex-wrap: wrap;
+    justify-content: space-around;
 }
 
 .filter-input {

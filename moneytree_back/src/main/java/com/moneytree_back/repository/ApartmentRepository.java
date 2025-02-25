@@ -17,4 +17,7 @@ public interface ApartmentRepository extends JpaRepository<Apartment, Long> {
 
   // 단지명 정확한 일치 검색 (추가)
   Optional<Apartment> findByName(String name);
+
+  // ▼ 소유자(Owner) 기준 검색 (예: ownerId가 특정 값인 아파트만 조회)
+  List<Apartment> findByOwnerId(String ownerId);
 }

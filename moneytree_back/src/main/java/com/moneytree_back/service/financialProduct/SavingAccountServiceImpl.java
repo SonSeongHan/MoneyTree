@@ -1,7 +1,10 @@
 package com.moneytree_back.service.financialProduct;
 
-import com.moneytree_back.domain.Dandwac;
-import com.moneytree_back.domain.financialProduct.*;
+import com.moneytree_back.domain.*;
+import com.moneytree_back.domain.financialProduct.SavingAccount;
+import com.moneytree_back.domain.financialProduct.SavingAccountStatus;
+import com.moneytree_back.domain.financialProduct.SavingProduct;
+import com.moneytree_back.domain.financialProduct.SavingTermination;
 import com.moneytree_back.dto.financialProduct.SavingAccountDTO;
 import com.moneytree_back.repository.DandwacRepository;
 import com.moneytree_back.repository.financialProduct.SavingAccountRepository;

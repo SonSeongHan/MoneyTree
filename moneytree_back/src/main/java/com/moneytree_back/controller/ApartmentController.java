@@ -1,12 +1,14 @@
 package com.moneytree_back.controller;
 
 import com.moneytree_back.domain.Apartment;
+import com.moneytree_back.repository.ApartmentRepository;
 import com.moneytree_back.service.ApartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class ApartmentController {
 
   private final ApartmentService apartmentService; // ✅ ApartmentService를 찾을 수 있어야 함
+  private final ApartmentRepository apartmentRepository;
 
   @GetMapping // 아파트 목록 조회.
   public ResponseEntity<List<Apartment>> getAllApartments() {
@@ -36,4 +39,19 @@ public class ApartmentController {
   public ResponseEntity<Apartment> saveApartment(@RequestBody Apartment apartment) {
     return ResponseEntity.ok(apartmentService.saveApartment(apartment));
   }
+  @GetMapping("/owner")
+  public ResponseEntity<?> getOwnerByApartmentName(@RequestParam String name) {
+    // DB에서 name(단지명)에 해당하는 아파트 찾기
+    Apartment apt = apartmentRepository.findByName(name)
+            .orElse(null);
+
+    // 없으면 ownerId = null
+    if (apt == null) {
+      return ResponseEntity.ok(Map.of("ownerId", null));
+    }
+
+    // 있으면 DB에 저장된 ownerId 반환
+    return ResponseEntity.ok(Map.of("ownerId", apt.getOwnerId()));
+  }
 }
+

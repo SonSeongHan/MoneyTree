@@ -4,18 +4,18 @@ import FundAPI from '../../api/FundAPI';
 import FundTradeModal from '../FundTradeModal';
 import '../../css/recommends/Fund.css';
 
-const Fund = () => {
+const Fund = ({ searchQuery }) => {
   const [allFunds, setAllFunds] = useState([]);
   const [displayFunds, setDisplayFunds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [investedFunds, setInvestedFunds] = useState(new Set()); // 가입한 펀드 ID 세트
+  const [investedFunds, setInvestedFunds] = useState(new Set());
   const observer = useRef(null);
   const itemsPerPage = 10;
 
-  // 필터 상태
+  // 필터 상태 (기존 필터들)
   const [minTotalAmount, setMinTotalAmount] = useState('');
   const [maxTotalAmount, setMaxTotalAmount] = useState('');
   const [minManagementFee, setMinManagementFee] = useState('');
@@ -38,11 +38,7 @@ const Fund = () => {
       if (!accountNumber) return;
 
       const fundAccounts = await FundAPI.getFundAccount(accountNumber);
-
-      // 가입한 펀드 ID들을 Set으로 저장
-      const investedFundIds = new Set(
-        fundAccounts.map(account => account.fundProductId)
-      );
+      const investedFundIds = new Set(fundAccounts.map(account => account.fundProductId));
       setInvestedFunds(investedFundIds);
     } catch (err) {
       console.error('Error fetching invested funds:', err);
@@ -58,8 +54,6 @@ const Fund = () => {
       setAllFunds(fundsData);
       setDisplayFunds(fundsData.slice(0, itemsPerPage));
       setHasMore(true);
-
-      // 가입한 펀드 정보 가져오기
       await fetchInvestedFunds();
     } catch (err) {
       console.error('Error fetching initial funds:', err);
@@ -87,10 +81,10 @@ const Fund = () => {
     fetchInitialFunds();
   }, [fetchInitialFunds]);
 
-  // 필터링 적용
+  // 필터링 적용 (기존 필터 적용)
   const applyFilters = useCallback(async () => {
     if (!minTotalAmount && !maxTotalAmount && !minManagementFee &&
-      !maxRedemptionFee && !fundYear) {
+        !maxRedemptionFee && !fundYear) {
       setIsFiltering(false);
       setFilteredFunds([]);
       setDisplayFunds(allFunds.slice(0, page * itemsPerPage));
@@ -124,7 +118,6 @@ const Fund = () => {
     const filterTimer = setTimeout(() => {
       applyFilters();
     }, 500);
-
     return () => clearTimeout(filterTimer);
   }, [applyFilters]);
 
@@ -138,14 +131,12 @@ const Fund = () => {
 
   const lastFundElementRef = useCallback((node) => {
     if (loading || !hasMore || isFiltering) return;
-
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
         setPage(prevPage => prevPage + 1);
       }
     });
-
     if (node) observer.current.observe(node);
   }, [loading, hasMore, isFiltering]);
 
@@ -163,7 +154,6 @@ const Fund = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedFund(null);
-    // 모달이 닫힐 때 가입 상태 새로고침
     fetchInvestedFunds();
   };
 
@@ -173,95 +163,101 @@ const Fund = () => {
     return <p className="fund-empty-state">표시할 펀드 상품이 없습니다.</p>;
   }
 
+  // 기존 필터 적용 결과 선택
   const funds = filteredFunds.length > 0 ? filteredFunds : displayFunds;
+  // 검색어가 있을 경우 펀드명에 검색어가 포함된 항목만 필터링
+  const fundsToDisplay = searchQuery
+      ? funds.filter(fund => fund.fundProductName.includes(searchQuery))
+      : funds;
 
   return (
-    <div className="fund-container">
-      <div className="filter-container">
-        <input
-          type="number"
-          className="filter-input"
-          placeholder="최소 펀드 규모"
-          value={minTotalAmount}
-          onChange={(e) => setMinTotalAmount(e.target.value)}
-        />
-        <input
-          type="number"
-          className="filter-input"
-          placeholder="최대 펀드 규모"
-          value={maxTotalAmount}
-          onChange={(e) => setMaxTotalAmount(e.target.value)}
-        />
-        <input
-          type="number"
-          className="filter-input"
-          placeholder="최소 운용 보수"
-          value={minManagementFee}
-          onChange={(e) => setMinManagementFee(e.target.value)}
-        />
-        <input
-          type="number"
-          className="filter-input"
-          placeholder="최대 환매 수수료"
-          value={maxRedemptionFee}
-          onChange={(e) => setMaxRedemptionFee(e.target.value)}
-        />
-        <input
-          type="number"
-          className="filter-input"
-          placeholder="설정 연도"
-          value={fundYear}
-          onChange={(e) => setFundYear(e.target.value)}
-        />
-        <button onClick={resetFilters} className="filter-reset-btn">
-          필터 초기화
-        </button>
-      </div>
-
-      <div className="fund-list">
-        <div className="fund-header">
-          <div className="fund-header-name">펀드명</div>
-          <div className="fund-header-manager">운용사</div>
-          <div className="fund-header-amount">펀드 규모</div>
+      <div className="fund-container">
+        <div className="filter-container">
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input
+                type="number"
+                className="filter-input"
+                placeholder="최소 펀드 규모"
+                value={minTotalAmount}
+                onChange={(e) => setMinTotalAmount(e.target.value)}
+            />
+            <input
+                type="number"
+                className="filter-input"
+                placeholder="최대 펀드 규모"
+                value={maxTotalAmount}
+                onChange={(e) => setMaxTotalAmount(e.target.value)}
+            />
+            <input
+                type="number"
+                className="filter-input"
+                placeholder="최소 운용 보수"
+                value={minManagementFee}
+                onChange={(e) => setMinManagementFee(e.target.value)}
+            />
+            <input
+                type="number"
+                className="filter-input"
+                placeholder="최대 환매 수수료"
+                value={maxRedemptionFee}
+                onChange={(e) => setMaxRedemptionFee(e.target.value)}
+            />
+            <input
+                type="number"
+                className="filter-input"
+                placeholder="설정 연도"
+                value={fundYear}
+                onChange={(e) => setFundYear(e.target.value)}
+            />
+          </div>
+          <button onClick={resetFilters} className="filter-reset-btn">
+            필터 초기화
+          </button>
         </div>
-        {funds.map((fund, index) => (
-          <div
-            key={fund.fundProductId}
-            ref={index === funds.length - 1 ? lastFundElementRef : null}
-            className="fund-item-container"
-            onClick={() => handleFundClick(fund)}
-          >
-            <div className="fund-item">
-              <div className="fund-name-section">
+
+        <div className="fund-list">
+          <div className="fund-header">
+            <div className="fund-header-name">펀드명</div>
+            <div className="fund-header-manager">운용사</div>
+            <div className="fund-header-amount">펀드 규모</div>
+          </div>
+          {fundsToDisplay.map((fund, index) => (
+              <div
+                  key={fund.fundProductId}
+                  ref={index === fundsToDisplay.length - 1 ? lastFundElementRef : null}
+                  className="fund-item-container"
+                  onClick={() => handleFundClick(fund)}
+              >
+                <div className="fund-item">
+                  <div className="fund-name-section">
                 <span className="fund-title">
                   {fund.fundProductName}
                   {investedFunds.has(fund.fundProductId) && (
-                    <span className="fund-invested-badge">가입중</span>
+                      <span className="fund-invested-badge">가입중</span>
                   )}
                 </span>
-                <span className="fund-type">{fund.fundProductType}</span>
+                    <span className="fund-type">{fund.fundProductType}</span>
+                  </div>
+                  <div className="fund-manager">{fund.fundProductManager}</div>
+                  <div className="fund-amount">
+                    {formatAmount(fund.fundProductTotalAmount)}억원
+                  </div>
+                </div>
               </div>
-              <div className="fund-manager">{fund.fundProductManager}</div>
-              <div className="fund-amount">
-                {formatAmount(fund.fundProductTotalAmount)}억원
+          ))}
+          {loading && (
+              <div className="fund-loading-indicator">
+                <p>데이터를 불러오는 중...</p>
               </div>
-            </div>
-          </div>
-        ))}
+          )}
+        </div>
 
-        {loading && (
-          <div className="fund-loading-indicator">
-            <p>데이터를 불러오는 중...</p>
-          </div>
-        )}
+        <FundTradeModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            fundProduct={selectedFund}
+        />
       </div>
-
-      <FundTradeModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        fundProduct={selectedFund}
-      />
-    </div>
   );
 };
 

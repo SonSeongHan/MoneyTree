@@ -1,7 +1,6 @@
 package com.moneytree_back.controller;
 
 import com.moneytree_back.domain.member.Member;
-import com.moneytree_back.domain.TransactionHistory;
 import com.moneytree_back.dto.member.MemberDetailDTO;
 import com.moneytree_back.dto.TransferHistoryDTO;
 import com.moneytree_back.service.member.MemberService;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")

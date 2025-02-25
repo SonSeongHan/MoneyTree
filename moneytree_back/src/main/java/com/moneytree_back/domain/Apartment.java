@@ -6,9 +6,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-/**
- * 아파트 정보를 저장하는 JPA 엔티티 클래스
- */
 @Entity
 @Table(name = "apartments")
 @Getter
@@ -40,6 +37,9 @@ public class Apartment {
   @Column(nullable = false)
   private LocalDateTime updatedAt; // 데이터 업데이트 시간
 
+  @Column(name = "owner_id")   // DB의 owner_id 칼럼
+  private String ownerId;
+
   /**
    * 연도별 아파트 가격을 저장하는 맵
    * 예: {2022: 50000000, 2023: 52000000}
@@ -51,4 +51,24 @@ public class Apartment {
   private Map<Integer, Integer> prices;
 
   private String image; // 아파트 이미지 URL
+
+  // ===================== 자동 세팅 메서드 =====================
+
+  /** insert 되기 전(createdAt, updatedAt 세팅) */
+  @PrePersist
+  protected void onCreate() {
+    if (this.createdAt == null) {
+      this.createdAt = LocalDateTime.now();
+    }
+    if (this.updatedAt == null) {
+      this.updatedAt = LocalDateTime.now();
+    }
+  }
+
+  /** update 되기 전(updatedAt 갱신) */
+  @PreUpdate
+  protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
 }
+

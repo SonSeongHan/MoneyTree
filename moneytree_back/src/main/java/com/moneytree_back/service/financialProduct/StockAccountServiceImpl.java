@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,32 +34,6 @@ public class StockAccountServiceImpl implements StockAccountService {
         }
         return convertToDTO(stockAccount);
     }
-
-//    @Override
-//    @Transactional
-//    public StockAccountDTO createStockAccount(String dandwAcId) {
-//        // 1. 입출금 계좌 조회
-//        Dandwac dandwac = dandwacRepository.findById(dandwAcId)
-//                .orElseThrow(() -> new IllegalArgumentException("입출금 계좌를 찾을 수 없습니다."));
-//
-//        // 2. 이미 주식 계좌가 있는지 확인
-//        if (stockAccountRepository.findByDandwAcId(dandwac) != null) {
-//            throw new IllegalArgumentException("이미 주식 계좌가 존재합니다.");
-//        }
-//
-//        // 3. 주식 계좌 생성
-//        StockAccount stockAccount = StockAccount.builder()
-//                .stockAccountNumber(generateStockAccountNumber())
-//                .stockAccountBalance(BigDecimal.ZERO)
-//                .stockAccountCreatedAt(LocalDateTime.now())
-//                .dandwAcId(dandwac)
-//                .build();
-//
-//        // 4. 저장
-//        StockAccount savedAccount = stockAccountRepository.save(stockAccount);
-//
-//        return convertToDTO(savedAccount);
-//    }
 
     @Override
     @Transactional

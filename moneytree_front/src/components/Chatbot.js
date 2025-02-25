@@ -119,10 +119,7 @@ function Chatbot() {
         body: JSON.stringify({ message }),
       });
 
-      setMessages((prev) => [
-        ...prev,
-        { role: 'bot', type: 'text', content: data.response },
-      ]);
+
 
       const data = await res.json();
       console.log('백엔드에서 받은 데이터', data);
@@ -343,6 +340,12 @@ function Chatbot() {
                       alt="이미지"
                       style={{ maxWidth: '100%', height: 'auto' }}
                     />
+                  ) : msg.type === 'redirectUrl' ? (
+                    // 3) url이 있는 경우
+                    <div>
+                      이동할 주소: {msg.redirectUrl}
+                      {/* 단순 표시 or <a href={msg.redirectUrl}>링크</a> 등 */}
+                    </div>
                   ) : (
                     <ReactMarkdown
                       components={{

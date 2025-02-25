@@ -94,18 +94,18 @@ public class MemberSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-//    // ─────────────────────────────────────────────────────
 //// 아래 WebSecurityCustomizer 빈은 기존 설정을 수정하지 않고 정적 리소스에 대해
 //// 보안 필터가 적용되지 않도록 추가하는 부분입니다.
 //// 절대 다른 부분을 수정하지 말고 추가만 해주세요.
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring()
-//                .requestMatchers("/**/*.html",
-//                        "/favicon.ico", "/css/**", "/js/**", "/images/**");
-//    }
-//// ─────────────────────────────────────────────────────
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+// 정적 자원만 무시 (템플릿은 포함하지 않음)
+        return (web) -> web.ignoring()
+
+                .requestMatchers("/favicon.ico",
+                        "/css/**", "/js/**", "/images/**");
+    }
+////
 
 
     /**

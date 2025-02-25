@@ -100,19 +100,6 @@ const StockAPI = {
 
   // --------------------------------- 주식 계좌 관련 ---------------------------------
 
-  // 주식 계좌 생성
-  // createStockAccount: async (memberId) => {
-  //   try {
-  //     const response = await axios.post(`${STOCK_TRADING_API_BASE_URL}/account-create`, null, {
-  //       params: { dandwAcId: memberId }  // memberId를 직접 사용
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error('Error creating stock account:', error);
-  //     throw error;
-  //   }
-  // },
-
   createStockAccount: async () => {
     try {
       const response = await jwtAxios.post(`${STOCK_TRADING_API_BASE_URL}/account-create`);

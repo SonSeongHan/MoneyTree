@@ -1,35 +1,46 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../../css/home.css";
 import "../../css/recommends/Stock.css";
 import "../../css/recommends/Fund.css";
-import SpendingDonutChart from "../../SpendingDonutChart";
 import homeman from "../../image/homeman.png";
 import news1 from "../../image/news1.jpg";
 import news2 from "../../image/news2.jpg";
 import news3 from "../../image/news3.jpg";
+import mainprom1 from "../../image/mainprom1.JPG"
+import mainprom2 from "../../image/mainprom2.JPG"
+import mainprom3 from "../../image/mainprom3.JPG"
+import mainprom4 from "../../image/mainprom4.JPG"
+import mainprom5 from "../../image/mainprom5.JPG"
+
+
 import { getCookie } from "../../util/cookieUtil";
 import DepositAPI from "../../api/DepositAPI";
 import SavingAPI from "../../api/SavingAPI";
-import StockAPI from "../../api/StockAPI";
 import FundAPI from "../../api/FundAPI";
-import TransactionHistoryAPI from "../../api/TransactionHistoryAPI";
 
-/** 날짜로 진행도 계산 (퍼센트) */
+// 주식, 펀드 컴포넌트
+import Stock from "../../components/recommends/Stock";
+import Fund from "../../components/recommends/Fund";
+
+
+/** 시작일과 종료일을 기준으로 진행도를 계산 (0~100%) */
 function getProgressRate(startDateStr, endDateStr) {
     const startDate = new Date(startDateStr);
     const endDate = new Date(endDateStr);
     const now = new Date();
-    const total = endDate - startDate;
+    const totalDuration = endDate - startDate;
     const passed = now - startDate;
-    if (total <= 0) return 0;
-    let progress = Math.floor((passed / total) * 100);
+
+    if (totalDuration <= 0) return 0;
+    let progress = Math.floor((passed / totalDuration) * 100);
     if (progress < 0) progress = 0;
     if (progress > 100) progress = 100;
     return progress;
 }
 
 function Home() {
+    // 회원 관련 및 예금/적금
     const [membershipType, setMembershipType] = useState("none");
     const [userName, setUserName] = useState("손님");
     const [depositAccounts, setDepositAccounts] = useState([]);
@@ -39,38 +50,18 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // 주식/펀드 관련
-    const [displayStocks, setDisplayStocks] = useState([]);
-    const [stockLoading, setStockLoading] = useState(false);
-    const [stockError, setStockError] = useState(null);
-    const [expandedStockId, setExpandedStockId] = useState(null);
-
-    const [funds, setFunds] = useState([]);
-    const [fundLoading, setFundLoading] = useState(false);
-    const [fundError, setFundError] = useState(null);
-    const [expandedFundId, setExpandedFundId] = useState(null);
-    const [fundDetail, setFundDetail] = useState(null);
-
-    // 탭 전환 (주식/펀드)
+    // 주식/펀드 탭
     const [currentTab, setCurrentTab] = useState("stock");
 
-    // 소비내역
-    const [monthlySpending, setMonthlySpending] = useState(0);
-    const [spendingDetails, setSpendingDetails] = useState([]);
-
-    // 차트에 넘길 데이터
-    const chartData = spendingDetails.map((item) => ({
-        name: item.category,
-        value: item.amount,
-    }));
-
-    // 추천 슬라이드
+    // 추천 슬라이드 (예금/적금)
     const [topDeposits, setTopDeposits] = useState([]);
     const [topSavings, setTopSavings] = useState([]);
     const [recommendedPage, setRecommendedPage] = useState(0);
+
+    // 내가 가입한 예금/적금 슬라이더
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    // 1) 쿠키 확인 & 예금/적금 조회
+    // 1) 쿠키 확인 및 예금/적금 조회
     useEffect(() => {
         const memberCookie = getCookie("member");
         if (memberCookie) {
@@ -88,7 +79,7 @@ function Home() {
                             SavingAPI.getAllSavingProducts(),
                         ]);
 
-                    // 실제 가입 계좌
+                    // (예금) 실제 가입 계좌
                     setDepositAccounts(depositAccRes.accounts || []);
                     // 예금 상품 매핑
                     const depMap = {};
@@ -97,7 +88,7 @@ function Home() {
                     });
                     setDepositProducts(depMap);
 
-                    // 실제 가입 계좌
+                    // (적금) 실제 가입 계좌
                     setSavingAccounts(savingAccRes.accounts || []);
                     // 적금 상품 매핑
                     const savMap = {};
@@ -113,13 +104,13 @@ function Home() {
             };
             fetchData();
         } else {
-            // 비회원
+            // 비회원 처리
             setUserName("손님");
             setMembershipType("none");
         }
     }, []);
 
-    // 2) 인기 예금/적금 4개
+    // 2) 인기 예금/적금 4개 조회
     useEffect(() => {
         const fetchTopDeposits = async () => {
             try {
@@ -139,6 +130,31 @@ function Home() {
         };
         fetchTopSavings();
     }, []);
+
+    // 펀드 페이지 당 표시개수 수정
+    useEffect(() => {
+        const originalGetFundsByPage = FundAPI.getFundsByPage;
+        FundAPI.getFundsByPage = (page, limit) => {
+            return originalGetFundsByPage(page, 10);
+        };
+    }, []);
+
+    const promoData = [
+        {
+            category: "정기결제",
+            title: "잊기 쉬운 생활요금 납부",
+            description: "자동납부로 편리하게 이용하세요.",
+            icon: "📅🔔", // 캘린더 + 알림 아이콘
+        },
+        {
+            category: "자동차",
+            title: "차 살 때 더 좋은 혜택",
+            description: "신차/중고차 구매 계획이 있으시다면",
+            icon: "🚗", // 자동차 아이콘
+        },
+    ];
+
+
 
     // 슬라이드용 (예금/적금 통합)
     const combinedAccounts = [
@@ -162,129 +178,8 @@ function Home() {
         if (recommendedPage < 1) setRecommendedPage(recommendedPage + 1);
     };
 
-    // 3) 주식 10개 & 펀드 10개
-    const fetchStocks = useCallback(async () => {
-        try {
-            setStockLoading(true);
-            setStockError(null);
-            const data = await StockAPI.getStocksByPage(1, 10);
-            setDisplayStocks(data.slice(0, 10));
-        } catch (err) {
-            console.error("Error fetching stocks:", err);
-            setStockError("주식 데이터를 가져오는 중 문제가 발생했습니다.");
-        } finally {
-            setStockLoading(false);
-        }
-    }, []);
-
-    const toggleStockExpand = useCallback((stockId) => {
-        setExpandedStockId((prev) => (prev === stockId ? null : stockId));
-    }, []);
-
-    const fetchFunds = useCallback(async () => {
-        try {
-            setFundLoading(true);
-            setFundError(null);
-            const data = await FundAPI.getAllFunds();
-            setFunds(data.slice(0, 10));
-        } catch (err) {
-            console.error("Error fetching funds:", err);
-            setFundError("펀드 데이터를 가져오는 중 문제가 발생했습니다.");
-        } finally {
-            setFundLoading(false);
-        }
-    }, []);
-
-    const toggleFundExpand = useCallback(
-        async (fundId) => {
-            if (expandedFundId === fundId) {
-                setExpandedFundId(null);
-                setFundDetail(null);
-            } else {
-                try {
-                    const detail = await FundAPI.getFundById(fundId);
-                    setFundDetail(detail);
-                    setExpandedFundId(fundId);
-                } catch (err) {
-                    console.error("Error fetching fund details:", err);
-                }
-            }
-        },
-        [expandedFundId]
-    );
-
-    useEffect(() => {
-        fetchStocks();
-        fetchFunds();
-    }, [fetchStocks, fetchFunds]);
-
-    // 4) 소비내역
-    const memberCookie = getCookie("member");
-    const memberId = memberCookie ? memberCookie.memberId : null;
-
-    useEffect(() => {
-        if (memberId && membershipType === "FullMember") {
-            // 정회원만 실제 소비내역 가져온다 (예시)
-            async function fetchTransactions() {
-                try {
-                    const transactions = await TransactionHistoryAPI.getTransactionsForMember(memberId, 1);
-                    let totalSpending = 0;
-                    let categoryMap = {};
-
-                    transactions.forEach((tx) => {
-                        if (
-                            tx.transactionType === "송금" ||
-                            tx.transactionType === "식사" ||
-                            tx.transactionType === "취미" ||
-                            tx.transactionType === "병원" ||
-                            tx.transactionType === "교통" ||
-                            tx.transactionType === "기타"
-                        ) {
-                            const amount = Number(tx.amount);
-                            totalSpending += amount;
-                            const category = tx.transactionType;
-                            categoryMap[category] = (categoryMap[category] || 0) + amount;
-                        }
-                    });
-
-                    const details = Object.entries(categoryMap).map(([category, amount]) => ({
-                        category,
-                        amount,
-                        ratio: totalSpending > 0 ? ((amount / totalSpending) * 100).toFixed(2) : "0.00",
-                    }));
-
-                    setMonthlySpending(totalSpending);
-                    setSpendingDetails(details);
-                } catch (err) {
-                    console.error("Error fetching transaction histories", err);
-                }
-            }
-            fetchTransactions();
-        } else if (membershipType === "SimpleMember") {
-            // 간편회원은 가짜 데이터로 표시
-            setMonthlySpending(2806891); // 예시: 2,806,891원
-            setSpendingDetails([
-                { category: "식비", amount: 1500000 },
-                { category: "교통", amount: 500000 },
-                { category: "기타", amount: 806891 },
-            ]);
-        }
-    }, [memberId, membershipType]);
-
-    // 숫자/포맷 유틸
-    const toLocale = (num) => (num ? num.toLocaleString() : "");
-    const formatAmount = (amount) => {
-        if (!amount) return "-";
-        return (amount / 100000000).toFixed(1) + "억";
-    };
-    const formatPercentage = (val) => {
-        if (!val) return "-";
-        return (val * 100).toFixed(2) + "%";
-    };
-
-    /** (A) 가입상품(예금/적금) 섹션 렌더 */
+    /** (A) 가입상품(예금/적금) 섹션 렌더링 */
     function renderDepositSavingSection() {
-        // 정회원
         if (membershipType === "FullMember") {
             return (
                 <>
@@ -356,10 +251,6 @@ function Home() {
                                             );
                                         } else {
                                             const product = savingProducts[acc.savingProductId];
-                                            const progress = getProgressRate(
-                                                acc.savingStartDate,
-                                                acc.savingEndDate
-                                            );
                                             return (
                                                 <div
                                                     key={`saving-${acc.savingAccountNumber}`}
@@ -417,11 +308,8 @@ function Home() {
                 </>
             );
         }
-
-        // 간편회원(SimpleMember)일 경우
         return (
             <div className="placeholder-box" style={{ height: "200px", position: "relative" }}>
-                {/* 원하는 스타일로 크게 박스 + 플러스 기호 표시 */}
                 <div
                     style={{
                         width: "100%",
@@ -437,7 +325,6 @@ function Home() {
                 >
                     +
                 </div>
-                {/* 가운데 “계좌 개설 후 이용 가능합니다” 문구 */}
                 <div
                     style={{
                         position: "absolute",
@@ -446,55 +333,11 @@ function Home() {
                         transform: "translate(-50%, -50%)",
                         color: "#333",
                         fontWeight: "bold",
-
                         padding: "10px 20px",
                         borderRadius: "8px",
                     }}
                 >
                     계좌 개설 후 이용 가능합니다
-                </div>
-            </div>
-        );
-    }
-
-    /** (B) 이번달 소비내역 섹션 렌더 */
-    function renderSpendingSection() {
-        // 정회원
-        if (membershipType === "FullMember") {
-            return (
-                <div className="spending-content">
-                    <div className="pie-chart">
-                        <SpendingDonutChart data={chartData} total={monthlySpending} />
-                    </div>
-                </div>
-            );
-        }
-
-        // 간편회원
-        return (
-            <div className="spending-content" style={{ position: "relative" }}>
-                {/* 더미 차트 */}
-                <div className="pie-chart">
-                    <SpendingDonutChart data={chartData} total={monthlySpending} />
-                </div>
-
-                {/* 오버레이 문구 */}
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        background: "rgba(0, 0, 0, 0.4)",
-                        padding: "130px 560px",
-                        borderRadius: "8px",
-                        fontSize: "1.1rem",
-                        fontWeight: "bold",
-                        color: "#333",
-                        whiteSpace: "nowrap",
-                    }}
-                >
-                    <p>계좌 개설 후 이용 가능합니다</p>
                 </div>
             </div>
         );
@@ -509,23 +352,77 @@ function Home() {
                         안녕하세요 <span className="username">{userName}</span>님
                     </h2>
                     {loading && <p>로딩 중...</p>}
-
-                    {/* 정회원일 때만 에러 표시 */}
                     {membershipType === "FullMember" && error && (
                         <p style={{ color: "red" }}>{error}</p>
                     )}
-
-                    {/* (A) 가입상품(예금/적금) 영역 */}
                     {renderDepositSavingSection()}
                 </section>
 
-                {/* (2) 이번달 소비내역 섹션 */}
-                <section className="spending-section">
-                    <h3>이번달의 소비내역</h3>
-                    {renderSpendingSection()}
+                {/*
+                프로모션
+                */}
+                <section className="finance-promo-section">
+                    <div style={{display: "flex", justifyContent: "space-between"}}>
+
+                        {/* 왼쪽: 장기카드대출 */}
+                        <img
+                            src={mainprom1}
+                            alt="상품 이미지"
+                            style={{marginTop: "10px"}}
+                        />
+
+                        {/* 오른쪽: 10시 일일특가 */}
+
+                        <img
+                            src={mainprom2}
+                            alt="상품 이미지"
+                            style={{marginTop: "10px"}}
+                        />
+                    </div>
+
+
+                    {/* 아래 여러 프로모션 박스들 */}
+                    <div className="finance-promo-bottom">
+                        <div className="promo-box" style={{background: "#F3F6FB"}}>
+                            <img src={mainprom3} alt="피자 프로모션"/>
+
+                            <div style={{height:"70px"}}>
+                                <p>나무은행 카드로 피자먹자</p>
+                                <p>~ 2022.12.31</p>
+                            </div>
+                        </div>
+
+                        <div className="promo-box" style={{background: "#F3F6FB"}}>
+                            <img src={mainprom4} alt="자동차 캐시백"/>
+                            <div>
+                            <p>자동차 구매할 때 캐쉬백, 포인트 받아요</p>
+                            <p>~ 2022.12.31</p>
+                            </div>
+                        </div>
+
+                        <div className="promo-box" style={{background: "#F3F6FB"}}>
+                            <img src={mainprom5} alt="나무카드할부"/>
+                            <p>60까지 이자율 할인 오토 카드할부</p>
+                            <p>~ 2022.12.31</p>
+                        </div>
+                        <div className="promo-container">
+                            {promoData.map((item, index) => (
+                                <div key={index} className="promo-card">
+                                    {/* 아이콘 영역 */}
+                                    <div className="promo-icon">{item.icon}</div>
+                                    {/* 텍스트 영역 */}
+                                    <div className="promo-text">
+                                        <span className="promo-category">{item.category}</span>
+                                        <h3 className="promo-title">{item.title}</h3>
+                                        <p className="promo-description">{item.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </section>
 
-                {/* (3) 추천 상품 */}
+                {/* (3) 추천 상품 (예금/적금) */}
                 <section
                     className={
                         recommendedPage === 0
@@ -689,7 +586,7 @@ function Home() {
                     </div>
                 </section>
 
-                {/* (5) 주식 & 펀드 */}
+                {/* (5) 주식 & 펀드 섹션 */}
                 <div className="stock-bg">
                     <section className="stock-section">
                         <h3>주식 / 펀드 정보</h3>
@@ -715,226 +612,13 @@ function Home() {
                                 펀드
                             </label>
                         </div>
-
-                        {/* 주식 탭 */}
-                        {currentTab === "stock" && (
-                            <>
-                                {stockLoading && displayStocks.length === 0 && (
-                                    <p className="stock-loading-state">로딩 중입니다...</p>
-                                )}
-                                {stockError && <p className="stock-error-state">{stockError}</p>}
-                                {!stockLoading && !stockError && displayStocks.length === 0 && (
-                                    <p className="stock-empty-state">
-                                        표시할 주식 상품이 없습니다.
-                                    </p>
-                                )}
-
-                                <div className="stock-list">
-                                    {displayStocks.map((stock, index) => (
-                                        <div
-                                            key={stock.stockProductId}
-                                            className="stock-item-container"
-                                        >
-                                            <div className="stock-item">
-                                                <div className="stock-rank">{index + 1}</div>
-                                                <div className="stock-name">{stock.stockProductName}</div>
-                                                <div className="stock-price">
-                                                    {toLocale(stock.stockClosingPrice)} 원
-                                                </div>
-                                                <div
-                                                    className={`stock-change ${
-                                                        stock.stockFluctuationRate >= 0
-                                                            ? "stock-positive"
-                                                            : "stock-negative"
-                                                    }`}
-                                                >
-                                                    {stock.stockFluctuationRate >= 0 ? "+" : ""}
-                                                    {stock.stockFluctuationRate.toFixed(2)}%
-                                                </div>
-                                                <button
-                                                    className={`stock-expand-btn ${
-                                                        expandedStockId === stock.stockProductId
-                                                            ? "expanded"
-                                                            : ""
-                                                    }`}
-                                                    onClick={() => toggleStockExpand(stock.stockProductId)}
-                                                >
-                                                    {expandedStockId === stock.stockProductId ? "-" : "+"}
-                                                </button>
-                                            </div>
-
-                                            {expandedStockId === stock.stockProductId && (
-                                                <div className="stock-details">
-                                                    <div className="stock-details-grid">
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">시장</span>
-                                                            <span className="stock-detail-value">
-                                {stock.stockMarketCategory}
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">시가</span>
-                                                            <span className="stock-detail-value">
-                                {toLocale(stock.stockOpeningPrice)} 원
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">고가</span>
-                                                            <span className="stock-detail-value">
-                                {toLocale(stock.stockHighestPrice)} 원
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">저가</span>
-                                                            <span className="stock-detail-value">
-                                {toLocale(stock.stockLowestPrice)} 원
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">거래량</span>
-                                                            <span className="stock-detail-value">
-                                {toLocale(stock.stockTradingVolume)}
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">거래대금</span>
-                                                            <span className="stock-detail-value">
-                                {toLocale(stock.stockTradingValue)} 원
-                              </span>
-                                                        </div>
-                                                        <div className="stock-detail-item">
-                                                            <span className="stock-detail-label">시가총액</span>
-                                                            <span className="stock-detail-value">
-                                {(
-                                    stock.stockMarketCapitalization / 100000000
-                                )
-                                    .toFixed(0)
-                                    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                                                억원
-                              </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {/* 펀드 탭 */}
-                        {currentTab === "fund" && (
-                            <>
-                                {fundLoading && funds.length === 0 && (
-                                    <p className="fund-loading-state">로딩 중입니다...</p>
-                                )}
-                                {fundError && <p className="fund-error-state">{fundError}</p>}
-                                {!fundLoading && !fundError && funds.length === 0 && (
-                                    <p className="fund-empty-state">
-                                        표시할 펀드 상품이 없습니다.
-                                    </p>
-                                )}
-
-                                <div className="fund-list">
-                                    {funds.map((fund, index) => (
-                                        <div key={fund.fundProductId} className="fund-item-container">
-                                            <div className="fund-item">
-                                                <div className="fund-item-left">
-                                                    <div className="fund-item-icon">🏢</div>
-                                                    <div className="fund-item-info">
-                                                        <div className="fund-item-title">
-                                                            {fund.fundProductName}
-                                                        </div>
-                                                        <div className="fund-item-subtitle">
-                                                            {fund.fundProductManager}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="fund-item-right">
-                                                    <div className="fund-item-chart">
-                                                        <div className="placeholder-chart"></div>
-                                                    </div>
-                                                    <div className="fund-item-numbers">
-                                                        <div className="fund-item-amount">
-                                                            {formatAmount(fund.fundProductTotalAmount)}억
-                                                        </div>
-                                                        <div className="fund-item-yield">+2.67%</div>
-                                                    </div>
-                                                    <button
-                                                        className={`fund-expand-button ${
-                                                            expandedFundId === fund.fundProductId
-                                                                ? "expanded"
-                                                                : ""
-                                                        }`}
-                                                        onClick={() => toggleFundExpand(fund.fundProductId)}
-                                                    >
-                                                        {expandedFundId === fund.fundProductId ? "-" : "+"}
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {expandedFundId === fund.fundProductId && fundDetail && (
-                                                <div className="fund-item-details">
-                                                    <div className="details-section">
-                                                        <h3>펀드 상세 정보</h3>
-                                                        <div className="details-grid">
-                                                            <div className="details-item">
-                                                                <span className="details-label">펀드 유형</span>
-                                                                <span className="details-value">
-                                  {fundDetail.fundProductType}
-                                </span>
-                                                            </div>
-                                                            <div className="details-item">
-                                                                <span className="details-label">설정 연도</span>
-                                                                <span className="details-value">
-                                  {fundDetail.fundProductYear}
-                                </span>
-                                                            </div>
-                                                            <div className="details-item">
-                                                                <span className="details-label">만기일</span>
-                                                                <span className="details-value">
-                                  {fundDetail.fundProductExpiration}
-                                </span>
-                                                            </div>
-                                                            <div className="details-item">
-                                                                <span className="details-label">총 펀드 규모</span>
-                                                                <span className="details-value">
-                                  {formatAmount(
-                                      fundDetail.fundProductTotalAmount
-                                  )} 억 원
-                                </span>
-                                                            </div>
-                                                            <div className="details-item">
-                                                                <span className="details-label">운용 보수</span>
-                                                                <span className="details-value">
-                                  {formatPercentage(
-                                      fundDetail.fundProductManagementFee
-                                  )}
-                                </span>
-                                                            </div>
-                                                            <div className="details-item">
-                                                                <span className="details-label">환매 수수료</span>
-                                                                <span className="details-value">
-                                  {formatPercentage(
-                                      fundDetail.fundProductRedemptionFee
-                                  )}
-                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        className="join-button"
-                                                        onClick={() => alert("펀드 가입하기!")}
-                                                    >
-                                                        가입하기
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
+                        <div className="stock-list">
+                            {currentTab === "stock" ? (
+                                <Stock showFilter={false} limit={10} />
+                            ) : (
+                                <Fund showFilter={false} limit={10} />
+                            )}
+                        </div>
                         <div
                             style={{
                                 textAlign: "center",
@@ -942,7 +626,7 @@ function Home() {
                                 marginBottom: "10px",
                             }}
                         >
-                            <Link to={"/products/fund-stock"}>
+                            <Link to="/products/fund-stock">
                                 <button className="fund-add-bt">더 보기 (10/30) +</button>
                             </Link>
                         </div>

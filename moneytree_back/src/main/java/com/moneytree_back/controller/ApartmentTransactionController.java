@@ -6,11 +6,14 @@ import com.moneytree_back.dto.ApartmentTransactionRequestDTO;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.service.ApartmentTransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -72,10 +75,11 @@ public class ApartmentTransactionController {
       throw new RuntimeException("매수자만 인증 문서를 생성할 수 있습니다.");
     }
     model.addAttribute("transaction", transaction);
-    return "buyer-auth";  // src/main/resources/templates/buyer-auth.html
+    return "/buyer-auth";  // src/main/resources/templates/buyer-auth.html
   }
 
   // HTML 인증 문서 반환 (매도자용)
+// HTML 인증 문서 반환 (매도자용)
   @GetMapping("/seller-auth-html/{transactionId}")
   public String getSellerAuthHtml(@RequestParam("memberId") String memberId,
                                   @PathVariable Long transactionId,
@@ -85,8 +89,21 @@ public class ApartmentTransactionController {
       throw new RuntimeException("매도자만 인증 문서를 생성할 수 있습니다.");
     }
     model.addAttribute("transaction", transaction);
-    return "seller-auth";  // src/main/resources/templates/seller-auth.html
+    return "seller-auth";  // 단순 뷰 이름 반환 (앞에 슬래시 없음)
   }
+
+
+
+  // 매도자 인증문서 절대경로 추가중.
+  @Configuration
+  public class MvcConfig implements WebMvcConfigurer {
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+      registry.addViewController("/seller-auth-view").setViewName("seller-auth");
+    }
+  }
+
+
 
   // 서명(동의) 완료 엔드포인트 (JSON 반환)
   @PostMapping("/consent/{transactionId}")

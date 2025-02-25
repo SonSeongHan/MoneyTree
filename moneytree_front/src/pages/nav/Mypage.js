@@ -10,6 +10,7 @@ import MySavingDetail from '../../components/recommends/MySavingDetail';
 import MyFundDetail from '../../components/recommends/MyFundDetail';
 import '../../css/MyPage.css';
 import StockTradeModal from '../../components/StockTradeModal';
+import AssetDistributionChart from '../../components/AssetDistributionChart';
 
 const Mypage = () => {
     const [activeTab, setActiveTab] = useState('deposit');
@@ -440,6 +441,24 @@ const Mypage = () => {
               productDetails={selectedProduct}
             />
           )}
+
+          <div className="asset-distribution-section mt-8">
+              <h2 className="mypage-title">내 자산 분포 현황</h2>
+
+              {loading ? (
+                <div className="text-center py-10">자산 정보 로딩 중...</div>
+              ) : error ? (
+                <div className="text-center py-10 text-red-500">{error}</div>
+              ) : (
+                <AssetDistributionChart
+                  depositAccounts={depositAccounts}
+                  savingAccounts={savingAccounts}
+                  fundAccounts={fundAccounts}
+                  stockHoldings={stockHoldings}
+                  stockAccount={stockAccount}
+                />
+              )}
+          </div>
       </div>
     );
 };

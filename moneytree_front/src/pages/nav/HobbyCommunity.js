@@ -1,4 +1,3 @@
-// HobbyCommunityList.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { fetchFile, fetchHobbyCommunity } from '../../api/CommunityApi';
