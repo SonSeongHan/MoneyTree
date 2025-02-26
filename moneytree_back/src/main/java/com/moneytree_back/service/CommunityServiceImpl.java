@@ -2,25 +2,26 @@ package com.moneytree_back.service;
 
 import com.moneytree_back.domain.Community;
 import com.moneytree_back.domain.CommunityImage;
-import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.PostType;
+import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.dto.CommunityDTO;
 import com.moneytree_back.repository.CommunityImageRepository;
+import com.moneytree_back.repository.CommunityRepliesRepository;
 import com.moneytree_back.repository.CommunityRepository;
 import com.moneytree_back.repository.MemberRepository;
 import com.moneytree_back.util.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.log4j.Log4j2;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -31,69 +32,77 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityImageRepository communityImageRepository;
     private final CustomFileUtil customFileUtil;
 
+    // CommunityRepliesRepository 추가
+    @Autowired
+    private final CommunityRepliesRepository communityRepliesRepository;
+
     @Override
-    public Page<CommunityDTO> getPagedAllCommunity(PostType postType,Pageable pageable) {
+    public Page<CommunityDTO> getPagedAllCommunity(PostType postType, String category, Pageable pageable) {
         Page<Community> communities;
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
-
-
-        if(postType == null){
-            communities = communityRepository.findAll(sortedPageable);
-        }
-        else{
-            communities = communityRepository.findAllByPostType(postType, sortedPageable);
+        // 카테고리가 주어지면 해당 카테고리로 필터링하여 조회
+        if (category != null && !category.equals("전체보기")) {
+            communities = communityRepository.findAllByPostTypeAndCategory(postType, category, pageable);
+        } else {
+            // 카테고리가 '전체보기'일 때는, postType만 기준으로 조회
+            communities = communityRepository.findAllByPostType(postType, pageable);
         }
 
-        return communities.map(community -> new CommunityDTO(
-                community.getPostId(),
-                community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
-                community.getPostType().name(),
-                community.getTitle(),
-                community.getContent(),
-                community.getImages().stream()
-                        .map(CommunityImage::getImageUrl)
-                        .collect(Collectors.toList()),
-                community.getMembershipType() != null ? community.getMembershipType().name() : null,
-                community.getCreatedAt(),
-                community.getUpdatedAt(),
-                null
-        ));
+        // 각 게시글에 대해 댓글 개수 계산 후 DTO 반환
+        return communities.map(community -> {
+            // 댓글 개수 계산
+            // 댓글 수 계산 부분
+            long commentCount = communityRepliesRepository.countByCommunityPostId(community.getPostId());
+
+
+            return new CommunityDTO(
+                    community.getPostId(),
+                    community.getMember().getMemberId(),
+                    community.getPostType().name(),
+                    community.getTitle(),
+                    community.getContent(),
+                    community.getImages().stream()
+                            .map(CommunityImage::getImageUrl)
+                            .collect(Collectors.toList()),
+                    community.getMembershipType().name(),
+                    community.getCreatedAt(),
+                    community.getUpdatedAt(),
+                    community.getCategory(),
+                    (int) commentCount  // 댓글 개수 추가
+            );
+        });
     }
 
     @Override
-    public CommunityDTO getCommunityById(Long postId){
+    public CommunityDTO getCommunityById(Long postId) {
+        Community community = communityRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("해당 커뮤니티 글을 찾을 수 없습니다."));
 
-        Community community = communityRepository.findById(postId).orElseThrow(()-> new RuntimeException("해당 커뮤니티 글을 찾을 수 없습니다."));
+        // 댓글 개수 계산
+        long commentCount = communityRepliesRepository.countByCommunityPostId(postId);
 
-        List<String> imageUrls = community.getImages().stream()
-                .map(CommunityImage::getImageUrl)
-                .collect(Collectors.toList());
-
-        log.info("해당 게시글의 기존 이미지 리스트:{}", imageUrls);
-
-        return new CommunityDTO(
-                community.getPostId(),
-                community.getMember() != null ? community.getMember().getMemberId() : null, // Member ID
-                community.getPostType().name(),
-                community.getTitle(),
-                community.getContent(),
-                community.getImages().stream()
+        return CommunityDTO.builder()
+                .postId(community.getPostId())
+                .memberId(community.getMember() != null ? community.getMember().getMemberId() : null)
+                .postType(community.getPostType().name())
+                .title(community.getTitle())
+                .content(community.getContent())
+                .imageUrls(community.getImages().stream()
                         .map(CommunityImage::getImageUrl)
-                        .collect(Collectors.toList()),
-                community.getMembershipType() != null ? community.getMembershipType().name() : null,
-                community.getCreatedAt(),
-                community.getUpdatedAt(),
-                null
-        );
-
+                        .collect(Collectors.toList()))
+                .membershipType(community.getMembershipType() != null ? community.getMembershipType().name() : null)
+                .createdAt(community.getCreatedAt())
+                .updatedAt(community.getUpdatedAt())
+                .deletedImages(null)
+                .category(community.getCategory())  // 카테고리 추가
+                .commentCount((int) commentCount)  // 댓글 개수 추가
+                .build();
     }
 
-    @Override
-    public CommunityDTO saveCommunity(CommunityDTO communityDTO,List<MultipartFile> files) {
 
+
+    @Override
+    public CommunityDTO saveCommunity(CommunityDTO communityDTO, List<MultipartFile> files) {
         if (communityDTO.getMemberId() == null || communityDTO.getMemberId().isEmpty()) {
             throw new IllegalArgumentException("Member ID is missing.");
         }
@@ -109,12 +118,15 @@ public class CommunityServiceImpl implements CommunityService {
         community.setContent(communityDTO.getContent());
         community.setMembershipType(member.getMembershipType());
         community.setCreatedAt(communityDTO.getCreatedAt());
+        community.setCategory(communityDTO.getCategory());  // 카테고리 설정
 
-        log.info("멤버쉽:{}",member.getMembershipType().name());
+        communityRepository.save(community);
+
+        log.info("멤버쉽:{}", member.getMembershipType().name());
 
         Community savedCommunity = communityRepository.save(community);
 
-        if(files != null && !files.isEmpty()){
+        if (files != null && !files.isEmpty()) {
             List<String> savedFileNames = customFileUtil.saveFiles(files);
             List<CommunityImage> images = savedFileNames.stream()
                     .map(fileName -> CommunityImage.builder()
@@ -123,22 +135,25 @@ public class CommunityServiceImpl implements CommunityService {
                             .build())
                     .collect(Collectors.toList());
             communityImageRepository.saveAll(images);
-
         }
-        log.info("저장하려는 정보들: {}",savedCommunity);
 
-        return new CommunityDTO(
-                savedCommunity.getPostId(),
-                savedCommunity.getMember().getMemberId(),
-                savedCommunity.getPostType().name(),
-                savedCommunity.getTitle(),
-                savedCommunity.getContent(),
-                savedCommunity.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
-                savedCommunity.getMembershipType().name(),
-                savedCommunity.getCreatedAt(),
-                savedCommunity.getUpdatedAt(),
-                null
-        );
+        log.info("저장하려는 정보들: {}", savedCommunity);
+
+        return CommunityDTO.builder()
+                .postId(savedCommunity.getPostId())
+                .memberId(savedCommunity.getMember().getMemberId())
+                .postType(savedCommunity.getPostType().name())
+                .title(savedCommunity.getTitle())
+                .content(savedCommunity.getContent())
+                .imageUrls(savedCommunity.getImages().stream()
+                        .map(CommunityImage::getImageUrl)
+                        .collect(Collectors.toList()))
+                .membershipType(savedCommunity.getMembershipType().name())
+                .createdAt(savedCommunity.getCreatedAt())
+                .updatedAt(savedCommunity.getUpdatedAt())
+                .deletedImages(null)
+                .category(savedCommunity.getCategory())  // 카테고리 추가
+                .build();
     }
 
     @Override
@@ -203,8 +218,6 @@ public class CommunityServiceImpl implements CommunityService {
         communityRepository.save(community);
     }
 
-
-
     @Override
     public void deleteCommunity(Long postId) {
         //단순 삭제
@@ -239,4 +252,60 @@ public class CommunityServiceImpl implements CommunityService {
         log.info("게시글 삭제 완료");
     }
 
+    @Override
+    public Page<CommunityDTO> getPagedAllCommunityByCommentCountDesc(PostType postType, Pageable pageable) {
+        Page<Community> communities = communityRepository.findAllByPostTypeOrderByCommentCountDesc(postType, pageable);
+        return communities.map(community -> new CommunityDTO(
+                community.getPostId(),
+                community.getMember().getMemberId(),
+                community.getPostType().name(),
+                community.getTitle(),
+                community.getContent(),
+                community.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
+                community.getMembershipType().name(),
+                community.getCreatedAt(),
+                community.getUpdatedAt(),
+                community.getCategory(),
+                community.getCommentCount() // 댓글 수 추가
+        ));
+    }
+
+    // 댓글 적은 순으로 게시글 조회
+    @Override
+    public Page<CommunityDTO> getPagedAllCommunityByCommentCountAsc(PostType postType, Pageable pageable) {
+        Page<Community> communities = communityRepository.findAllByPostTypeOrderByCommentCountAsc(postType, pageable);
+        return communities.map(community -> new CommunityDTO(
+                community.getPostId(),
+                community.getMember().getMemberId(),
+                community.getPostType().name(),
+                community.getTitle(),
+                community.getContent(),
+                community.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
+                community.getMembershipType().name(),
+                community.getCreatedAt(),
+                community.getUpdatedAt(),
+                community.getCategory(),
+                community.getCommentCount() // 댓글 수 추가
+        ));
+    }
+
+    // 기본적으로 댓글 수 상관없이 모든 게시글 반환
+    @Override
+    public Page<CommunityDTO> getPagedAllCommunityByPostType(PostType postType, Pageable pageable) {
+        Page<Community> communities = communityRepository.findAllByPostType(postType, pageable);
+        return communities.map(community -> new CommunityDTO(
+                community.getPostId(),
+                community.getMember().getMemberId(),
+                community.getPostType().name(),
+                community.getTitle(),
+                community.getContent(),
+                community.getImages().stream().map(CommunityImage::getImageUrl).collect(Collectors.toList()),
+                community.getMembershipType().name(),
+                community.getCreatedAt(),
+                community.getUpdatedAt(),
+                community.getCategory(),
+                community.getCommentCount() // 댓글 수 추가
+        ));
+    }
 }
+

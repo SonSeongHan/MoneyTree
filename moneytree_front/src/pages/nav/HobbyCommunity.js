@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { fetchFile, fetchHobbyCommunity } from '../../api/CommunityApi';
-import jwtAxios from '../../util/jwtUtil';
 import '../../css/hobby/HobbyCommunity.css';
 
 function useQuery() {
@@ -9,16 +8,12 @@ function useQuery() {
 }
 
 const HobbyCommunityList = () => {
-  // 쿼리 파라미터
   const query = useQuery();
   const initialPage = parseInt(query.get('page') || '0', 10);
   const initialCategory = query.get('category') || '전체보기';
 
-  // 만약 서버에서 검색 지원 안한다면, searchField와 searchKeyword는
-  // 단순 클라이언트 필터링용 상태로만 사용
   const initialSearchField = 'titleContent';
   const initialSearchKeyword = '';
-
   const initialCommentFilter = query.get('commentFilter') || '';
 
   const [posts, setPosts] = useState([]);
@@ -39,37 +34,45 @@ const HobbyCommunityList = () => {
     const params = new URLSearchParams();
     params.set('page', page);
     params.set('category', filterCategory);
-    // 프론트에서만 필터링할거라면 이 둘은 굳이 파라미터로 넘기지 않아도 됨
     params.set('commentFilter', commentFilter);
 
     window.history.replaceState(null, '', `?${params.toString()}`);
   };
-
-  // 전체 글 또는 전체+카테고리 글만 받아오는 함수 (검색 제외)
   const fetchPostsFromServer = async () => {
     setLoading(true);
     try {
-      const data = await fetchHobbyCommunity(page, 10, filterCategory);
+      // 전체보기일 때도 commentFilter를 포함하여 요청
+      const data = await fetchHobbyCommunity(0, 999, filterCategory, commentFilter); // 999는 전체 게시글 수
       // 썸네일 로딩
       const postsWithThumbnails = await Promise.all(
-          data.content.map(async (post) => {
-            if (post.imageUrls && post.imageUrls.length > 0) {
-              try {
-                const thumbnailUrl = await fetchFile(`s_${post.imageUrls[0]}`);
-                return { ...post, thumbnailUrl };
-              } catch (fileError) {
-                console.error('썸네일 로딩 오류:', fileError);
-                return post;
-              }
+        data.content.map(async (post) => {
+          if (post.imageUrls && post.imageUrls.length > 0) {
+            try {
+              const thumbnailUrl = await fetchFile(`s_${post.imageUrls[0]}`);
+              return { ...post, thumbnailUrl };
+            } catch (fileError) {
+              console.error('썸네일 로딩 오류:', fileError);
+              return post;
             }
-            return post;
-          })
+          }
+          return post;
+        }),
       );
 
+      // 댓글 수 기준으로 필터링
+      const finalPosts = sortByComments(postsWithThumbnails);
+
+      // 페이지네이션을 위한 전체 결과 수
+      setPosts(finalPosts);
+      setTotalPages(Math.ceil(finalPosts.length / 10)); // 10개씩 나누어서 페이지 수 계산
+      setTotalResults(finalPosts.length); // 전체 게시글 수
+
+      updateQueryParams(); // 쿼리 파라미터 갱신
+
       return {
-        posts: postsWithThumbnails,
-        totalPages: data.totalPages,
-        totalResults: data.totalElements,
+        posts: finalPosts,
+        totalPages: Math.ceil(finalPosts.length / 10),
+        totalResults: finalPosts.length,
       };
     } catch (error) {
       console.error('게시글 로딩 오류:', error);
@@ -84,14 +87,12 @@ const HobbyCommunityList = () => {
     }
   };
 
-  // 검색어를 기반으로 프론트에서 필터링
+  // 검색어로 프론트에서 필터링
   const filterPosts = (allPosts) => {
     if (!searchKeyword.trim()) return allPosts;
 
-    // 필터링 기준
-    // searchField가 'title', 'content', 'titleContent', 'author' 등에 따라 조건 분기
     return allPosts.filter((post) => {
-      const { title, content, author } = post;
+      const { title, content, memberId } = post; // 여기서 `memberId`를 가져옵니다.
       const keyword = searchKeyword.toLowerCase();
 
       switch (searchField) {
@@ -100,51 +101,46 @@ const HobbyCommunityList = () => {
         case 'content':
           return content?.toLowerCase().includes(keyword);
         case 'author':
-          return author?.toLowerCase().includes(keyword);
+          return memberId?.toLowerCase().includes(keyword); // 작성자 아이디로 검색
         case 'titleContent':
         default:
-          return (
-              title?.toLowerCase().includes(keyword) ||
-              content?.toLowerCase().includes(keyword)
-          );
+          return title?.toLowerCase().includes(keyword) || content?.toLowerCase().includes(keyword);
       }
     });
   };
 
-  // 댓글 필터(front-end 예시) - 간단히 정렬만 하는 예시
+  // 댓글 필터(정렬)
   const sortByComments = (postsData) => {
     if (commentFilter === 'few') {
-      // 댓글 적은 순
-      return [...postsData].sort(
-          (a, b) => (a.comments?.length || 0) - (b.comments?.length || 0)
-      );
+      return [...postsData].sort((a, b) => (a.commentCount || 0) - (b.commentCount || 0));
     }
     if (commentFilter === 'many') {
-      // 댓글 많은 순
-      return [...postsData].sort(
-          (a, b) => (b.comments?.length || 0) - (a.comments?.length || 0)
-      );
+      return [...postsData].sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0));
     }
     return postsData;
   };
 
-  // 게시글 불러오기
   const fetchPosts = async () => {
-    const { posts: allPosts, totalPages, totalResults } = await fetchPostsFromServer();
+    // 1. 서버에서 게시글 불러오기
+    const { posts: allPosts } = await fetchPostsFromServer();
 
-    // 1) 검색어 필터
+    // 2. 검색어 필터링 (제목, 내용, 작성자)
     const searchedPosts = filterPosts(allPosts);
 
-    // 2) 댓글 필터(정렬)
-    const finalPosts = sortByComments(searchedPosts);
+    // 3. 댓글 필터링 (댓글 수 기준으로 정렬)
+    const sortedPosts = sortByComments(searchedPosts);
 
-    setPosts(finalPosts);
-    setTotalPages(totalPages);
-    // 주의: 검색 후 실제 totalPages, totalResults가 달라질 수 있으므로
-    // 프론트 필터링일 경우 페이지네이션 로직을 직접 재구성해야 함
-    setTotalResults(finalPosts.length);
+    // 4. 페이지네이션 계산: 10개씩 잘라서 표시
+    const startIndex = page * 10;
+    const endIndex = Math.min(startIndex + 10, sortedPosts.length);
+    const pagedPosts = sortedPosts.slice(startIndex, endIndex);
 
-    updateQueryParams();
+    // 5. 페이지네이션 관련 정보 업데이트
+    setPosts(pagedPosts); // 현재 페이지에 해당하는 게시글만 표시
+    setTotalPages(Math.ceil(sortedPosts.length / 10)); // 전체 페이지 수
+    setTotalResults(sortedPosts.length); // 전체 게시글 개수
+
+    updateQueryParams(); // 쿼리 파라미터 갱신
   };
 
   useEffect(() => {
@@ -153,7 +149,6 @@ const HobbyCommunityList = () => {
   }, [page, filterCategory, searchField, searchKeyword, commentFilter]);
 
   // 페이지네이션 계산
-  // (주의) 프론트에서 필터링 시, 전체 게시글 개수가 달라지면 페이지네이션 로직도 직접 수정해야 함
   const blockSize = 10;
   const currentBlock = Math.floor(page / blockSize);
   const startPage = currentBlock * blockSize;
@@ -189,170 +184,174 @@ const HobbyCommunityList = () => {
   // 검색
   const handleSearch = () => {
     setPage(0);
-    fetchPosts(); // 프론트 필터링도 실행
+    fetchPosts();
   };
 
   // 새 글 작성 버튼
   const handleWrite = () => {
     navigate('/community/hobby/add');
   };
-
   const searchFieldOptions = [
     { value: 'title', label: '제목' },
     { value: 'content', label: '내용' },
     { value: 'titleContent', label: '제목+내용' },
-    { value: 'author', label: '작성자' },
+    { value: 'author', label: '작성자' }, // 작성자 검색 추가
   ];
 
   return (
-      <div className="hobby-list-container">
-        <div className="hobby-banner">
-          <h2>🎨 취미 커뮤니티</h2>
-          <p>함께 즐기고 공유하는 공간</p>
+    <div className="hobby-list-container">
+      <div className="hobby-banner">
+        <h2>🎨 취미 커뮤니티</h2>
+        <p>함께 즐기고 공유하는 공간</p>
+      </div>
+
+      <div className="hobby-content">
+        <h2 className="hobby-comment-header">취미 커뮤니티</h2>
+
+        {/* 카테고리 필터 */}
+        <div className="hobby-category-filter">
+          {categoryOptions.map((cat) => (
+            <button
+              key={cat.value}
+              className={filterCategory === cat.value ? 'active' : ''}
+              onClick={() => handleCategoryFilter(cat.value)} // 클릭 시 카테고리 변경
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
-        <div className="hobby-content">
-          <h2 className="hobby-comment-header">취미 커뮤니티</h2>
+        {/* 댓글 정렬 필터 */}
+        <div className="hobby-comment-filter">
+          <button
+            className={commentFilter === '' ? 'active' : ''}
+            onClick={() => handleCommentFilter('')}
+          >
+            전체
+          </button>
+          <button
+            className={commentFilter === 'few' ? 'active' : ''}
+            onClick={() => handleCommentFilter('few')}
+          >
+            댓글 적은 순
+          </button>
+          <button
+            className={commentFilter === 'many' ? 'active' : ''}
+            onClick={() => handleCommentFilter('many')}
+          >
+            댓글 많은 순
+          </button>
+        </div>
 
-          {/* 카테고리 필터 */}
-          <div className="hobby-category-filter">
-            {categoryOptions.map((cat) => (
-                <button
-                    key={cat.value}
-                    className={filterCategory === cat.value ? 'active' : ''}
-                    onClick={() => handleCategoryFilter(cat.value)}
-                >
-                  {cat.label}
-                </button>
+        {/* 검색 영역 */}
+        <div className="hobby-search-area">
+          <select
+            value={searchField}
+            onChange={(e) => setSearchField(e.target.value)}
+            className="hobby-search-field"
+          >
+            {searchFieldOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
             ))}
-          </div>
+          </select>
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            placeholder="검색어 입력"
+            className="hobby-search-input"
+          />
+          <button onClick={handleSearch} className="hobby-search-button">
+            검색
+          </button>
+        </div>
 
-          {/* 댓글 정렬 필터 */}
-          <div className="hobby-comment-filter">
-            <button
-                className={commentFilter === '' ? 'active' : ''}
-                onClick={() => handleCommentFilter('')}
-            >
-              전체
-            </button>
-            <button
-                className={commentFilter === 'few' ? 'active' : ''}
-                onClick={() => handleCommentFilter('few')}
-            >
-              댓글 적은 순
-            </button>
-            <button
-                className={commentFilter === 'many' ? 'active' : ''}
-                onClick={() => handleCommentFilter('many')}
-            >
-              댓글 많은 순
-            </button>
-          </div>
+        {/* 검색 결과 표시 */}
+        <div className="hobby-result-count">검색 결과: {totalResults}건</div>
 
-          {/* 검색 영역 */}
-          <div className="hobby-search-area">
-            <select
-                value={searchField}
-                onChange={(e) => setSearchField(e.target.value)}
-                className="hobby-search-field"
-            >
-              {searchFieldOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-              ))}
-            </select>
-            <input
-                type="text"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                placeholder="검색어 입력"
-                className="hobby-search-input"
-            />
-            <button onClick={handleSearch} className="hobby-search-button">
-              검색
-            </button>
-          </div>
+        <div className="hobby-new-post-button-container">
+          <button className="hobby-new-post-button" onClick={handleWrite}>
+            ✏️ 새 게시글 작성
+          </button>
+        </div>
 
-          <div className="hobby-result-count">검색 결과: {totalResults}건</div>
+        {/* 게시글 목록 */}
+        {loading ? (
+          <p>로딩 중...</p>
+        ) : (
+          <ul className="hobby-list-community">
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <li key={post.postId} className="hobby-list-item">
+                  <Link to={`/community/check/${post.postId}`} className="hobby-list-link">
+                    <div className="hobby-list-item-header">
+                      <div className="hobby-list-item-category-title">
+                        <span className="hobby-post-category">{post.category}</span>
+                        <h3 className="hobby-post-title">{post.title}</h3>
+                      </div>
+                      <div className="hobby-list-item-meta">
+                        <p className="hobby-meta-line">
+                          <strong>작성자:</strong> {post.memberId} {/* 작성자 아이디 추가 */}
+                        </p>
+                        <p className="hobby-meta-line">
+                          <strong>작성 시간:</strong>{' '}
+                          {post.createdAt ? new Date(post.createdAt).toLocaleString() : 'N/A'}
+                        </p>
+                        {post.updatedAt && post.updatedAt !== post.createdAt && (
+                          <p className="hobby-meta-line">
+                            <strong>수정 시간:</strong> {new Date(post.updatedAt).toLocaleString()}
+                          </p>
+                        )}
+                        <p className="hobby-meta-line">
+                          <strong>댓글 수:</strong> {post.commentCount || 0}
+                        </p>
+                      </div>
+                      {post.thumbnailUrl && (
+                        <div className="hobby-thumbnail-container">
+                          <img src={post.thumbnailUrl} alt="썸네일" className="hobby-thumbnail" />
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              ))
+            ) : (
+              <p>게시글이 없습니다.</p>
+            )}
+          </ul>
+        )}
 
-          <div className="hobby-new-post-button-container">
-            <button className="hobby-new-post-button" onClick={handleWrite}>
-              ✏️ 새 게시글 작성
-            </button>
-          </div>
-
-          {/* 게시글 목록 */}
-          {loading ? (
-              <p>로딩 중...</p>
-          ) : (
-              <ul className="hobby-list-community">
-                {posts.length > 0 ? (
-                    posts.map((post) => (
-                        <li key={post.postId} className="hobby-list-item">
-                          <Link to={`/community/check/${post.postId}`} className="hobby-list-link">
-                            <div className="hobby-list-item-header">
-                              <div className="hobby-list-item-category-title">
-                                <span className="hobby-post-category">{post.category}</span>
-                                <h3 className="hobby-post-title">{post.title}</h3>
-                              </div>
-                              <div className="hobby-list-item-meta">
-                                <p className="hobby-meta-line">
-                                  <strong>작성자:</strong> {post.author}
-                                </p>
-                                <p className="hobby-meta-line">
-                                  <strong>작성 시간:</strong>{' '}
-                                  {post.createdAt ? new Date(post.createdAt).toLocaleString() : 'N/A'}
-                                </p>
-                                {post.updatedAt && post.updatedAt !== post.createdAt && (
-                                    <p className="hobby-meta-line">
-                                      <strong>수정 시간:</strong>{' '}
-                                      {new Date(post.updatedAt).toLocaleString()}
-                                    </p>
-                                )}
-                                <p className="hobby-meta-line">
-                                  <strong>댓글 수:</strong> {post.comments ? post.comments.length : 0}
-                                </p>
-                              </div>
-                            </div>
-                          </Link>
-                        </li>
-                    ))
-                ) : (
-                    <p>게시글이 없습니다.</p>
-                )}
-              </ul>
-          )}
-
-          {/* 페이지네이션 */}
-          <div className="hobby-pagination">
-            <button onClick={goFirst} disabled={page === 0}>
-              처음
-            </button>
-            <button onClick={handlePrevBlock} disabled={startPage === 0}>
-              이전 구간
-            </button>
-            {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
-              const pageNum = startPage + idx;
-              return (
-                  <button
-                      key={pageNum}
-                      onClick={() => handlePageClick(pageNum)}
-                      className={`page-button ${pageNum === page ? 'active' : ''}`}
-                  >
-                    {pageNum + 1}
-                  </button>
-              );
-            })}
-            <button onClick={handleNextBlock} disabled={endPage === totalPages - 1}>
-              다음 구간
-            </button>
-            <button onClick={goLast} disabled={page === totalPages - 1}>
-              끝
-            </button>
-          </div>
+        {/* 페이지네이션 */}
+        <div className="hobby-pagination">
+          <button onClick={goFirst} disabled={page === 0}>
+            처음
+          </button>
+          <button onClick={handlePrevBlock} disabled={startPage === 0}>
+            이전 구간
+          </button>
+          {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
+            const pageNum = startPage + idx;
+            return (
+              <button
+                key={pageNum}
+                onClick={() => handlePageClick(pageNum)}
+                className={`page-button ${pageNum === page ? 'active' : ''}`}
+              >
+                {pageNum + 1}
+              </button>
+            );
+          })}
+          <button onClick={handleNextBlock} disabled={endPage === totalPages - 1}>
+            다음 구간
+          </button>
+          <button onClick={goLast} disabled={page === totalPages - 1}>
+            끝
+          </button>
         </div>
       </div>
+    </div>
   );
 };
 

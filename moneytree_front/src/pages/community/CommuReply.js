@@ -1,39 +1,49 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import {
     fetchCommunityReply,
     fetchCreateReply,
     fetchDeleteReply,
     fetchUpdateReply,
-} from '../../api/CommuReplyApi';
+} from '../../api/CommuReplyApi'; // 댓글 API
 import { getCookie } from '../../util/cookieUtil';
-import '../../css/hobby/CommuReply.css'; // ★ 추가: CSS 파일 임포트
+import '../../css/hobby/CommuReply.css';
 
-const CommuReply = () => {
-    const { postId } = useParams();
+const CommuReply = ({ postId, updateCommentCount }) => {
     const [replies, setReplies] = useState([]);
-    const [newReplyContent, setnewReplyContent] = useState('');
-    const [editReplyId, seteditReplyId] = useState(null);
-    const [editReplyContent, setEditReplyContent] = useState('');
-    const [page, setPage] = useState(0);
+    const [newReplyContent, setNewReplyContent] = useState('');
+    const [editingReplyId, setEditingReplyId] = useState(null);
+    const [editingText, setEditingText] = useState('');
+    const [page, setPage] = useState(0); // 페이지 상태
     const [totalPages, setTotalPages] = useState(0);
-    const navigate = useNavigate();
     const loggedInUser = getCookie('member');
     const loggedInUserId = loggedInUser?.memberId;
 
-    useEffect(() => {
-        const loadReplies = async () => {
-            try {
-                const data = await fetchCommunityReply(postId, page, 10);
-                setReplies(data.content);
-                setTotalPages(data.totalPages);
-            } catch (error) {
-                console.error('답글을 불러오는 데 실패했습니다:', error);
-            }
-        };
-        loadReplies();
-    }, [postId, page]);
+    // 댓글 불러오기
+    const loadReplies = async () => {
+        try {
+            const data = await fetchCommunityReply(postId, page, 10);
+            // 최신 댓글이 맨 위로 오도록 정렬
+            const sortedReplies = data.content.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+            );
+            setReplies(sortedReplies); // 정렬된 댓글 목록을 state에 저장
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error('댓글을 불러오는 데 실패했습니다:', error);
+        }
+    };
 
+    useEffect(() => {
+        loadReplies(); // 컴포넌트가 마운트되면 댓글을 불러옵니다.
+    }, [postId, page, loadReplies]); // 댓글 불러오는 API가 postId와 page 변경 시마다 실행
+
+    // 날짜 유효성 검사 함수
+    const isValidDate = (date) => {
+        const parsedDate = new Date(date);
+        return parsedDate instanceof Date && !isNaN(parsedDate);
+    };
+
+    // 댓글 작성
     const handleCreateReply = async () => {
         if (!newReplyContent.trim()) {
             alert('답글 내용을 입력하세요');
@@ -42,125 +52,151 @@ const CommuReply = () => {
         try {
             const newReply = {
                 postId: Number(postId),
-                membershipType: loggedInUser.membershipType,
-                memberId: loggedInUser.memberId,
+                memberId: loggedInUserId,
                 content: newReplyContent,
                 is_deleted: false,
             };
-            console.log('새로 작성하는 답글 정보:', newReply);
-            await fetchCreateReply(newReply);
-            setnewReplyContent('');
-            alert('답글이 성공적으로 추가되었습니다.');
-            // 새로고침 대신 상태만 업데이트해도 되지만, 즉시 반영을 위해 간단히 페이지 리로드
-            window.location.reload();
+
+            await fetchCreateReply(newReply); // 댓글 생성 요청
+            setNewReplyContent(''); // 입력 필드 초기화
+            setPage(0); // 댓글 작성 후 첫 번째 페이지로 이동
+            loadReplies(); // 댓글 목록을 새로고침하여 최신 댓글을 반영
         } catch (error) {
-            console.error('답글 생성 실패:', error);
-            alert('답글 생성 중 오류가 발생했습니다.');
+            console.error('답글 작성 오류:', error);
+            alert('답글 작성 중 오류가 발생했습니다.');
         }
     };
 
-    const startEditReply = (replyId, content) => {
-        seteditReplyId(replyId);
-        setEditReplyContent(content);
+    // 댓글 수정 시작
+    const handleStartEdit = (reply) => {
+        setEditingReplyId(reply.replyId);
+        setEditingText(reply.content);
     };
 
-    const handleUpdateReply = async () => {
-        if (!editReplyContent.trim()) {
-            alert('수정할 내용을 입력하세요.');
-            return;
-        }
-        const targetReply = replies.find((reply) => reply.replyId === editReplyId);
-        if (!targetReply || targetReply.memberId !== loggedInUserId) {
-            alert('권한이 없습니다.');
-            navigate(-1);
-            return;
-        }
+    // 댓글 수정 저장
+    const handleSaveEdit = async (replyId) => {
+        if (!editingText.trim()) return;
         try {
-            const updateReply = {
-                replyId: editReplyId,
-                content: editReplyContent,
-            };
-            await fetchUpdateReply(editReplyId, updateReply);
-            seteditReplyId(null);
-            setEditReplyContent('');
-            alert('답글이 성공적으로 수정되었습니다.');
-            window.location.reload();
+            await fetchUpdateReply(replyId, { content: editingText });
+            setEditingReplyId(null);
+            setEditingText('');
+            loadReplies(); // 댓글 수정 후 댓글 목록을 새로고침
         } catch (error) {
-            console.error('답글 수정 실패:', error);
+            console.error('답글 수정 오류:', error);
             alert('답글 수정 중 오류가 발생했습니다.');
         }
     };
 
+    // 댓글 삭제
     const handleDeleteReply = async (replyId) => {
         if (!window.confirm('이 답글을 삭제하시겠습니까?')) return;
-        const targetReply = replies.find((reply) => reply.replyId === replyId);
-        if (!targetReply || targetReply.memberId !== loggedInUserId) {
-            alert('답글 삭제 권한이 없습니다.');
-            return;
-        }
         try {
             await fetchDeleteReply(replyId);
-            alert('답글이 성공적으로 삭제되었습니다.');
-            window.location.reload();
+            loadReplies(); // 댓글 삭제 후 댓글 목록을 새로고침
+
+            // 댓글 삭제 후 댓글 개수 업데이트
+            updateCommentCount(replies.length - 1); // 부모 컴포넌트에서 댓글 개수를 업데이트
         } catch (error) {
-            console.error('답글 삭제 실패:', error);
+            console.error('답글 삭제 오류:', error);
             alert('답글 삭제 중 오류가 발생했습니다.');
         }
     };
 
+    // 페이지네이션 계산
+    const blockSize = 10;
+    const currentBlock = Math.floor(page / blockSize);
+    const startPage = currentBlock * blockSize;
+    const endPage = Math.min(startPage + blockSize - 1, totalPages - 1);
+
+    const handlePageClick = (pageNum) => setPage(pageNum);
+    const handlePrevBlock = () => setPage(Math.max(startPage - blockSize, 0));
+    const handleNextBlock = () => setPage(Math.min(startPage + blockSize, totalPages - 1));
+    const goFirst = () => setPage(0);
+    const goLast = () => setPage(totalPages - 1);
+
     return (
-        <div className="reply-container">
-            <h3 className="reply-header">💬 댓글 </h3>
-
-            {/* 댓글 작성 영역을 먼저 배치 */}
-            <div className="reply-create">
+      <div>
+          <h3>답글</h3>
+          <div>
         <textarea
-            value={newReplyContent}
-            onChange={(e) => setnewReplyContent(e.target.value)}
-            placeholder="답글을 작성하세요"
+          placeholder="댓글을 입력하세요"
+          value={newReplyContent}
+          onChange={(e) => setNewReplyContent(e.target.value)}
         />
-                <button className="commuReply-add" onClick={handleCreateReply}>댓글 작성</button>
-            </div>
+              <button onClick={handleCreateReply}>작성</button>
+          </div>
 
-            {/* 댓글 목록은 아래쪽에 렌더링 */}
-            <ul className="reply-list">
-                {replies.map((reply) => (
-                    <li key={reply.replyId} className="reply-item">
-                        {editReplyId === reply.replyId ? (
-                            <div className="reply-edit-area">
-                <textarea
-                    value={editReplyContent}
-                    onChange={(e) => setEditReplyContent(e.target.value)}
-                />
-                                <button onClick={handleUpdateReply} className="save-btn">
-                                    저장
-                                </button>
-                                <button onClick={() => seteditReplyId(null)} className="cancel-btn">
-                                    취소
-                                </button>
-                            </div>
+          <ul>
+              {replies.length > 0 ? (
+                replies
+                  .slice()
+                  .reverse() // 최신 댓글이 맨 위에 오도록 역순으로 정렬
+                  .map((reply) => (
+                    <li key={reply.replyId}>
+                        {editingReplyId === reply.replyId ? (
+                          <div>
+                    <textarea
+                      value={editingText}
+                      onChange={(e) => setEditingText(e.target.value)}
+                    />
+                              <button onClick={() => handleSaveEdit(reply.replyId)}>저장</button>
+                              <button onClick={() => setEditingReplyId(null)}>취소</button>
+                          </div>
                         ) : (
-                            <div>
-                                <p className="reply-meta">
-                                    {reply.memberId} ({reply.membershipType})
-                                </p>
-                                <p className="reply-content">{reply.content}</p>
-                                {reply.memberId === loggedInUserId && (
-                                    <div className="reply-actions">
-                                        <button className="commuReply-set" onClick={() => startEditReply(reply.replyId, reply.content)}>
-                                            수정
-                                        </button>
-                                        <button className="commuReply-del" onClick={() => handleDeleteReply(reply.replyId)}>
-                                            삭제
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                          <div>
+                              <p>
+                                  <strong>{reply.memberId}</strong> -{' '}
+                                  {isValidDate(reply.created_at)
+                                    ? new Date(reply.created_at).toLocaleString()
+                                    : 'N/A'}{' '}
+                                  {reply.updated_at && reply.updated_at !== reply.created_at && (
+                                    <span> (수정: {new Date(reply.updated_at).toLocaleString()})</span>
+                                      )}
+                              </p>
+                              <p>{reply.content}</p>
+                              {loggedInUserId === reply.memberId && (
+                                <>
+                                    <button onClick={() => handleStartEdit(reply)}>수정</button>
+                                    <button onClick={() => handleDeleteReply(reply.replyId)}>삭제</button>
+                                </>
+                              )}
+                          </div>
                         )}
                     </li>
-                ))}
-            </ul>
-        </div>
+                  ))
+              ) : (
+                <p>댓글이 없습니다.</p>
+              )}
+          </ul>
+
+          {/* 페이지네이션 */}
+          <div>
+              <button onClick={goFirst} disabled={page === 0}>
+                  처음
+              </button>
+              <button onClick={handlePrevBlock} disabled={startPage === 0}>
+                  이전
+              </button>
+              {Array.from({ length: endPage - startPage + 1 }, (_, idx) => {
+                  const pageNum = startPage + idx;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageClick(pageNum)}
+                      disabled={pageNum === page}
+                    >
+                        {pageNum + 1}
+                    </button>
+                  );
+              })}
+              <button onClick={handleNextBlock} disabled={endPage === totalPages - 1}>
+                  다음
+              </button>
+              <button onClick={goLast} disabled={page === totalPages - 1}>
+                  끝
+              </button>
+          </div>
+      </div>
     );
 };
 

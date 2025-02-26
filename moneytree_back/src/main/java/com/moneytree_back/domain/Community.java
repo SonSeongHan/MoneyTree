@@ -1,6 +1,8 @@
 package com.moneytree_back.domain;
 
-
+import com.moneytree_back.domain.CommunityImage;
+import com.moneytree_back.domain.CommunityReplies;
+import com.moneytree_back.domain.PostType;
 import com.moneytree_back.domain.member.Member;
 import com.moneytree_back.domain.member.MembershipType;
 import jakarta.persistence.*;
@@ -44,14 +46,23 @@ public class Community {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "category")
+    private String category;
+
     @ManyToOne
     @JoinColumn(name = "member_id",nullable = false)
     private Member member;
 
-    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommunityImage> images;
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityImage> images = new ArrayList<>(); // 초기값 설정
 
-    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommunityReplies> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CommunityReplies> replies = new ArrayList<>(); // 초기값 설정
 
+    // 댓글 개수 반환 메서드 (CommunityReplies 기준으로 카운팅)
+    public int getCommentCount() {
+        return replies != null ? replies.size() : 0;
+    }
 }

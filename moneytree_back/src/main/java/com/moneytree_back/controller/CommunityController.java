@@ -41,10 +41,11 @@ public class CommunityController {
 
     @GetMapping
     public ResponseEntity<Page<CommunityDTO>> getPagedCommunities(
-            @RequestParam(value="postType",required = false) PostType postType,
-            @PageableDefault(size = 10,sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable){
+            @RequestParam(value = "postType", required = false) PostType postType,
+            @RequestParam(value = "category", required = false) String category,  // 카테고리 파라미터 추가
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<CommunityDTO> result = communityService.getPagedAllCommunity(postType,pageable);
+        Page<CommunityDTO> result = communityService.getPagedAllCommunity(postType, category, pageable);
 
         return ResponseEntity.ok(result);
     }
@@ -142,5 +143,41 @@ public class CommunityController {
         return ResponseEntity.noContent().build();
     }
 
+    // 댓글 많은 순으로 게시글 조회
+    @GetMapping("/community/most-comments")
+    public Page<CommunityDTO> getCommunitiesByMostComments(@RequestParam PostType postType, Pageable pageable) {
+        return communityService.getPagedAllCommunityByCommentCountDesc(postType, pageable);
+    }
+
+    // 댓글 적은 순으로 게시글 조회
+    @GetMapping("/community/least-comments")
+    public Page<CommunityDTO> getCommunitiesByLeastComments(@RequestParam PostType postType, Pageable pageable) {
+        return communityService.getPagedAllCommunityByCommentCountAsc(postType, pageable);
+    }
+
+    // 댓글 필터링 기능 (많은 순 / 적은 순)
+    @GetMapping("/community/hobby")
+    public Page<CommunityDTO> getCommunitiesByCommentFilter(
+            @RequestParam String category,
+            @RequestParam int page,
+            @RequestParam String commentFilter, // commentFilter (many/few)
+            Pageable pageable) {
+
+        // 페이지 번호와 category를 고려한 Pageable 설정
+        pageable = Pageable.ofSize(pageable.getPageSize()).withPage(page);
+
+        // 댓글 필터링에 맞춰 호출
+        if ("many".equalsIgnoreCase(commentFilter)) {
+            return communityService.getPagedAllCommunityByCommentCountDesc(PostType.HOBBY, pageable); // 댓글 많은 순
+        } else if ("few".equalsIgnoreCase(commentFilter)) {
+            return communityService.getPagedAllCommunityByCommentCountAsc(PostType.HOBBY, pageable); // 댓글 적은 순
+        }
+
+        // 기본적으로 댓글 수 상관없이 모든 게시글 반환 (필터가 잘못되었을 경우)
+        return communityService.getPagedAllCommunityByPostType(PostType.HOBBY, pageable);
+    }
 
 }
+
+
+

@@ -22,11 +22,26 @@ public class CommunityDTO {
     private String membershipType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<String> deletedImages; // 삭제할 이미지 목록
+    private String category;  // 카테고리 추가
+    private int commentCount; // 댓글 개수 추가
 
-    private List<String> deletedImages; // 삭제할 이미지 목록 추가
-
-
-
-
+    public CommunityDTO(Long postId, String memberId, String postType, String title, String content,
+                        List<String> imageUrls, String membershipType, LocalDateTime createdAt,
+                        LocalDateTime updatedAt, String category, int commentCount) {
+        this.postId = postId;
+        this.memberId = memberId;
+        this.postType = postType;
+        this.title = title;
+        this.content = content;
+        this.imageUrls = imageUrls;
+        this.membershipType = membershipType;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.category = category;
+        this.commentCount = commentCount;
+    }
 }
+
+
 
