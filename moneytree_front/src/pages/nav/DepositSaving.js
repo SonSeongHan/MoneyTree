@@ -1,24 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Deposit from '../../components/recommends/Deposit';
 import '../../css/recommends/DepositSaving.css';
 import Saving from '../../components/recommends/Saving';
-import { useLocation } from 'react-router-dom';
 import mainman from '../../image/homeman.png'
 
 
 function DepositSaving() {
-  // const [activeTab, setActiveTab] = useState('deposit');
-  const location = useLocation(); //(승훈) 수정 현재 URL 정보 가져오기
-  const queryParams = new URLSearchParams(location.search); //(승훈) 수정 URL의 쿼리스트링 읽기
-  const initialTab = queryParams.get('tab') || 'deposit'; //(승훈) 수정 URL에 'tab'이 있으면 사용, 없으면 'deposit'
+    const [activeTab, setActiveTab] = useState('deposit');
     const [searchQuery, setSearchQuery] = useState('');
+    // 실제 Deposit 컴포넌트에 전달할 검색어 (검색 버튼 클릭 시 업데이트)
     const [appliedSearchQuery, setAppliedSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState(initialTab);
-
-  //URL이 변경될 때마다 activeTab을 업데이트
-  useEffect(() => {
-    setActiveTab(initialTab);
-  }, [initialTab]);
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
@@ -60,16 +51,10 @@ function DepositSaving() {
                     검색
                 </button>
             </div>
-            <img
+            <img className="depositsaviong-man"
                 src={mainman}
                 alt="설명"
-                style={{
-                    position: 'absolute',
-                    left: '64%',
-                    width: '360px',
-                    top: '120px',
-                    zIndex:'-100'
-                }}
+
             />
             <div className="depsav-tabs-container">
                 <button

@@ -246,6 +246,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-bottom: 50px;
 }
 
 /* 카테고리 태그 */
@@ -269,7 +270,7 @@
 
 /* 메타 정보 (작성자, 작성시간, 댓글 수 등) */
 .hobby-list-item-meta {
-    text-align: right;
+    text-align: left;
     font-size: 0.85em;
     color: #666;
 }
@@ -306,4 +307,7 @@
     background-color: #82b883;
     color: #fff;
     font-weight: bold;
+}
+.hobby-list-flex {
+
 }

@@ -19,7 +19,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
     terms: false,
     privacy: false,
     interest: false,
-    maturity: false,
+    maturity: false
   });
 
   // 에러 메시지 상태
@@ -35,7 +35,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
       try {
         const response = await DepositAPI.getMyDepositAccounts();
         const existingAccount = response.accounts.find(
-          (account) => account.depositProductId === deposit.depositProductId,
+          account => account.depositProductId === deposit.depositProductId
         );
 
         if (existingAccount) {
@@ -45,7 +45,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
         }
 
         // 전체 가입 상품 목록 업데이트
-        const joinedProductIds = response.accounts.map((account) => account.depositProductId);
+        const joinedProductIds = response.accounts.map(account => account.depositProductId);
         setJoinedProducts(joinedProductIds);
       } catch (error) {
         console.error('계좌 조회 중 오류 발생:', error);
@@ -76,7 +76,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
       terms: checked,
       privacy: checked,
       interest: checked,
-      maturity: checked,
+      maturity: checked
     });
   };
 
@@ -84,7 +84,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
   const handleAgreementChange = (name, checked) => {
     const newAgreements = { ...agreements, [name]: checked };
     setAgreements(newAgreements);
-    setAllAgreed(Object.values(newAgreements).every((value) => value));
+    setAllAgreed(Object.values(newAgreements).every(value => value));
   };
 
   // 가입 신청 처리
@@ -92,7 +92,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
     e.preventDefault();
 
     // 유효성 검사
-    if (!Object.values(agreements).every((value) => value)) {
+    if (!Object.values(agreements).every(value => value)) {
       setError('모든 약관에 동의해주세요.');
       return;
     }
@@ -114,13 +114,13 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
         accountPassword,
         isRegularPayment,
         regularPaymentAmount: isRegularPayment ? Number(regularAmount) : null,
-        regularPaymentDay: isRegularPayment ? Number(regularDay) : null,
+        regularPaymentDay: isRegularPayment ? Number(regularDay) : null
       };
 
       await DepositAPI.createDepositAccount(accountData);
 
       // 가입 성공 시 가입된 상품 목록 업데이트
-      setJoinedProducts((prev) => [...prev, deposit.depositProductId]);
+      setJoinedProducts(prev => [...prev, deposit.depositProductId]);
 
       alert('예금 상품 가입이 완료되었습니다.');
       onClose();
@@ -141,9 +141,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
           {/* 헤더 */}
           <div className="deposit-modal-header">
             <h2 className="deposit-modal-title">{deposit.depositProductName} 가입</h2>
-            <button onClick={onClose} className="deposit-modal-close">
-              ×
-            </button>
+            <button onClick={onClose} className="deposit-modal-close">×</button>
           </div>
 
           {/* 상품 정보 요약 */}
@@ -159,9 +157,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
               </div>
               <div className="deposit-summary-item">
                 <p className="deposit-summary-label">최소가입금액</p>
-                <p className="deposit-summary-value">
-                  {deposit.depositMinAmount.toLocaleString()}원
-                </p>
+                <p className="deposit-summary-value">{deposit.depositMinAmount.toLocaleString()}원</p>
               </div>
               <div className="deposit-summary-item">
                 <p className="deposit-summary-label">만기일</p>
@@ -234,9 +230,7 @@ const DepositJoinModal = ({ deposit, onClose, joinedProducts, setJoinedProducts 
                       >
                         <option value="">납입일 선택</option>
                         {[...Array(28)].map((_, i) => (
-                          <option key={i + 1} value={i + 1}>
-                            매월 {i + 1}일
-                          </option>
+                          <option key={i + 1} value={i + 1}>매월 {i + 1}일</option>
                         ))}
                       </select>
                     </div>

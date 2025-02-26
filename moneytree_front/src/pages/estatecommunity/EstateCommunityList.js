@@ -194,6 +194,7 @@ const EstateCommunityList = () => {
                         placeholder="검색어 입력"
                         className="search-input"
                     />
+
                     <button onClick={handleSearch} className="search-button">
                         검색
                     </button>

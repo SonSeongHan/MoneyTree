@@ -62,8 +62,8 @@
     border-color: #007bff;
 }
 
-/* 필터링된 취미 목록 스타일 */
-.hobby-list {
+
+.hobby-page-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;

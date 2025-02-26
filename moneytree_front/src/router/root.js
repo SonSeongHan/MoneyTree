@@ -23,12 +23,10 @@ import MortgageLoanProductDetail from '../pages/estate/fss/MortgageLoanProductDe
 import ReactivateAccount from '../pages/member/ReactivateAccount';
 import HobbyPage from '../pages/hobby/HobbyPage';
 
-import { Outlet } from 'react-router-dom'; // Outlet 추가
+import { Outlet } from 'react-router-dom';
 
-// 로딩 대체 UI
 const Loading = <div>Loading...</div>;
 
-// Lazy 로딩 페이지들
 const Home = lazy(() => import('../pages/nav/Home'));
 const MyPage = lazy(() => import('../pages/nav/Mypage'));
 const RealEstate = lazy(() => import('../pages/nav/RealEstate'));
@@ -51,60 +49,67 @@ const KakaoMap = lazy(() => import('../pages/estate/KakaoMap'));
 const SearchDetails = lazy(() => import('../pages/estate/SearchDetails'));
 const ApartmentDetails = lazy(() => import('../pages/estate/ApartmentDetails'));
 
-// 거래 내역 페이지
 const ApartmentTransactionPage = lazy(() => import('../pages/estate/ApartmentTransactionPage'));
-// 추천 상품 목록 페이지 (DB에 저장된 모기지론 상품 데이터를 활용)
 const MortgageLoanProducts = lazy(() => import('../pages/estate/fss/MortgageLoanProducts'));
 const SubscriptionDetail = lazy(() => import('../pages/estate/fss/SubscriptionDetail'));
 
 const root = createBrowserRouter([
+  // ✅ "/"는 AppLayout 없이 MainHome 렌더링
   {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <Suspense fallback={Loading}>
+        <MainHome />
+      </Suspense>
+    ),
+  },
+  // ✅ 로그인 페이지는 AppLayout 없이 렌더링
+  {
+    path: '/loginpage',
+    element: (
+      <Suspense fallback={Loading}>
+        <LoginPage />
+      </Suspense>
+    ),
+  },
+  // ✅ 관리자 관련 페이지도 AppLayout 없이 렌더링
+  {
+    path: '/admin',
+    element: (
+      <Suspense fallback={Loading}>
+        <AdminLogin />
+      </Suspense>
+    ),
+  },
+  {
+    path: 'allmanagement',
+    element: (
+      <Suspense fallback={Loading}>
+        <AllManagement />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin/page',
+    element: (
+      <Suspense fallback={Loading}>
+        <AdminPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/admin/members/:memberId',
+    element: (
+      <Suspense fallback={Loading}>
+        <MemberDetailPage />
+      </Suspense>
+    ),
+  },
+  // ✅ AppLayout이 적용된 모든 일반 페이지
+  {
+    path: '/',
+    element: <AppLayout />, // 여기서 AppLayout 적용
     children: [
-      // 메인 홈 페이지
-      {
-        index: true,
-        element: (
-          <Suspense fallback={Loading}>
-            <MainHome />
-          </Suspense>
-        ),
-      },
-      // 회원/관리자 관련 페이지들
-      {
-        path: 'loginpage',
-        element: (
-          <Suspense fallback={Loading}>
-            <LoginPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'admin',
-        element: (
-          <Suspense fallback={Loading}>
-            <AdminLogin />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'admin/page',
-        element: (
-          <Suspense fallback={Loading}>
-            <AdminPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: '/admin/members/:memberId',
-        element: (
-          <Suspense fallback={Loading}>
-            <MemberDetailPage />
-          </Suspense>
-        ),
-      },
-      // 일반 페이지
       {
         path: 'home',
         element: (
@@ -161,14 +166,7 @@ const root = createBrowserRouter([
           </Suspense>
         ),
       },
-      {
-        path: 'allmanagement',
-        element: (
-          <Suspense fallback={Loading}>
-            <AllManagement />
-          </Suspense>
-        ),
-      },
+
       {
         path: 'reactivate-account',
         element: (

@@ -5,6 +5,7 @@
     box-sizing: border-box;
 }
 
+
 /* 메인 콘텐츠를 가운데 정렬하고 흰 박스로 감싸는 영역 */
 .community-content {
     max-width: 1200px;
@@ -110,14 +111,12 @@
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-.comment-filter button:hover {
-    background-color: #e6f9ed;
-}
+
 
 .comment-filter button.active {
-    background-color: #28a745;
+    background-color: #64B5F6;
     color: #fff;
-    border-color: #28a745;
+
 }
 
 /********************************
@@ -297,5 +296,24 @@
 .pagination .page-button.active {
     color: #fff;
     font-weight: bold;
+}
 
+/* 모바일 */
+@media (max-width: 767px) {
+  .search-button {
+      padding: 4px 8px;
+  }
+    .search-input {
+        width: 180px;
+    }
+}
+
+/* 태블릿 */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* 태블릿용 CSS 코드 */
+}
+
+/* PC */
+@media (min-width: 1024px) {
+    /* PC용 CSS 코드 */
 }

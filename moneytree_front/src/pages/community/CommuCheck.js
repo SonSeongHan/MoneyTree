@@ -3,6 +3,7 @@ import { fetchGetCommunityById, fetchFile, fetchDeleteCommunity } from '../../ap
 import CommuReply from './CommuReply';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCookie } from '../../util/cookieUtil';
+import '../../css/hobby/HobbyCommunityDetail.css';
 
 const CommuCheck = () => {
     const { postId } = useParams();
@@ -82,56 +83,85 @@ const CommuCheck = () => {
     };
 
     if (!community) {
-        return <p>로딩 중...</p>;
+        return <p className="hobby-loading">로딩 중...</p>;
     }
 
     return (
-      <div>
-          <h4>
-              작성자: {community.memberId} ({community.membershipType})
-          </h4>
-          <h3>제목: {community.title}</h3>
-          <p>내용: {community.content}</p>
+      <div className="commuall-bg">
+          <div className="hobby-detail-container">
+              {/* 게시글 상단 영역: 제목 / 작성자 / 작성일 등 */}
+              <div className="hobby-detail-header">
+                  <h2 className="hobby-detail-title">{community.title}</h2>
+                  <div className="hobby-detail-meta">
+                      <span><strong>작성자:</strong> {community.memberId} ({community.membershipType})</span>
+                      {community.createdAt && (
+                        <span>
+                                <strong>작성 시간:</strong> {formatDate(community.createdAt)}
+                            </span>
+                      )}
+                      {community.updatedAt && community.updatedAt !== community.createdAt && (
+                        <span>
+                                <strong>수정 시간:</strong> {formatDate(community.updatedAt)}
+                            </span>
+                      )}
+                      <span>
+                            <strong>댓글 수:</strong> {totalComments}
+                        </span>
+                  </div>
+              </div>
 
-          {/* 작성 시간과 수정 시간 표시 */}
-          <p>
-              <strong>작성 시간:</strong> {community.createdAt ? formatDate(community.createdAt) : 'N/A'}
-          </p>
-          {community.updatedAt && community.updatedAt !== community.createdAt && (
-            <p>
-                <strong>수정 시간:</strong> {formatDate(community.updatedAt)}
-            </p>
-          )}
+              {/* 게시글 본문 */}
+              <div className="hobby-detail-content">
+                  <p>{community.content}</p>
+                  {/* 이미지 섹션 */}
+                  {imageUrls.length > 0 && (
+                    <div className="hobby-detail-images">
+                        {imageUrls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`community-${index}`}
+                          />
+                        ))}
+                    </div>
+                  )}
+              </div>
 
-          {/* 이미지 표시 */}
-          {imageUrls.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {imageUrls.map((url, index) => (
-                  <img
-                    key={index}
-                    src={url}
-                    alt={`community-${index}`}
-                    style={{ maxWidth: '150px', borderRadius: '5px' }}
-                  />
-                ))}
-            </div>
-          )}
+              {/* 하단 버튼들 */}
+              <div className="hobby-detail-buttons">
+                  <button
+                    onClick={() =>
+                      community.postType
+                        ? navigate(`/community/${community.postType.toLowerCase()}`)
+                        : navigate(-1)
+                    }
+                    className="btn estate-detail-list-btn"
+                  >
+                      목록
+                  </button>
+                  {loggedInUserId === community.memberId && (
+                    <>
+                        <button
+                          onClick={() => navigate(`/community/update/${postId}`)}
+                          className="btn estate-detail-edit-btn"
+                        >
+                            수정
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          className="btn estate-detail-delete-btn"
+                        >
+                            삭제
+                        </button>
+                    </>
+                  )}
+              </div>
 
-          <p>
-              <strong>댓글 수:</strong> {totalComments}
-          </p>
-
-          <div>
-              <button onClick={() => navigate(`/community/${community.postType.toLowerCase()}`)}>
-                  목록
-              </button>
-              {loggedInUserId === community.memberId && (
-                <button onClick={() => navigate(`/community/update/${postId}`)}>수정</button>
-              )}
-              {loggedInUserId === community.memberId && <button onClick={handleDelete}>삭제</button>}
+              {/* 댓글 영역 */}
+              <div className="hobby-detail-comments">
+                  <CommuReply postId={postId} updateCommentCount={updateCommentCount} />
+              </div>
           </div>
-
-          <CommuReply postId={postId} updateCommentCount={updateCommentCount} />
       </div>
     );
 };

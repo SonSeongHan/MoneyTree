@@ -1,83 +1,250 @@
-* {
-  text-decoration: none;
-}
-.nav-all {
-  border-bottom: 1px solid #ddd;
-}
+/* 기존 PC 버전 CSS */
 .navbar {
+  max-width: 1600px;
+  height: 80px; /* 원하는 높이로 조정 */
+  background-color: #fff;
+  font-size: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  background-color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #b3b3b3;
+  justify-content: space-between;
   margin: 0 auto;
-  }
-
-  /* 로고 */
-  .navbar-logo a {
-    text-decoration: none;
-    font-weight: bold;
-    color: #333;
-  }
-
-  /* 좌측 메뉴 */
-  .navbar-menu {
-    display: flex;
-    list-style-type: none;
-    gap: 1rem;
-  }
-.navbar a
-
- {
-  color: black !important;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: bold;
+  position: relative;
 }
-  /* 메뉴 아이템 공통 스타일 */
-  .navbar-menu-item {
-    position: relative; /* 드롭다운 위치를 위해 설정 */
-    cursor: pointer;
-  }
 
-  /* 드롭다운 목록 */
-  .dropdown {
-    position: absolute;
-    top: 1.8rem;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    list-style: none;
-    margin: 0;
-    padding: 0.5rem 0;
-    z-index: 999; /* 다른 요소 위로 */
-  }
+.navbar-logo {
+  margin-left: 20px;
+}
 
-  .dropdown li {
-    padding: 0.4rem 1rem;
-    white-space: nowrap;
-  }
+.navbar-logo a {
+  font-size: 22px;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+}
 
-  /* 호버시 배경색 */
-  .dropdown li:hover {
-    background-color: #f1f1f1;
-  }
+.navbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
 
-  /* 우측 영역 */
+.navbar-menu li {
+  position: relative;
+  margin: 0 15px;
+}
+
+.navbar-menu li a {
+  text-decoration: none;
+  color: #000;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px 0;
+}
+
+.navbar-menu li a:hover {
+  color: #007BFF;
+}
+
+.navbar-menu-item .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #eee;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 120px;
+  z-index: 999;
+}
+
+.navbar-menu-item .dropdown li {
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-menu-item .dropdown li a {
+  display: block;
+  padding: 8px 12px;
+  color: #000;
+  font-size: 14px;
+}
+
+.navbar-menu-item .dropdown li a:hover {
+  background-color: #f5f5f5;
+  color: #007BFF;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.navbar-username {
+  margin-right: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+}
+
+.navbar-username:hover {
+  color: #007BFF;
+}
+
+.navbar-logout {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #000;
+  padding: 0;
+}
+
+.navbar-logout:hover {
+  color: #007BFF;
+}
+
+/* 기존 커뮤니티 드롭다운 */
+.community-item .dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+/* 햄버거 버튼 (기본적으로 PC/테블릿에서는 숨김) */
+.hamburger {
+  display: none;
+}
+
+/* 모바일 메뉴 (햄버거 클릭 시 나타남) */
+.mobile-menu {
+  display: none;
+}
+
+/* -------------------------------------------
+   반응형 미디어 쿼리
+---------------------------------------------*/
+
+/* 테블릿: 768px ~ 1024px */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .navbar {
+    height: 70px;
+    font-size: 16px;
+
+  }
+  .navbar-logo a {
+    font-size: 20px;
+  }
+  .navbar-menu li a {
+    font-size: 16px;
+
+  }
+  .navbar-username {
+    font-size: 14px;
+  }
+  .navbar-logout {
+    font-size: 14px;
+  }
+}
+
+/* 모바일: 767px 이하 */
+@media (max-width: 767px) {
+  .navbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px;
+  }
+  /* 로고는 왼쪽에 그대로 유지 */
+  .navbar-logo {
+    flex: 1;
+  }
+  /* 중앙 메뉴는 PC/테블릿용 메뉴 숨김 */
+  .navbar-menu {
+    display: none;
+  }
   .navbar-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
   }
-
   .navbar-username {
-    font-weight: 600;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+  /* 로그아웃 버튼은 모바일에서는 mobile-menu 내에 포함 */
+  .navbar-logout {
+    display: none;
+  }
+  /* 햄버거 버튼 표시 */
+  .hamburger {
+    display: block;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+  }
+  .hamburger span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 4px 0;
+    background-color: #000;
+  }
+  /* 모바일 메뉴 스타일 */
+  .mobile-menu {
+    display: block;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+    position: absolute;
+    top: 60px; /* 네비게이션 높이에 맞게 조정 */
+    left: 0;
+    z-index: 998;
+  }
+  .mobile-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .mobile-menu ul li {
+    border-bottom: 1px solid #eee;
+  }
+  .mobile-menu ul li a,
+  .mobile-menu ul li button,
+  .mobile-menu ul li div
+  {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    font-weight: normal;
+    color: #000;
+    font-size: 16px;
+    margin-left: 20px;
+  }
+  .mobile-menu ul li button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+  }
+  /* 모바일 드롭다운은 기본 위치에서 static하게 배치 */
+  .mobile-menu .dropdown {
+    position: static;
+    border: none;
+  }
+  .mobile-menu .dropdown li a {
+    font-size: 14px;
   }
 
-  /* 로그아웃 버튼 */
-  .navbar-logout {
-    background-color: #5c5cff;
-    color: white;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 4px;
-    cursor: pointer;
+  .mobile-menu ul li a:hover,
+  .mobile-menu ul li button:hover,
+  .mobile-menu ul li div:hover {
+    color: #007BFF; /* 텍스트 색상 변경 */
+    background-color: #f5f5f5; /* 배경색 변경 */
   }
+}

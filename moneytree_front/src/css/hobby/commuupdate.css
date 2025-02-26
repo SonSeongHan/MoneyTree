@@ -1,229 +1,49 @@
-/* 댓글 헤더 */
-.comment-header {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    color: #333;
+/* 모바일 대응을 위한 미디어 쿼리 */
+@media (max-width: 768px) {
+    /* 상단 헤더 버튼 숨기기 */
+    .form-header-buttons {
+        display: none !important;
+    }
+
+    /* 모바일 하단 버튼 표시 */
+    .mobile-buttons {
+        display: flex !important;
+    }
+
+    /* 상단 헤더 레이아웃 조정 */
+    .form-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* 이미지 갤러리 조정 */
+    .image-gallery {
+        justify-content: center;
+    }
+
+    /* 이미지 아이템 크기 조정 */
+    .image-item {
+        width: 120px !important;
+        height: 120px !important;
+    }
 }
 
-/* 댓글 작성 폼 */
-.comment-create-form {
-    margin-bottom: 20px;
+/* 이미지 업로드 영역 hover 효과 */
+.file-upload-label:hover {
+    background-color: #218838 !important;
 }
 
-.create-textarea {
-    width: 100%;
-    height: 80px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
+/* 버튼 hover 효과 */
+.submit-button:hover {
+    background-color: #218838 !important;
 }
 
-.comment-create-button-container {
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.cancel-button:hover {
+    background-color: #5a6268 !important;
 }
 
-/* 기본 버튼 스타일 */
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-/* 댓글 작성 버튼 (예시: 파란색) */
-.create-btn {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.create-btn:hover {
-    background-color: #0056b3;
-}
-
-/* 로그인 툴팁 */
-.login-tooltip {
-    background-color: #ffc107;
-    color: #212529;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-/* 댓글 목록 */
-.comment-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.comment-item {
-    background-color: #fff;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* 댓글 메타 정보 */
-.comment-meta {
-    font-size: 13px;
-    color: #777;
-    margin-bottom: 5px;
-}
-
-/* 댓글 본문 */
-.comment-text {
-    font-size: 15px;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-/* 댓글 액션 버튼 영역 */
-.comment-actions {
-    display: flex;
-    gap: 10px;
-}
-
-/* 수정, 삭제 버튼 스타일 */
-/* 수정 버튼: 녹색 */
-.estate-detail-edit-btn {
-    background-color: #28a745;
-    color: #fff;
-}
-
-.estate-detail-edit-btn:hover {
-    background-color: #218838;
-}
-
-/* 삭제 버튼: 빨간색 */
-.estate-detail-delete-btn {
-    background-color: #dc3545;
-    color: #fff;
-}
-
-.estate-detail-delete-btn:hover {
-    background-color: #c82333;
-}
-
-/* 댓글 수정 폼 */
-.comment-edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.edit-input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.edit-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-/* 저장 버튼 (수정 저장) */
-.save-btn {
-    background-color: #28a745;
-    color: #fff;
-}
-
-.save-btn:hover {
-    background-color: #218838;
-}
-
-/* 취소 버튼 */
-.cancel-btn {
-    background-color: #6c757d;
-    color: #fff;
-}
-
-.cancel-btn:hover {
-    background-color: #5a6268;
-}
-
-/* 페이지네이션 */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin-top: 20px;
-}
-
-.pagination button {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.pagination button:hover:not(:disabled) {
-    background-color: #f0f0f0;
-}
-
-.pagination button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* 현재 페이지 */
-.page-button.active {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-}
-
-/* 모달 오버레이 */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-/* 모달 콘텐츠 */
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-    width: 400px;
-    max-width: 90%;
-}
-
-/* 모달 닫기 버튼 */
-.modal-close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-}
-
-/* 댓글이 없을 때 */
-.no-comment {
-    text-align: center;
-    font-size: 16px;
-    color: #666;
-    margin-top: 20px;
+/* 삭제 버튼 hover 효과 */
+.delete-image-button:hover {
+    background-color: rgba(220, 53, 69, 1) !important;
 }

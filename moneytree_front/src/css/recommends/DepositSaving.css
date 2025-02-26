@@ -15,7 +15,7 @@
     color: #333;
     margin-bottom: 10px;
     font-size: 32px;
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .depsav-subtitle {
@@ -114,4 +114,97 @@
 .depsav-savings-message {
     color: #666;
     font-size: 14px;
+}
+.depositsaviong-man {
+    position: absolute;
+    right: 10px;
+    width: 360px;
+    top: 150px;
+    z-index: -100;
+}
+
+/* ----- 반응형 미디어 쿼리 ----- */
+@media (min-width: 1460px) {
+    .depositsaviong-man {
+        right: 16%;
+    }
+}
+/* 모바일: 최대 768px 이하 */
+@media (max-width: 768px) {
+    .depsav-page-container {
+        margin-top: 60px;
+        padding: 0 20px;
+    }
+
+    .depsav-main-title {
+        font-size: 20px;
+    }
+
+    .depsav-subtitle {
+        font-size: 14px;
+    }
+
+    .depositsaviong-man {
+        width: 200px;
+        top: 224px;
+
+    }
+    .depsav-search-wrap {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .depsav-search-input {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .depsav-search-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .depsav-tabs-container {
+        flex-direction: column;
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .depsav-tab-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+}
+
+/* 태블릿: 769px ~ 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .depsav-page-container {
+        margin-top: 80px;
+        padding: 0 30px;
+    }
+
+    .depsav-main-title {
+        font-size: 28px;
+    }
+
+    .depsav-subtitle {
+        font-size: 15px;
+    }
+.depositsaviong-man {
+    width: 260px;
+    top: 180px;
+}
+    .depsav-search-input {
+        width: 250px;
+    }
+
+    .depsav-search-btn {
+        padding: 10px 15px;
+    }
+
+    .depsav-tab-btn {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
 }

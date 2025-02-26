@@ -6,15 +6,18 @@ import Chatbot from '../components/Chatbot';
 const AppLayout = () => {
   const location = useLocation();
 
-  // 로그인 페이지에서는 Navbar 숨기기
-  const isLoginPage = location.pathname === '/' || location.pathname === '/login';
+  // 네브바를 숨기고 싶은 경로 배열
+  const hideNavbarRoutes = ['/loginpage', '/allmanagement'];
+
+  // 현재 경로가 hideNavbarRoutes에 포함되면 true
+  const isNavbarHidden = hideNavbarRoutes.includes(location.pathname);
 
   return (
-      <div>
-        {!isLoginPage && <Navbar />}
-        <Chatbot />
-        <Outlet />
-      </div>
+    <div>
+      {!isNavbarHidden && <Navbar />}
+      <Chatbot />
+      <Outlet />
+    </div>
   );
 };
 

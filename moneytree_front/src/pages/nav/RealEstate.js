@@ -23,6 +23,9 @@ const RealEstate = () => {
     const [buyerPendingCount, setBuyerPendingCount] = useState(0);
     const [sellerPendingCount, setSellerPendingCount] = useState(0);
 
+    // 모바일 메뉴 토글 상태
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const loggedInUser = getCookie('member');
     const userId = loggedInUser?.memberId || '';
 
@@ -35,23 +38,23 @@ const RealEstate = () => {
         };
         Promise.all([
             axios.get(
-              `http://localhost:8080/api/apartment-transactions/buyer/${encodeURIComponent(String(userId))}`,
-              { headers },
+                `http://localhost:8080/api/apartment-transactions/buyer/${encodeURIComponent(String(userId))}`,
+                { headers },
             ),
             axios.get(
-              `http://localhost:8080/api/apartment-transactions/seller/${encodeURIComponent(String(userId))}`,
-              { headers },
+                `http://localhost:8080/api/apartment-transactions/seller/${encodeURIComponent(String(userId))}`,
+                { headers },
             ),
         ])
-          .then(([buyerRes, sellerRes]) => {
-              const buyerCount = buyerRes.data.filter((tx) => tx.status === 'PENDING').length;
-              const sellerCount = sellerRes.data.filter((tx) => tx.status === 'PENDING').length;
-              setBuyerPendingCount(buyerCount);
-              setSellerPendingCount(sellerCount);
-          })
-          .catch((err) => {
-              console.error('Pending 거래 건수 조회 오류:', err);
-          });
+            .then(([buyerRes, sellerRes]) => {
+                const buyerCount = buyerRes.data.filter((tx) => tx.status === 'PENDING').length;
+                const sellerCount = sellerRes.data.filter((tx) => tx.status === 'PENDING').length;
+                setBuyerPendingCount(buyerCount);
+                setSellerPendingCount(sellerCount);
+            })
+            .catch((err) => {
+                console.error('Pending 거래 건수 조회 오류:', err);
+            });
     }, [userId, loggedInUser]);
 
     // "관심 매물" 클릭 시 로그인 여부 확인 후 처리
@@ -65,49 +68,64 @@ const RealEstate = () => {
         }
     };
 
+    // 모바일 메뉴 토글 핸들러
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
     return (
         <div style={{
             padding: '20px',
             background: 'linear-gradient(120deg, #f0f4f7, #ffffff)'
         }}>
             <h2>🏡 부동산 정보 페이지</h2>
-            <p style={{margin: '20px 0'}}>
+            <p style={{ margin: '20px 0' }}>
                 부동산 관련 매물을 검색하고 커뮤니티에 참여하세요.
             </p>
 
-
             {/* 네비게이터 */}
-            <nav className="real-estate-nav" style={{marginBottom: '20px'}}>
-                <div className="nav-links">
+            <nav className="real-estate-nav">
+                {/* 모바일용 메뉴 토글 버튼 (모바일에서만 보이도록 CSS에서 처리됨) */}
+                <div className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+                    Menu
+                </div>
+
+                {/* 내비게이션 링크 */}
+                <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
                     <Link to="/realestate/search" className="nav-link">
-                        <FaSearch className="nav-icon"/> 아파트 검색
+                        <FaSearch className="nav-icon" /> 아파트 검색
                     </Link>
                     <Link to="/realestate/map" className="nav-link">
-                        <FaMapMarkedAlt className="nav-icon"/> 지도 보기
+                        <FaMapMarkedAlt className="nav-icon" /> 지도 보기
                     </Link>
                     <Link to="/estate/transactions" className="nav-link">
-                        <FaHandshake className="nav-icon"/> 매물 거래
+                        <FaHandshake className="nav-icon" /> 매물 거래
                     </Link>
                     <Link to="/estate/favorite-apartments" className="nav-link">
-                        <FaStar className="nav-icon"/> 관심 매물
+                        <FaStar className="nav-icon" /> 관심 매물
                     </Link>
                     <Link to="/community/estate" className="nav-link">
-                        <FaBuilding className="nav-icon"/> 부동산 커뮤니티
+                        <FaBuilding className="nav-icon" /> 부동산 커뮤니티
                     </Link>
-                    {/* 대출 상품 추천 항목 추가 */}
                     <Link to="/estate/loan-recommend" className="nav-link">
-                        <FaMoneyBillWave className="nav-icon"/> 대출 상품 추천
+                        <FaMoneyBillWave className="nav-icon" /> 대출 상품 추천
                     </Link>
                 </div>
-          </nav>
 
-            {location.pathname === '/realestate' ? <KakaoMap/> : <Outlet/>}
+                {loggedInUser && (
+                    <div className="nav-pending-indicator">
+                        매수 대기중: <span className="pending-count">{buyerPendingCount}</span>건 | 매도 대기중:
+                        <span className="pending-count">{sellerPendingCount}</span>건
+                    </div>
+                )}
+            </nav>
+
+            {location.pathname === '/realestate' ? <KakaoMap /> : <Outlet />}
 
             {isLoginModalOpen && (
-                <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)}/>
+                <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
             )}
         </div>
-
     );
 };
 

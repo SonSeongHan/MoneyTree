@@ -30,7 +30,6 @@
 
 .stock-price {
     flex: 1;
-    text-align: right;
     font-size: 14px;
     font-weight: 500;
     min-width: 80px;
@@ -74,30 +73,14 @@
     background-color: #f8f9fa;
 }
 
-.filter-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f8f9fa;
-    justify-content: space-around;
-}
 
-.filter-select,
-.filter-input {
+
+.filter-select
+ {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    min-width: 120px;
-}
-
-.filter-reset-btn {
-    padding: 8px 16px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    width: 100%;
 }
 
 .filter-reset-btn:hover {
@@ -117,13 +100,13 @@
 }
 
 .stock-header-name {
-    flex: 3;
+    flex: 2.7;
     text-align: left;
 }
 
 .stock-header-price {
     flex: 1;
-    text-align: right;
+
     min-width: 80px;
 }
 
@@ -133,4 +116,19 @@
     justify-content: flex-end;
     gap: 110px;
     min-width: 160px;
+}
+@media (max-width: 768px) {
+    .finance-promo-bottom {
+        display: flex;           /* 가로로 나열 */
+        flex-wrap: nowrap;       /* 줄바꿈 없이 한 줄에 표시 */
+        overflow-x: auto;        /* 수평 스크롤 활성화 */
+        -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+        gap: 16px;               /* 각 요소 간 간격 (필요시 조절) */
+        padding-bottom: 1rem;    /* 스크롤바 공간 확보 */
+    }
+
+    /* 자식 요소들이 shrink되지 않고 고정 크기를 유지하도록 */
+    .finance-promo-bottom > * {
+        flex: 0 0 auto;
+    }
 }

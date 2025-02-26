@@ -183,3 +183,20 @@
   text-align: center;
   color: #333;
 }
+/* 모바일 */
+@media (max-width: 767px) {
+  .estate-detail-header{
+    display: block;
+  }
+
+}
+
+/* 태블릿 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 태블릿용 CSS 코드 */
+}
+
+/* PC */
+@media (min-width: 1024px) {
+  /* PC용 CSS 코드 */
+}

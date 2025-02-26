@@ -6,6 +6,7 @@ public enum TransactionHistoryType {
     식사,
     병원,
     교통,
-    예금해지
+    예금해지,
+
     // 필요에 따라 다른 카테고리 추가
 }

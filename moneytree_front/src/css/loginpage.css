@@ -1,19 +1,28 @@
 /* 전체 레이아웃 컨테이너 */
 .login-container {
-    display: flex;               /* 좌우로 나란히 배치 */
+    display: flex;               /* 좌우로 나란히 배치 (데스크탑 기준) */
     width: 100%;
-    max-width: 900px;            /* 페이지 최대 너비(예시) */
+    max-width: 900px;            /* 페이지 최대 너비 */
     margin: 0 auto;              /* 가운데 정렬 */
     padding: 20px;
     box-sizing: border-box;
-    background-color: #fff;      /* 배경색(원하는 색상으로 변경 가능) */
-    border: 1px solid #ddd;      /* 컨테이너 테두리(필요 없으면 제거) */
+    background-color: #fff;      /* 배경색 */
+    border: 1px solid #ddd;      /* 컨테이너 테두리 */
 }
 
-/* 인증서 로그인 영역(왼쪽) */
+/* 래퍼 요소 */
+.login-wrapper {
+    display: flex;
+    align-items: center;         /* 수직 중앙 정렬 */
+    justify-content: center;     /* 수평 중앙 정렬 */
+    height: 100vh;               /* 전체 화면 높이 사용 */
+    background: linear-gradient(120deg, rgb(240, 244, 247), rgb(255, 255, 255));
+}
+
+/* 인증서 로그인 영역 (왼쪽) */
 .certificate-login {
-    flex: 1;                     /* 왼쪽, 오른쪽 영역 비율 */
-    margin-right: 20px;          /* 오른쪽 영역과 간격 */
+    flex: 1;
+    margin-right: 20px;
 }
 
 /* 인증서 로그인 제목 */
@@ -26,15 +35,15 @@
 /* 금융인증서, 공동인증서 버튼 컨테이너 */
 .certificate-buttons {
     display: flex;
-    gap: 10px;                   /* 버튼 사이 간격 */
+    gap: 10px;
     margin-bottom: 12px;
 }
 
-/* 금융인증서, 공동인증서 개별 버튼 스타일 */
+/* 개별 버튼 스타일 */
 .certificate-button {
-    flex: 1;                     /* 버튼을 균등하게 배치 */
+    flex: 1;
     padding: 15px 0;
-    background-color: #007bc7;   /* 파란색 예시 */
+    background-color: #007bc7;
     color: #fff;
     text-align: center;
     border: none;
@@ -43,7 +52,7 @@
     cursor: pointer;
 }
 .certificate-button:hover {
-    background-color: #005ba1;   /* 마우스 오버 시 색 변경(선택사항) */
+    background-color: #005ba1;
 }
 
 /* 인증서 라디오 버튼 및 링크 */
@@ -104,10 +113,10 @@
     margin-top: 8px;
 }
 
-/* 아이디 로그인 영역(오른쪽) */
+/* 아이디 로그인 영역 (오른쪽) */
 .id-login {
     flex: 1;
-    margin-left: 20px;           /* 왼쪽 영역과 간격 */
+    margin-left: 20px;
 }
 
 /* 아이디 로그인 제목 */
@@ -130,7 +139,7 @@
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 8px;                    /* 입력 박스 간격 */
+    gap: 8px;
     margin-bottom: 12px;
 }
 
@@ -182,3 +191,56 @@
     margin-top: 4px;
     font-size: 0.9rem;
 }
+
+/* 반응형: 태블릿 (최대 너비 1024px) */
+@media (max-width: 1024px) {
+    .login-container {
+        max-width: 700px;
+        padding: 15px;
+    }
+    .certificate-login,
+    .id-login {
+        margin: 0 10px;
+    }
+}
+
+/* 반응형: 모바일 (최대 너비 767px) */
+@media (max-width: 767px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 95%;
+        padding: 15px;
+    }
+    /* 아이디 로그인 영역을 위로 올리기 위해 order 설정 */
+    .id-login {
+        order: -1;
+        margin: 0 0 20px 0; /* 아래쪽에 간격 추가 */
+    }
+    .certificate-login {
+        margin: 0; /* 순서 변경 후 간격 조정 */
+    }
+    .login-wrapper {
+        padding: 10px;
+    }
+    /* 입력 폼, 버튼 폰트 및 높이 조정 */
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+        height: 40px;
+        font-size: 1rem;
+    }
+    .login-button {
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    /* 제목 및 버튼 폰트 크기 축소 */
+    .certificate-login h3,
+    .id-login h3 {
+        font-size: 1.1rem;
+    }
+    .certificate-button,
+    .cert-login-button {
+        font-size: 0.9rem;
+        padding: 12px 0;
+    }
+}
+

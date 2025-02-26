@@ -36,8 +36,8 @@ const StockTransferModal = ({ isOpen, onClose }) => {
 
       // 입출금계좌로 주식계좌 조회 추가
       const stockAccount = await StockAPI.getStockAccount(accountNumber);
-        setStockAccountNumber(stockAccount.stockAccountNumber);
-        setStockBalance(stockAccount.stockAccountBalance);
+      setStockAccountNumber(stockAccount.stockAccountNumber);
+      setStockBalance(stockAccount.stockAccountBalance);
 
     } catch (error) {
     }
@@ -51,13 +51,6 @@ const StockTransferModal = ({ isOpen, onClose }) => {
     }
   };
 
-  // const fetchStockBalance = async (accountNumber) => {
-  //   try {
-  //     const stockAccount = await StockAPI.getStockAccount(accountNumber);
-  //     setStockBalance(stockAccount.stockAccountBalance);
-  //   } catch (error) {
-  //   }
-  // };
   const fetchStockBalance = async (accountNumber) => {
     try {
       // 입출금계좌번호로 주식계좌 조회
@@ -109,30 +102,90 @@ const StockTransferModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // 원화 표시 포맷 함수
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value);
+  };
+
+  // 송금방향 화살표 표시를 위한 함수
+  const renderTransferArrow = () => {
+    if (transferType === "deposit") {
+      return (
+        <div className="transfer-direction-arrow">
+          <div className="arrow-text">입출금</div>
+          <div className="arrow">→</div>
+          <div className="arrow-text">주식</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="transfer-direction-arrow">
+          <div className="arrow-text">주식</div>
+          <div className="arrow">→</div>
+          <div className="arrow-text">입출금</div>
+        </div>
+      );
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className={`stock-transfer-modal ${isOpen ? 'open' : ''}`} style={{ display: isOpen ? 'block' : 'none' }}>
-      <div className="stock-transfer-modal-content">
-        <h2>주식 계좌 송금</h2>
-        <label>
-          송금 방향:
-          <select value={transferType} onChange={(e) => setTransferType(e.target.value)}>
-            <option value="deposit">입출금 → 주식</option>
-            <option value="withdraw">주식 → 입출금</option>
-          </select>
-        </label>
-        <p>입출금 계좌번호: {dandwAcId}</p>
-        <p>입출금 계좌 잔액: {dandwBalance} 원</p>
-        <p>주식 계좌 잔액: {stockBalance} 원</p>
-        <label>
-          송금 금액:
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </label>
-        <button onClick={handleTransfer}>송금하기</button>
-        <button onClick={onClose}>닫기</button>
+    <div className="stock-transfer-modal-overlay" onClick={onClose}>
+      <div className="stock-transfer-modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="stock-transfer-modal-header">
+          <h2>주식 계좌 송금</h2>
+          <button className="close-button" onClick={onClose}>&times;</button>
+        </div>
+
+        <div className="stock-transfer-modal-body">
+          <div className="transfer-type-container">
+            <label className="transfer-select-label">송금 방향:</label>
+            <select
+              className="transfer-select"
+              value={transferType}
+              onChange={(e) => setTransferType(e.target.value)}
+            >
+              <option value="deposit">입출금 → 주식</option>
+              <option value="withdraw">주식 → 입출금</option>
+            </select>
+          </div>
+
+          {renderTransferArrow()}
+
+          <div className="account-info-container">
+            <div className="account-card">
+              <div className="account-title">입출금 계좌</div>
+              <div className="account-number">{dandwAcId || "-"}</div>
+              <div className="account-balance">{formatCurrency(dandwBalance)}</div>
+            </div>
+
+            <div className="account-card">
+              <div className="account-title">주식 계좌</div>
+              <div className="account-number">{stockAccountNumber || "-"}</div>
+              <div className="account-balance">{formatCurrency(stockBalance)}</div>
+            </div>
+          </div>
+
+          <div className="transfer-amount-container">
+            <label className="amount-label">송금 금액:</label>
+            <div className="amount-input-wrapper">
+              <input
+                type="number"
+                className="amount-input"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0"
+              />
+              <div className="amount-currency">원</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="stock-transfer-modal-footer">
+          <button className="transfer-button" onClick={handleTransfer}>송금하기</button>
+          <button className="cancel-button" onClick={onClose}>취소</button>
+        </div>
       </div>
     </div>
   );

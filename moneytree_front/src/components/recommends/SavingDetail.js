@@ -20,17 +20,16 @@ const SavingDetail = () => {
         // 상품 상세 정보와 가입한 상품 목록을 동시에 조회
         const [savingData, myAccountsResponse] = await Promise.all([
           SavingAPI.getSavingProductById(savingProductId),
-          SavingAPI.getMySavingAccounts(),
+          SavingAPI.getMySavingAccounts()
         ]);
 
         setSaving(savingData);
 
         // 가입 여부 확인
-        const joinedProductIds = myAccountsResponse.accounts.map(
-          (account) => account.savingProductId,
-        );
+        const joinedProductIds = myAccountsResponse.accounts.map(account => account.savingProductId);
         setJoinedProducts(joinedProductIds);
         setIsJoined(joinedProductIds.includes(Number(savingProductId)));
+
       } catch (err) {
         console.error('Error fetching data: ', err);
         setError('데이터를 가져오지 못하였습니다.');
@@ -48,7 +47,11 @@ const SavingDetail = () => {
 
   return (
     <div className="saving-detail">
-      {isJoined && <div className="saving-detail-joined-badge">가입완료</div>}
+      {isJoined && (
+        <div className="saving-detail-joined-badge">
+          가입완료
+        </div>
+      )}
 
       <h2>{saving.savingProductName}</h2>
       <p>은행 이름: {saving.savingBankName}</p>

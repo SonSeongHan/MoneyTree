@@ -171,8 +171,8 @@ const AssetDistributionChart = ({
     };
 
     // 디버깅용 색상 정보
-    console.log('사용된 색상 배열:', COLORS);
-    console.log('자산 데이터:', assetData.assetDistribution);
+    // console.log('사용된 색상 배열:', COLORS);
+    // console.log('자산 데이터:', assetData.assetDistribution);
 
     return (
         <div className="w-full max-w-2xl mx-auto py-8">
@@ -193,7 +193,7 @@ const AssetDistributionChart = ({
                     >
                         {assetData.assetDistribution.map((entry, index) => {
                             // 명시적으로 색상 표시
-                            console.log(`${entry.name} 색상: ${COLORS[index % COLORS.length]}`);
+                            // console.log(`${entry.name} 색상: ${COLORS[index % COLORS.length]}`);
                             return (
                                 <Cell
                                     key={`cell-${index}`}

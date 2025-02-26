@@ -10,26 +10,17 @@ import '../../css/estate/SearchDetails.css';
 const SearchDetails = () => {
   const { name } = useParams(); // URL에서 단지명 가져옴
   const navigate = useNavigate();
-
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   // 로그인 모달 표시 여부 상태
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // ★ DB에서 가져올 ownerId
-  const [dbOwnerId, setDbOwnerId] = useState(null);
-
-  // JSON 데이터에서 아파트 데이터 검색
+  // JSON 데이터에서 아파트 데이터 검색 (실제 운영 시 DB API 호출 권장)
   const apartment = data.find((item) => item['단지명'] === decodeURIComponent(name));
 
-  // 1) 아파트 찜 여부 확인
   useEffect(() => {
-    if (!apartment) {
-      setLoading(false);
-      return;
-    }
+    if (!apartment) return;
 
     const loggedInUser = getCookie('member');
     // 로그인하지 않은 경우 찜 기능은 건너뛰고 로딩만 해제
@@ -38,6 +29,7 @@ const SearchDetails = () => {
       return;
     }
 
+    // 헤더 설정 시 memberId를 문자열로 변환 후 encodeURIComponent 적용
     const headers = {
       Authorization: `Bearer ${loggedInUser.accessToken}`,
       memberId: encodeURIComponent(String(loggedInUser.memberId)),
@@ -56,25 +48,10 @@ const SearchDetails = () => {
       });
   }, [apartment]);
 
-  // 2) DB에서 ownerId 가져오기 (별도 API 예시: GET /api/apartments/owner?name=...)
-  useEffect(() => {
-    if (!apartment) return;
+  if (loading) return <p className="sd-loading">로딩 중...</p>;
+  if (!apartment) return <p className="sd-error">해당 아파트 정보를 찾을 수 없습니다.</p>;
 
-    // 예: JSON에서 "단지명" 추출 후 백엔드 호출
-    const aptName = apartment['단지명'];
-    axios
-      .get(`http://localhost:8080/api/apartments/owner?name=${encodeURIComponent(aptName)}`)
-      .then((res) => {
-        // 백엔드가 { ownerId: "소유자아이디" } 형태로 응답한다고 가정
-        setDbOwnerId(res.data.ownerId || null);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('DB에서 아파트 소유자 정보를 가져오는 중 오류가 발생했습니다.');
-      });
-  }, [apartment]);
-
-  // 로그인 필요 함수
+  // 로그인 여부 체크 함수
   const requireLogin = () => {
     const loggedInUser = getCookie('member');
     if (!loggedInUser || !loggedInUser.memberId || !loggedInUser.accessToken) {
@@ -85,7 +62,7 @@ const SearchDetails = () => {
     return true;
   };
 
-  // 찜하기/해제
+  // 찜하기 버튼 핸들러
   const handleFavorite = async () => {
     if (!requireLogin()) return;
 
@@ -117,35 +94,27 @@ const SearchDetails = () => {
     }
   };
 
-  // 찜 목록 보기
+  // "찜목록 보기" 버튼 핸들러
   const handleViewFavorites = () => {
     if (!requireLogin()) return;
     navigate('/estate/favorite-apartments');
   };
 
-  if (loading) return <p className="sd-loading">로딩 중...</p>;
-  if (!apartment) return <p className="sd-error">해당 아파트 정보를 찾을 수 없습니다.</p>;
-
   // 연도별 거래금액 데이터 구성
   const priceData = apartment.prices
     ? Object.keys(apartment.prices)
-      .filter((year) => apartment.prices[year] !== null)
-      .map((year) => ({
-        year: parseInt(year, 10),
-        price: apartment.prices[year],
-      }))
+        .filter((year) => apartment.prices[year] !== null)
+        .map((year) => ({ year: parseInt(year, 10), price: apartment.prices[year] }))
     : [];
 
   return (
     <div className="sd-container">
       <h1 className="sd-title">{apartment['단지명']}</h1>
-
       {apartment.image ? (
         <img className="sd-image" src={apartment.image} alt={`${apartment['단지명']} 이미지`} />
       ) : (
         <p className="sd-no-image">이미지가 없습니다.</p>
       )}
-
       <p className="sd-info">
         <strong>도로명:</strong> {apartment['도로명']}
       </p>
@@ -158,11 +127,7 @@ const SearchDetails = () => {
       <p className="sd-info">
         <strong>변동률:</strong>{' '}
         {apartment['변동률(%)'] !== null ? (
-          <span
-            style={{
-              color: apartment['변동률(%)'] > 0 ? 'green' : 'red',
-            }}
-          >
+          <span style={{ color: apartment['변동률(%)'] > 0 ? 'green' : 'red' }}>
             {apartment['변동률(%)']}%
           </span>
         ) : (
@@ -175,12 +140,6 @@ const SearchDetails = () => {
           ? (apartment['거래금액(만원)'] / apartment['전용면적(㎡)'] / 3.3 / 1000).toFixed(2) + '억'
           : '정보 없음'}
       </p>
-
-      {/* ★ DB에서 가져온 ownerId 표시 */}
-      <p className="sd-info">
-        <strong>소유자(ownerId):</strong> {dbOwnerId ? dbOwnerId : '미등록'}
-      </p>
-
       <div className="sd-buttons">
         <button
           className="sd-btn toggle"
@@ -197,7 +156,6 @@ const SearchDetails = () => {
         </button>
       </div>
       {error && <p className="sd-error">{error}</p>}
-
       {priceData.length > 0 ? (
         <div className="sd-chart-container">
           <h3 className="sd-chart-title">연도별 가격 변동</h3>
@@ -218,7 +176,6 @@ const SearchDetails = () => {
       ) : (
         <p className="sd-empty">가격 데이터가 부족합니다.</p>
       )}
-
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );

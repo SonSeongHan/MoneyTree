@@ -173,47 +173,46 @@ const Fund = ({ searchQuery }) => {
   return (
       <div className="fund-container">
         <div className="filter-container">
-          <div style={{ display: "flex", gap: "10px" }}>
-            <input
-                type="number"
-                className="filter-input"
-                placeholder="최소 펀드 규모"
-                value={minTotalAmount}
-                onChange={(e) => setMinTotalAmount(e.target.value)}
-            />
-            <input
-                type="number"
-                className="filter-input"
-                placeholder="최대 펀드 규모"
-                value={maxTotalAmount}
-                onChange={(e) => setMaxTotalAmount(e.target.value)}
-            />
-            <input
-                type="number"
-                className="filter-input"
-                placeholder="최소 운용 보수"
-                value={minManagementFee}
-                onChange={(e) => setMinManagementFee(e.target.value)}
-            />
-            <input
-                type="number"
-                className="filter-input"
-                placeholder="최대 환매 수수료"
-                value={maxRedemptionFee}
-                onChange={(e) => setMaxRedemptionFee(e.target.value)}
-            />
-            <input
-                type="number"
-                className="filter-input"
-                placeholder="설정 연도"
-                value={fundYear}
-                onChange={(e) => setFundYear(e.target.value)}
-            />
-          </div>
+          <input
+              type="number"
+              className="filter-input"
+              placeholder="최소 펀드 규모"
+              value={minTotalAmount}
+              onChange={(e) => setMinTotalAmount(e.target.value)}
+          />
+          <input
+              type="number"
+              className="filter-input"
+              placeholder="최대 펀드 규모"
+              value={maxTotalAmount}
+              onChange={(e) => setMaxTotalAmount(e.target.value)}
+          />
+          <input
+              type="number"
+              className="filter-input"
+              placeholder="최소 운용 보수"
+              value={minManagementFee}
+              onChange={(e) => setMinManagementFee(e.target.value)}
+          />
+          <input
+              type="number"
+              className="filter-input"
+              placeholder="최대 환매 수수료"
+              value={maxRedemptionFee}
+              onChange={(e) => setMaxRedemptionFee(e.target.value)}
+          />
+          <input
+              type="number"
+              className="filter-input"
+              placeholder="설정 연도"
+              value={fundYear}
+              onChange={(e) => setFundYear(e.target.value)}
+          />
           <button onClick={resetFilters} className="filter-reset-btn">
             필터 초기화
           </button>
         </div>
+
 
         <div className="fund-list">
           <div className="fund-header">

@@ -1,3 +1,5 @@
+/* ===== 기본 스타일 (PC 기본) ===== */
+
 /* 상단 FundStock 스타일 유지 */
 .fundstock-page-container {
     max-width: 1200px;
@@ -73,22 +75,18 @@
     margin: 0 auto;
 }
 
-.filter-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 4px;
-    flex-wrap: wrap;
-    justify-content: space-around;
-}
 
 .filter-input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    min-width: 120px;
+    flex: 1 1;
+    min-width: 140px;
+    max-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    transition: border-color 0.2s ease;
+
 }
 
 .filter-reset-btn {
@@ -98,10 +96,6 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-}
-
-.filter-reset-btn:hover {
-    background: #0056b3;
 }
 
 .fund-list {
@@ -120,7 +114,20 @@
     color: #333;
     border-bottom: 1px solid #ddd;
 }
-
+.filter-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex
+;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
 .fund-header-name {
     flex: 3;
     text-align: left;
@@ -138,7 +145,7 @@
 }
 
 .fund-item-container {
-    border-bottom: 1px solid #f1f1f1;
+    border-bottom: 1px solid #c8c8c8;
     cursor: pointer;
 }
 
@@ -179,7 +186,7 @@
     min-width: 80px;
 }
 
-/* 로딩 상태 */
+/* 로딩 및 상태 메시지 */
 .fund-loading-state,
 .fund-error-state,
 .fund-empty-state {
@@ -194,7 +201,13 @@
     padding: 20px;
     color: #666;
 }
-
+.fundstock-man {
+    position: absolute;
+    width: 360px;
+    top: 200px;
+    right: 20px;
+    z-index: -99;
+}
 .fund-invested-badge {
     background-color: #4299e1;
     color: white;
@@ -211,4 +224,216 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 2px;
+}
+
+
+@media (min-width: 1300px) {
+    .fundstock-man {
+        right: 14%;
+    }
+}
+
+
+
+/* 모바일: 최대 768px 이하 */
+@media (max-width: 768px) {
+    /* FundStock 관련 */
+    .fundstock-main-title {
+        font-size: 24px;
+    }
+
+    .fundstock-subtitle {
+        font-size: 14px;
+    }
+
+    .fundstock-search-input {
+        max-width: 300px;
+        font-size: 14px;
+    }
+
+    .fundstock-search-btn {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+
+    .fundstock-tab-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    /* Fund 컴포넌트 관련 */
+    .fund-container {
+        padding: 0 20px;
+        margin-top: 60px;
+    }
+
+    .fundstock-man {
+        position: absolute;
+        width: 180px;
+        top: 320px;
+        right: 20px;
+    }
+    .filter-input {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    .filter-container {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #f8f9fa;
+        justify-content: space-around;
+    }
+    .filter-reset-btn {
+        width: 100%;
+        max-width: 200px;
+        margin-bottom: 8px;
+        margin: 0 auto;
+    }
+
+    .fund-header {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .fund-header-name,
+    .fund-header-manager,
+    .fund-header-amount {
+        font-size: 12px;
+    }
+
+    .fund-item {
+        padding: 8px 12px;
+        font-size: 12px;
+        height: 100px;
+    }
+    .fund-invested-badge {
+        width: 90px;
+        text-align: center;
+        height: 20px;
+    }
+    .fund-title {
+        font-size: 12px;
+        display: flex;
+    }
+
+    .fund-type {
+        font-size: 10px;
+    }
+
+    .fund-manager {
+        font-size: 12px;
+    }
+
+    .fund-amount {
+        font-size: 12px;
+    }
+
+    .fund-loading-state,
+    .fund-error-state,
+    .fund-empty-state {
+        font-size: 14px;
+        padding: 20px;
+    }
+}
+
+/* 태블릿: 769px ~ 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* FundStock 관련 */
+    .fundstock-main-title {
+        font-size: 28px;
+    }
+
+    .fundstock-subtitle {
+        font-size: 16px;
+    }
+
+    .fundstock-search-input {
+        max-width: 350px;
+        font-size: 15px;
+    }
+    .filter-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto 20px;
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .fundstock-search-btn {
+        font-size: 15px;
+        padding: 11px 22px;
+    }
+    .fundstock-man {
+        position: absolute;
+        width: 280px;
+        top: 280px;
+        right: 40px;
+        z-index: -99;
+    }
+    .fundstock-tab-btn {
+        padding: 11px 22px;
+        font-size: 15px;
+    }
+
+    /* Fund 컴포넌트 관련 */
+    .fund-container {
+        padding: 0 30px;
+        margin-top: 80px;
+    }
+
+    .filter-input {
+
+        max-width: 250px;
+    }
+
+    .filter-reset-btn {
+        padding: 8px 12px;
+    }
+
+    .fund-header {
+        padding: 8px 12px;
+        font-size: 15px;
+    }
+
+    .fund-header-name,
+    .fund-header-manager,
+    .fund-header-amount {
+        font-size: 13px;
+    }
+
+    .fund-item {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .fund-title {
+        font-size: 13px;
+    }
+
+    .fund-type {
+        font-size: 11px;
+    }
+
+    .fund-manager {
+        font-size: 13px;
+    }
+
+    .fund-amount {
+        font-size: 13px;
+    }
+
+    .fund-loading-state,
+    .fund-error-state,
+    .fund-empty-state {
+        font-size: 15px;
+        padding: 25px;
+    }
 }

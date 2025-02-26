@@ -102,13 +102,20 @@ const HobbyRecommendationPage = () => {
             </div>
 
             {/* 필터링된 취미 목록 */}
-            <div className="hobby-list">
+            <div className="hobby-page-list">
                 {filteredHobbies.length === 0 ? (
                     <p>조건에 맞는 취미가 없습니다.</p>
                 ) : (
                     filteredHobbies.map(hobby => (
                         <div key={hobby.id} className="hobby-card">
-                            <h3>{hobby.hobbyName}</h3>
+                            <a
+                                href={hobby.hobbyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hobby-link"
+                            >
+                                <h3 style={{color:"black"}}>{hobby.hobbyName}</h3>
+                            </a>
                             <p>{hobby.hobbyDescription}</p>
                             <p>가격: {hobby.hobbyPrice} 원</p>
                             <p>카테고리: {hobby.hobbyCategory}</p>

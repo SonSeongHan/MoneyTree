@@ -287,6 +287,8 @@ const HobbyCommunityList = () => {
                 <li key={post.postId} className="hobby-list-item">
                   <Link to={`/community/check/${post.postId}`} className="hobby-list-link">
                     <div className="hobby-list-item-header">
+
+                      <div className="hobby-list-flex">
                       <div className="hobby-list-item-category-title">
                         <span className="hobby-post-category">{post.category}</span>
                         <h3 className="hobby-post-title">{post.title}</h3>
@@ -307,6 +309,7 @@ const HobbyCommunityList = () => {
                         <p className="hobby-meta-line">
                           <strong>댓글 수:</strong> {post.commentCount || 0}
                         </p>
+                      </div>
                       </div>
                       {post.thumbnailUrl && (
                         <div className="hobby-thumbnail-container">

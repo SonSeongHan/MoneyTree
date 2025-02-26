@@ -54,41 +54,160 @@ const ChangeName = () => {
     };
 
     return (
-      <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-          <h2>이름 변경</h2>
-          <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: "10px" }}>
-                  <label htmlFor="memberId">현재 아이디:</label>
-                  <input
-                    type="text"
-                    id="memberId"
-                    value={memberId}
-                    disabled // 사용자가 수정하지 못하도록 설정
-                  />
+      <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+          padding: '20px'
+      }}>
+          <div style={{
+              width: '100%',
+              maxWidth: '450px',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              padding: '30px',
+              boxSizing: 'border-box'
+          }}>
+              <h2 style={{
+                  textAlign: 'center',
+                  color: '#333',
+                  marginBottom: '30px',
+                  fontSize: '24px',
+                  fontWeight: '600'
+              }}>이름 변경</h2>
+
+              <form onSubmit={handleSubmit}>
+                  <div style={{ marginBottom: '20px' }}>
+                      <label htmlFor="memberId" style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: '#555',
+                          fontSize: '14px',
+                          fontWeight: '500'
+                      }}>현재 아이디</label>
+                      <input
+                        type="text"
+                        id="memberId"
+                        value={memberId}
+                        disabled
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            backgroundColor: '#f5f5f5',
+                            color: '#666',
+                            fontSize: '14px',
+                            boxSizing: 'border-box'
+                        }}
+                      />
+                  </div>
+
+                  <div style={{ marginBottom: '20px' }}>
+                      <label htmlFor="newName" style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: '#555',
+                          fontSize: '14px',
+                          fontWeight: '500'
+                      }}>새 이름</label>
+                      <input
+                        type="text"
+                        id="newName"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        required
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            boxSizing: 'border-box',
+                            transition: 'border-color 0.3s'
+                        }}
+                      />
+                  </div>
+
+                  <div style={{ marginBottom: '25px' }}>
+                      <label htmlFor="password" style={{
+                          display: 'block',
+                          marginBottom: '8px',
+                          color: '#555',
+                          fontSize: '14px',
+                          fontWeight: '500'
+                      }}>비밀번호</label>
+                      <input
+                        type="password"
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            boxSizing: 'border-box',
+                            transition: 'border-color 0.3s'
+                        }}
+                      />
+                  </div>
+
+                  <button
+                    type="submit"
+                    style={{
+                        width: '100%',
+                        padding: '14px',
+                        backgroundColor: '#2b74e2',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
+                  >
+                      이름 변경
+                  </button>
+              </form>
+
+              {message && (
+                <div style={{
+                    marginTop: '20px',
+                    padding: '12px',
+                    backgroundColor: '#ffebee',
+                    color: '#d32f2f',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    textAlign: 'center'
+                }}>
+                    {message}
+                </div>
+              )}
+
+              <div style={{
+                  marginTop: '25px',
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  color: '#666'
+              }}>
+                  <a
+                    href="/home"
+                    style={{
+                        color: '#2b74e2',
+                        textDecoration: 'none',
+                    }}
+                  >
+                      홈으로 돌아가기
+                  </a>
               </div>
-              <div style={{ marginBottom: "10px" }}>
-                  <label htmlFor="newName">새 이름:</label>
-                  <input
-                    type="text"
-                    id="newName"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    required
-                  />
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                  <label htmlFor="password">비밀번호:</label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-              </div>
-              <button type="submit">이름 변경</button>
-          </form>
-          {message && <div style={{ marginTop: "20px", color: "red" }}>{message}</div>}
+          </div>
       </div>
     );
 };

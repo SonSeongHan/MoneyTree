@@ -1,0 +1,96 @@
+/* 전체 컨테이너 */
+.member-detail-container {
+    padding: 20px;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f0f8ff;  /* 연한 파란색 배경 (AliceBlue) */
+    min-height: 100vh;
+}
+
+/* 페이지 제목 */
+.member-detail-container h1 {
+    color: #007BFF;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* 회원 정보 영역 */
+.member-info {
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #007BFF;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.member-info p {
+    font-size: 1rem;
+    margin: 10px 0;
+}
+
+/* 송금 내역 제목 */
+.member-detail-container h2 {
+    color: #007BFF;
+    margin-bottom: 15px;
+}
+
+/* 테이블 스타일 */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+.detail-table th {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 12px;
+    border: 1px solid #007BFF;
+    text-align: left;
+}
+
+.detail-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.detail-table tbody tr:hover {
+    background-color: #e6f2ff;
+}
+
+/* 송금 내역이 없을 때 */
+.no-transfer {
+    text-align: center;
+    color: #555;
+    padding: 10px 0;
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Loading 메시지 */
+.loading {
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 20px 0;
+}
+
+/* 뒤로가기 링크 */
+.back-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-link a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}

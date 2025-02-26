@@ -166,6 +166,7 @@ const EstateSearchResult = () => {
                       borderRadius: '4px',
                       cursor: 'pointer',
                       fontWeight: 'bold',
+
                   }}
               >
                   변동률 높은 순
@@ -181,6 +182,7 @@ const EstateSearchResult = () => {
                       borderRadius: '4px',
                       cursor: 'pointer',
                       fontWeight: 'bold',
+                      marginTop: '10px'
                   }}
               >
                   변동률 낮은 순

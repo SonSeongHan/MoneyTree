@@ -32,19 +32,23 @@ public class Hobby {
     @Column(name = "hobby_category", nullable = false)
     private String hobbyCategory;
 
+    // 취미 관련 URL (선택 사항)
+    @Column(name = "hobby_url")
+    private String hobbyUrl;
+
     // 기본 생성자 (JPA에서 필요)
     public Hobby() {}
 
     // 편리한 생성자
-    public Hobby(String hobbyName, BigDecimal hobbyPrice, String hobbyDescription, String hobbyCategory) {
+    public Hobby(String hobbyName, BigDecimal hobbyPrice, String hobbyDescription, String hobbyCategory, String hobbyUrl) {
         this.hobbyName = hobbyName;
         this.hobbyPrice = hobbyPrice;
         this.hobbyDescription = hobbyDescription;
         this.hobbyCategory = hobbyCategory;
+        this.hobbyUrl = hobbyUrl;
     }
 
-    // Getters 및 Setters
-
+    // Getters 및 Setters (Lombok이 있으므로 별도 정의 필요 없지만, 필요시 추가 가능)
     public void setHobbyName(String hobbyName) {
         this.hobbyName = hobbyName;
     }
@@ -61,6 +65,10 @@ public class Hobby {
         this.hobbyCategory = hobbyCategory;
     }
 
+    public void setHobbyUrl(String hobbyUrl) {
+        this.hobbyUrl = hobbyUrl;
+    }
+
     @Override
     public String toString() {
         return "Hobby{" +
@@ -69,6 +77,7 @@ public class Hobby {
                 ", hobbyPrice=" + hobbyPrice +
                 ", hobbyDescription='" + hobbyDescription + '\'' +
                 ", hobbyCategory='" + hobbyCategory + '\'' +
+                ", hobbyUrl='" + hobbyUrl + '\'' +
                 '}';
     }
 }

@@ -14,14 +14,14 @@
 
 /* 페이지 제목 */
 .mortgage-products-container h1 {
-    text-align: center;
+
     color: #333;
     margin-bottom: 30px;
 }
 
 /* 필터 바 */
 .mortgage-filter-bar {
-    text-align: center;
+
     margin-bottom: 20px;
 }
 .mortgage-filter-bar button {

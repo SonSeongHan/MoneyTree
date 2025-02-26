@@ -1,35 +1,35 @@
+/* 기존 PC/태블릿용 스타일 */
 .real-estate-nav {
     display: flex;
-    justify-content: space-between; /* 좌측 링크와 우측 pending 표시 영역을 양 끝에 배치 */
+    justify-content: space-between;
     align-items: center;
-    background-color: #ffffff; /* 깔끔한 흰색 배경 */
+    background-color: #ffffff;
     padding: 12px 24px;
     border-bottom: 2px solid #e0e0e0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    margin-bottom:10px ;
 }
 
 .nav-links {
     display: flex;
-    gap: 24px;
 }
 
 .nav-link {
     text-decoration: none;
     color: #333;
     font-size: 16px;
-    font-weight: bold; /* 텍스트 굵게 */
+    font-weight: bold;
     display: flex;
     align-items: center;
     transition: color 0.3s ease;
+    margin-right: 20px;
 }
 
-.nav-link:hover {
-    color: #007bff;
-}
 
 .nav-icon {
     margin-right: 6px;
-    font-size: 18px; /* 아이콘 크기 조정 */
+    font-size: 18px;
 }
 
 .nav-pending-indicator {
@@ -42,3 +42,123 @@
     color: red;
     margin: 0 4px;
 }
+
+.mobile-menu-toggle {
+    display: none;
+}
+.mobile-filter-toggle {
+    display: none;
+}
+/* 모바일 버전 (최대 768px) */
+/* 기존 PC/태블릿용 스타일은 그대로 유지 */
+
+/* 모바일 버전 (최대 768px) */
+@media (max-width: 768px) {
+    .real-estate-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px 16px;
+    }
+
+    /* 기본적으로 메뉴 숨김 */
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        position: absolute;
+        top: 50px; /* 토글 버튼 아래에 위치 */
+        left: 16px;
+        right: 16px;
+        z-index: 10;
+    }
+
+    /* active 클래스가 있으면 메뉴 표시 */
+    .nav-links.active {
+        display: flex;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 10px;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .mobile-menu-toggle:after {
+        content: "▼";
+        font-size: 14px;
+    }
+
+    /* hover 관련 규칙 제거 */
+    /* .mobile-menu-toggle:hover + .nav-links,
+    .nav-links:hover {
+        display: flex;
+    } */
+
+    .nav-link {
+        padding: 10px 16px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .nav-pending-indicator {
+        align-self: center;
+        margin-top: 10px;
+    }
+    .kakaomap-serch {
+        text-align: left;
+        margin-top: 20px;
+    }
+    .mobile-filter-toggle {
+        display: block;
+        background-color: #64B5F6;
+        color: #fff;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    /* 필터 버튼 영역 기본 숨김 처리 */
+    .filter-buttons {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* 토글 상태(active)일 때 필터 버튼 영역 표시 */
+    .filter-buttons.active {
+        display: flex;
+    }
+
+    /* 필터 버튼 전체 너비 적용 */
+    .filter-buttons button {
+        width: 100%;
+        margin: 0;
+    }
+}
+@media  (min-width: 769px) and (max-width: 1140px) {
+    /* 여기에 스타일 작성 */
+    .nav-link {
+        font-size: 12px;
+    }
+    .real-estate-nav {
+        display: block;
+    }
+    .nav-pending-indicator {
+        margin-top: 10px;
+    }
+}
+

@@ -147,140 +147,141 @@ const LoginPage = () => {
     };
 
     return (
+        <div className="login-wrapper">
+            <div className="login-container">
+                {/* 인증서 로그인 영역 */}
+                <div className="certificate-login">
+                    <h3>인증서 로그인</h3>
 
-        <div className="login-container">
-            {/* 인증서 로그인 영역 */}
-            <div className="certificate-login">
-                <h3>인증서 로그인</h3>
-
-                {/* 인증서 선택 버튼 - 금융인증서 버튼 클릭 시 파일이 선택되어 있다면 로그인 처리 */}
-                <div className="certificate-buttons">
-                    <button
-                        className="certificate-button"
-                        onClick={handleCertLogin}
-                    >
-                        금융인증서
-                    </button>
-                </div>
-
-                <div className="certificate-options">
-                    자동팝업{" "}
-                    <label>
-                        <input type="radio" name="autoPopup" />
-                        사용
-                    </label>
-                    <label>
-                        <input type="radio" name="autoPopup" defaultChecked />
-                        사용안함
-                    </label>
-                </div>
-
-                <div className="certificate-links">
-                    <a href="#">우리WON인증서 발급</a>
-                    <a href="#">금융인증서 발급</a>
-                    <a href="#">공동인증서 발급</a>
-                    <a href="#">인증센터</a>
-                </div>
-
-                {/* 파일 업로드 영역 */}
-                <div className="cert-form-group">
-                    <label>인증서 PDF 파일 업로드:</label>
-                    <input type="file" accept=".pdf" onChange={handleFileChange} />
-
-                    {pdfBlob && (
+                    {/* 인증서 선택 버튼 - 금융인증서 버튼 클릭 시 파일이 선택되어 있다면 로그인 처리 */}
+                    <div className="certificate-buttons">
                         <button
-                            onClick={() => saveAs(pdfBlob, "certificate.pdf")}
-                            className="cert-login-button"
+                            className="certificate-button"
+                            onClick={handleCertLogin}
                         >
-                            PDF 다운로드
+                            금융인증서
                         </button>
+                    </div>
+
+                    <div className="certificate-options">
+                        자동팝업{" "}
+                        <label>
+                            <input type="radio" name="autoPopup"/>
+                            사용
+                        </label>
+                        <label>
+                            <input type="radio" name="autoPopup" defaultChecked/>
+                            사용안함
+                        </label>
+                    </div>
+
+                    <div className="certificate-links">
+                        <a href="#">인증서 발급</a>
+                        <a href="#">금융인증서 발급</a>
+                        <a href="#">공동인증서 발급</a>
+                        <a href="#">인증센터</a>
+                    </div>
+
+                    {/* 파일 업로드 영역 */}
+                    <div className="cert-form-group">
+                        <label>인증서 PDF 파일 업로드:</label>
+                        <input type="file" accept=".pdf" onChange={handleFileChange}/>
+
+                        {pdfBlob && (
+                            <button
+                                onClick={() => saveAs(pdfBlob, "certificate.pdf")}
+                                className="cert-login-button"
+                            >
+                                PDF 다운로드
+                            </button>
+                        )}
+                    </div>
+
+                    {/* 상태 메시지 표시 */}
+                    {certMessage && (
+                        <p
+                            className={
+                                certMessage.includes("성공")
+                                    ? "cert-message-success"
+                                    : "cert-message-error"
+                            }
+                        >
+                            {certMessage}
+                        </p>
                     )}
                 </div>
 
-                {/* 상태 메시지 표시 */}
-                {certMessage && (
-                    <p
-                        className={
-                            certMessage.includes("성공")
-                                ? "cert-message-success"
-                                : "cert-message-error"
-                        }
-                    >
-                        {certMessage}
-                    </p>
-                )}
-            </div>
+                {/* 아이디 로그인 영역 */}
+                <div className="id-login">
+                    <h3>아이디 로그인</h3>
 
-            {/* 아이디 로그인 영역 */}
-            <div className="id-login">
-                <h3>아이디 로그인</h3>
+                    <div style={{marginBottom: "8px"}}>
+                        <label>
+                            <input
+                                type="radio"
+                                value="SimpleMember"
+                                checked={userType === "SimpleMember"}
+                                onChange={() => setUserType("SimpleMember")}
+                            />
+                            간편회원
+                        </label>
+                        <label>
+                            <input
+                                type="radio"
+                                value="FullMember"
+                                checked={userType === "FullMember"}
+                                onChange={() => setUserType("FullMember")}
+                            />
+                            정회원
+                        </label>
+                    </div>
 
-                <div style={{ marginBottom: "8px" }}>
-                    <label>
-                        <input
-                            type="radio"
-                            value="SimpleMember"
-                            checked={userType === "SimpleMember"}
-                            onChange={() => setUserType("SimpleMember")}
-                        />
-                        간편회원
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value="FullMember"
-                            checked={userType === "FullMember"}
-                            onChange={() => setUserType("FullMember")}
-                        />
-                        정회원
-                    </label>
-                </div>
-
-                <form className="login-form" onSubmit={handleLogin}>
-                    <input
-                        type="text"
-                        placeholder="아이디 입력"
-                        value={userId}
-                        onChange={(e) => setUserId(e.target.value)}
-                        required
-                    />
-
-                    {userType === "FullMember" && (
+                    <form className="login-form" onSubmit={handleLogin}>
                         <input
                             type="text"
-                            placeholder="주민등록번호 (13자리)"
-                            value={rrn}
-                            onChange={(e) => setRrn(e.target.value)}
-                            pattern="\d{13}"
+                            placeholder="아이디 입력"
+                            value={userId}
+                            onChange={(e) => setUserId(e.target.value)}
                             required
                         />
-                    )}
 
-                    <input
-                        type="password"
-                        placeholder="비밀번호 입력"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                        {userType === "FullMember" && (
+                            <input
+                                type="text"
+                                placeholder="주민등록번호 (13자리)"
+                                value={rrn}
+                                onChange={(e) => setRrn(e.target.value)}
+                                pattern="\d{13}"
+                                required
+                            />
+                        )}
 
-                    <button type="submit" className="login-button">
-                        로그인
-                    </button>
-                </form>
+                        <input
+                            type="password"
+                            placeholder="비밀번호 입력"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
 
-                <div className="login-options">
-                    <a onClick={handleSimpleSignUp} href="#!">
-                        간편회원가입
-                    </a>
-                    <a onClick={handleFullSignUp} href="#!">
-                        정회원가입
-                    </a>
+                        <button type="submit" className="login-button" style={{marginTop:"38px"}}>
+                            로그인
+                        </button>
+                    </form>
+
+                    <div className="login-options">
+                        <a onClick={handleSimpleSignUp} href="#!">
+                            간편회원가입
+                        </a>
+                        <a onClick={handleFullSignUp} href="#!">
+                            정회원가입
+                        </a>
+                    </div>
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
                 </div>
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
             </div>
         </div>
-    );
-};
+            );
+            };
 
-export default LoginPage;
+            export default LoginPage;
