@@ -27,9 +27,12 @@ public class TransactionHistoryController {
     @GetMapping("/member/{memberId}")
     public ResponseEntity<List<TransferHistoryDTO>> getTransactionsForMember(
             @PathVariable String memberId,
-            @RequestParam(defaultValue = "1") int months) {
-
+            @RequestParam(defaultValue = "1") int months,
+            @RequestParam(required = false) String membershipType) {
+        // membershipType을 사용한 추가 로직 구현 가능
         List<TransferHistoryDTO> transactions = transactionHistoryService.getTransactionsForMember(memberId, months);
         return ResponseEntity.ok(transactions);
     }
+
+
 }

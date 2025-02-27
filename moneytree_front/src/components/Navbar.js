@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import '../css/navbar.css';
+import moneytreelogo from "../image/logo.png";
 
 function NavBar() {
     const [cookies, setCookie, removeCookie] = useCookies(["member"]);
@@ -46,7 +47,13 @@ function NavBar() {
         <nav className="navbar">
             {/* 로고 영역 */}
             <div className="navbar-logo">
-                <NavLink to="/home">로고</NavLink>
+                <NavLink to="/home">
+                    <img
+                      className="nav-first-logo"
+                      src={moneytreelogo}
+                      alt="Logo"
+                    />
+                </NavLink>
             </div>
 
             {/* PC/테블릿용 중앙 메뉴 (모바일에서는 숨김) */}

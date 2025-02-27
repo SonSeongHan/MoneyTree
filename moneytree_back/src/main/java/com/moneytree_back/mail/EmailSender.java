@@ -9,8 +9,8 @@ public class EmailSender {
         // SMTP 서버 설정 (예: 네이버 SMTP)
         String host = "smtp.naver.com";
 
-        final String username = "sau2120@naver.com"; // 실제 네이버 이메일 주소
-        final String password = "!sys21203004";    // 앱 비밀번호 또는 올바른 비밀번호
+        final String username = ""; // 실제 네이버 이메일 주소
+        final String password = "";    // 앱 비밀번호 또는 올바른 비밀번호
 
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.naver.com");

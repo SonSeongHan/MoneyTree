@@ -646,7 +646,7 @@ const Mypage = () => {
                 activeTab === 'fund') && renderProducts()}
           </div>
 
-          {/* 소비 내역 섹션 */}
+          {/*소비 내역 섹션 */}
           <section className="my-spending-section">
               <h2>이번 달 소비내역</h2>
               {membershipType === 'FullMember' && monthlySpending > 0 && (
@@ -666,7 +666,7 @@ const Mypage = () => {
               )}
           </section>
 
-          {/* 모달들 */}
+          {/*// 모달들 */}
           {activeTab === 'deposit' && (
             <MyDepositDetail
               isOpen={isModalOpen}

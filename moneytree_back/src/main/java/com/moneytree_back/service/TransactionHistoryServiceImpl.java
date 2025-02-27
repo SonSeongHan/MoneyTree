@@ -37,6 +37,8 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
         List<TransactionHistory> filteredTransactions = transactionHistoryRepository.findAll().stream()
                 .filter(tx -> (tx.getFromAccount().equals(account) || tx.getToAccount().equals(account))
                         && tx.getCreatedAt().isAfter(cutoffDate)
+                        // transactionHistoryType이 null이 아닌 경우만 필터링
+                        && tx.getTransactionHistoryType() != null
                         && tx.getTransactionHistoryType() != TransactionHistoryType.예금해지)
                 .peek(tx -> {
                     // 연관된 계좌의 Member 이름 설정 (초기화)
@@ -49,11 +51,13 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
                 })
                 .collect(Collectors.toList());
 
-        // 엔티티를 TransferHistoryDTO로 변환
+        // 엔티티를 TransferHistoryDTO로 변환 (null일 경우 "알 수 없음" 처리)
         return filteredTransactions.stream()
                 .map(tx -> TransferHistoryDTO.builder()
                         .id(tx.getId())
-                        .transactionType(tx.getTransactionHistoryType().toString())
+                        .transactionType(tx.getTransactionHistoryType() != null
+                                ? tx.getTransactionHistoryType().toString()
+                                : "알 수 없음")
                         .amount(tx.getAmount().doubleValue())
                         .createdAt(tx.getCreatedAt())
                         .fromMemberName(tx.getFromMemberName())
@@ -61,4 +65,5 @@ public class TransactionHistoryServiceImpl implements TransactionHistoryService 
                         .build())
                 .collect(Collectors.toList());
     }
+
 }
