@@ -1,4 +1,3 @@
-![image](https://github.com/user-attachments/assets/02fda3b9-6a96-46a2-b654-c4856e8371cd)# MoneyTree
 Spring Boot, React, Python을 활용한 자산관리 사이트
 
 ## 프로젝트 소개
