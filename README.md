@@ -1,4 +1,4 @@
-# MoneyTree
+![image](https://github.com/user-attachments/assets/02fda3b9-6a96-46a2-b654-c4856e8371cd)# MoneyTree
 Spring Boot, React, Python을 활용한 자산관리 사이트
 
 ## 프로젝트 소개
@@ -56,5 +56,72 @@ Spring Boot, React, Python을 활용한 자산관리 사이트
 - IDE : <img src="https://img.shields.io/badge/intellijidea-000000?style=for-the-badge&logo=intellijidea&logoColor=black">
 - 운영 체제 : Windows
 - Java SDK : Oracle JDK 17
+
+---
+
+## ERD
+![Image](https://github.com/user-attachments/assets/10b9af21-323f-4d2c-88c4-d9a1ed1be82f)
+
+---
+## 계층 구조
+![Image](https://github.com/user-attachments/assets/47bd6dab-7ce0-452e-ab39-3eaa824bd387
+
+---
+## 시연영상
+https://youtu.be/yb3UNODF6ZQ
+
+---
+## 주요 기능
+
+#### 반응형
+- 사이트에 각 버전에 맞춰 PC, 테블렛, 모바일 3개로 나누어 구현
+![Image](https://github.com/user-attachments/assets/3cc7234d-907b-41ac-b4b4-97c80d513850)
+#
+
+#### 회원
+- 회원 가입 후 로그인 시 쿠키에 accesstoken 저장
+- 해당 token값으로 권한 조정
+![Image](https://github.com/user-attachments/assets/f5525cf4-38b6-4b43-8fcc-0372c07d188c)
+![Image](https://github.com/user-attachments/assets/a04cc6c8-b02f-483c-88f7-71558c544dfb)
+![Image](https://github.com/user-attachments/assets/12af9652-48ff-4fa6-b17a-5fd374f5ad62)
+![Image](https://github.com/user-attachments/assets/f3b4e7ef-363c-475e-889c-ffcf764bd7e8)
+#
+
+#### 상품 가입
+- 예금/적금/펀드/주식 상품 가입 또는 구매
+- 해당 회원에게만 적용되어서 저장
+![Image](https://github.com/user-attachments/assets/5167c40c-37d8-4d73-8a4c-f997dca88661)
+![Image](https://github.com/user-attachments/assets/7ec6b9a2-7030-47a8-96f4-45c601efaff3)
+![Image](https://github.com/user-attachments/assets/21ac1629-5520-43c8-a279-204000e2b585)
+![Image](https://github.com/user-attachments/assets/f0448ac4-a5da-4d96-88f9-326fe72353ed)
+#
+
+#### 챗봇
+- OPEN API를 활용한 챗봇 구현
+- DB의 값을 토대로 유저들과의 원활한 소통 구현
+- 음성 인식으로 채팅없이 소통 구현
+![image](https://github.com/user-attachments/assets/c41d1989-7ef5-468f-9d1b-ece12e0c5c9f)
+![image](https://github.com/user-attachments/assets/a4059dd8-ee32-4b73-b27f-5d4d54b9f64f)
+![image](https://github.com/user-attachments/assets/ea1d1ad7-d49c-4b1a-9f13-b13f985891ba)
+![챗봇](https://github.com/user-attachments/assets/19f40a74-fb79-4700-9aff-e618a33529fb)
+#
+
+#### 부동산
+- 회원들간의 부동산 매물 거래 / 대출 상품 확인 가능
+- 부동산 매물값 확인
+![image](https://github.com/user-attachments/assets/52b1fc85-82cf-4765-b660-1433cd4c7ca8)
+![image](https://github.com/user-attachments/assets/83a3db51-f4bc-48e2-b71e-26e5962531b4)
+#
+
+#### 커뮤니티
+- 회원들간의 커뮤니티 공간 구현
+- 파일 업로드 가능, 회원들의 고유 crud 구현
+![image](https://github.com/user-attachments/assets/6e9d6609-6e09-4c72-86ad-05c3928313bb)
+![image](https://github.com/user-attachments/assets/57f9bcc1-586d-45df-9d16-d94042a5372c)
+#
+
+
+
+
 
 
