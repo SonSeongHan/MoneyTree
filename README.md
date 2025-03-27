@@ -63,7 +63,7 @@ Spring Boot, React, Python을 활용한 자산관리 사이트
 
 ---
 ## 계층 구조
-![Image](https://github.com/user-attachments/assets/47bd6dab-7ce0-452e-ab39-3eaa824bd387
+![Image](https://github.com/user-attachments/assets/47bd6dab-7ce0-452e-ab39-3eaa824bd387)
 
 ---
 ## 시연영상
